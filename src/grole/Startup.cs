@@ -3,7 +3,6 @@ using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNet.Hosting;
-using Microsoft.Dnx.Runtime;
 
 namespace grole.src
 {
@@ -12,7 +11,6 @@ namespace grole.src
 	{
 		
 		public IConfiguration Configuration { get; set; }
-        private readonly IApplicationEnvironment _appEnvironment;
         public Startup()
         {
             var builder = new ConfigurationBuilder().AddJsonFile("Config.json");
@@ -29,7 +27,6 @@ namespace grole.src
             Services.AddAuthentication();
             Services.AddSingleton<IConfiguration>(Configuration);
             
-            Services.AddTransient<IApplicationEnvironment>();
             //Sobrantes
             Services.AddTransient<grole.src.Persistencia.SobrantesMPersistencia>();
             Services.AddTransient<grole.src.Persistencia.SobrantesDPersistencia>();
