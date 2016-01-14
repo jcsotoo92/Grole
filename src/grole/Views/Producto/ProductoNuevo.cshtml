@@ -1,0 +1,1052 @@
+﻿<h2>Nuevo Producto</h2>
+<table class="consulta">
+    <tbody>
+        <tr>
+            <td style="width: 90px">Clave:</td>
+            <td><input type="text" id="clave" name="clave" style="width: 126px" onfocusout="validarClave()" maxlength="10"> <div id="dispClave"></div></td>
+            <td>Código SAP:</td>
+            <td><input type="text" id="codigo_sap" name="codigo_sap" maxlength="10" style="width: 200px"></td>
+        </tr>
+        <tr>
+            <td>Descripcion:</td>
+            <td><input type="text" id="descripcion" name="descripcion" maxlength="50" style="width: 250px"></td>
+            <td>Código Proveedor:</td>
+            <td><input type="text" id="codigo_proveedor" name="codigo_proveedor" maxlength="10" style="width: 200px"></td>
+        </tr>
+    </tbody>
+</table>
+
+
+<br>
+
+<br>
+
+<div id="tabs">
+    <ul >
+        <li><a href="#tab1">Datos de Producto</a></li>
+        <li><a href="#tab2">Pesos y Redondeo</a></li>
+        <li><a href="#tab3">Datos de Caducidad</a></li>
+        <li><a href="#tab4">Especificacion de Etiquetas</a></li>
+        <li><a href="#tab5">Recetas</a></li>
+    </ul>
+    <br>
+    <div>
+        <div id="tab1">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Mercado:</td>
+                        <td>
+                            <select id="mercado" name="mercado" style="width: 200px">
+                                <option value="Nacional" selected="selected">Nacional</option>
+                                <option value="Exportacion">Exportación</option>
+                            </select>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>Clase:</td>
+                        <td>
+                            <select id="clase" name="clase" style="width: 200px"></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Línea:</td>
+                        <td><select id="linea" name="linea" style="width: 200px"></select></td>
+                    </tr>
+                    <tr>
+                        <td>Sub Clasificacion:</td>
+                        <td>
+                            <select id="grupo" name="grupo" style="width: 200px">
+                                <option value="0">Jamon s/h</option>
+                                <option value="1">Espaldilla s/h</option>
+                                <option value="2">LOIN</option>
+                                <option value="3">TENDER LOIN</option>
+                                <option value="4">COLLAR</option>
+                                <option value="5">BELLY</option>
+                                <option value="6">Ninguna</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Operador:</td>
+                        <td>
+                            <select id="operador" name="operador" style="width: 200px">
+                                <option value="0">Entre</option>
+                                <option value="1">Por</option>
+                                <option value="2">Porciento</option>
+                                <option value="3">Igual</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Rendimiento:</td>
+                        <td><input type="text" id="rendimiento" name="rendimiento" value="0" style="width: 200px; text-align:right" onkeypress="return isNumber(event)"></td>
+                    </tr>
+                    <tr>
+                        <td>Moldeado:</td>
+                        <td>
+                            <select id="moldeado" name="moldeado" style="width: 200px">
+                                <option value="No">No</option>
+                                <option value="Si">Si</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Inventariable</td>
+                        <td>
+                            <select id="inventariable" name="inventariable" style="width: 200px">
+                                <option value="Si">Si</option>
+                                <option value="No">No</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Origen:</td>
+                        <td>
+                            <select name="origen" id="origen" style="width: 200px">
+                                <option value="M">México</option>
+                                <option value="E">Estados Unidos</option>
+                                <option value="C">Canada</option>
+                            </select>
+                        </td>
+
+                    </tr>
+
+                    <tr>
+                        <td>Captura Pedimento:</td>
+                        <td>
+                            <select name="captura_pedimento" id="captura_pedimento" style="width: 200px">
+                                <option value="Si">Si</option>
+                                <option value="No" selected="selected">No</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Categoría:</td>
+                        <td>
+                            <select name="categoria" id="categoria" style="width: 200px"></select>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="tab2">
+
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Peso Fijo:</td>
+                        <td><input type="text" id="peso_fijo" name="peso_fijo" value="0.00" maxlength="10" style="width: 200px; text-align:right"></td>
+                    </tr>
+                    <tr>
+                        <td>Peso Mínimo:</td>
+                        <td><input type="text" id="peso_minimo" name="peso_minimo" value="0.00" style="width: 200px; text-align:right"></td>
+                    </tr>
+                    <tr>
+                        <td>Peso Máximo:</td>
+                        <td><input type="text" id="peso_maximo" name="peso_maximo" value="0.00" style="width: 200px; text-align:right"></td>
+                    </tr>
+                    <tr>
+                        <td>Peso Tara:</td>
+                        <td><input type="text" id="peso_tara" name="peso_tara" value="0.00" style="width: 200px; text-align:right"></td>
+                    </tr>
+                    <tr>
+                        <td>Tipo de Redondeo</td>
+                        <td>
+                            <select id="decimales" name="decimales" style="width: 200px">
+                                <option value="1">Ninguno</option>
+                                <option value="0">KANEMATSU</option>
+                                <option value="2">Hacia abajo</option>
+                                <option value="3">Hacia arriba</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Formato:</td>
+                        <td>
+                            <select name="formato_etiqueta" id="formato_etiqueta" style="width: 200px" onchange="onCambiaFormato(event);">
+                                <option value="0">0 Ninguna</option>
+                                <option value="1" selected="selected">1 Tradicional</option>
+                                <option value="2">2 Genpro</option>
+                                <option value="3">3 Congelado</option>
+                                <option value="4">4 Fresco</option>
+                                <option value="5">5 Chorizo</option>
+                                <option value="6">6 Congelado Sin Día en Fecha Caducidad</option>
+                                <option value="7">7 Marinado Congelado</option>
+                                <option value="8">8 Marinado Fresco</option>
+                                <option value="9">9 Marinado Cocido - Todos los ingredientes</option>
+                                <option value="10">10 Marinado Cocido - Sin especificación de ingredientes</option>
+                                <option value="11">11 Marinado Congelado - Sin leyenda SAGARPA</option>
+                                <option value="12">12 Marinado Fresco - Sin leyenda SAGARPA</option>
+                                <option value="13">13 Marinado Cocido - Todos los ingredientes - Sin leyenda SAGARPA</option>
+                                <option value="14">14 Marinado Cocido - Sin especificación de ingredientes - Sin leyenda SAGARPA</option>
+                                <option value="15">15 Etiqueta Peso Wal-Mart</option>
+                                <option value="16">16 Personalizar Ingredientes</option>
+                                <option value="17">17 Corea Fresco</option>
+                                <option value="18">18 Corea Congelado</option>
+                                <option value="19">19 Etiqueta Piezas Wal-Mart</option>
+                            </select>
+                            <input type="text" name="lectura_e1" id="lectura_e1" value="" placeholder="Lectura 1" maxlength="58" style="display: none;">
+                            &nbsp;
+                            <input type="text" name="lectura_e2" id="lectura_e2" value="" placeholder="Lectura 2" maxlength="58" style="display: none;">
+                            &nbsp;
+                            <input type="text" name="lectura_e3" id="lectura_e3" value="" placeholder="Lectura 3" maxlength="58" style="display: none;">
+                            &nbsp;
+                            <select name="lectura_sagarpa" id="lectura_sagarpa" style="display: none;">
+                                <option value="0">Sin Lectura Sagarpa</option>
+                                <option value="1">Con Lectura Sagarpa</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Temperatura:</td>
+                        <td><input type="text" id="temperatura" name="temperatura" style="width: 200px"></td>
+                    </tr>
+                    <tr>
+                        <td>No. Contenedor:</td>
+                        <td><input type="text" id="clave_alm" name="clave_alm" style="width: 200px"></td>
+                    </tr>
+                    <tr>
+                        <td>Kilos por Caja:</td>
+                        <td><input type="text" id="kilos_por_caja" name="kilos_por_caja" value="25.0" style="width: 200px; text-align:right"></td>
+                    </tr>
+                    <tr>
+                        <td>Piezas por Caja:</td>
+                        <td><input type="text" id="piezas_por_caja" name="piezas_por_caja" value="0" style="width: 200px; text-align:right"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="tab3">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Tipo Fecha de Producción:</td>
+                        <td>
+                            <select name="tipo_fecha_produccion" id="tipo_fecha_produccion" style="width: 200px" onchange="tipo_fecha_produccion_change();">
+                                <option value="1">Calendario</option>
+                                <option value="2">Lote 500</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Fecha de Producción (Reetiquetado):</td>
+                        <td><input type="text" id="fecha_produccion" name="fecha_produccion" disabled="disabled" value="21/09/2015" maxlength="3" style="width: 200px; text-align:right"></td>
+                    </tr>
+                    <tr>
+                        <td>Tipo Fecha de Sacrificio:</td>
+                        <td>
+                            <select name="tipo_fecha_sacrificio" id="tipo_fecha_sacrificio" style="width: 200px" onchange="tipo_fecha_sacrificio_change();">
+                                <option value="1">Un día anterior a la fecha de producción</option>
+                                <option value="2">Especificar</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Fecha de Sacrificio:</td>
+                        <td><input type="text" id="fecha_sacrificio" name="fecha_sacrificio" disabled="disabled" value="21/09/2015" maxlength="3" style="width: 200px; text-align:right"></td>
+                    </tr>
+                    <tr>
+                        <td>Tipo Fecha de Caducidad:</td>
+                        <td>
+                            <select name="tipo_fecha_caducidad" id="tipo_fecha_caducidad" style="width: 200px" onchange="tipo_fecha_caducidad_change();">
+                                <option value="1">A partir de la fecha de producción</option>
+                                <option value="2">A partir de la fecha de sacrificio</option>
+                                <option value="3">Fecha fija</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Días de Caducidad:</td>
+                        <td><input type="text" id="dias_cad" name="dias_cad" value="0" style="width: 200px; text-align:right"></td>
+
+                    </tr>
+                    <tr>
+                        <td>Cad. Ultimo Día Del Mes:</td>
+                        <td>
+                            <select id="calcula_dias_cad" name="calcula_dias_cad" style="width: 200px">
+                                <option value="Si">Si</option>
+                                <option value="No">No</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Copias:</td>
+                        <td>
+                            <select id="copias" name="copias" value="1" style="width: 200px">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Otros:</td>
+                        <td><input type="text" id="otros" style="width: 200px"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+        <div id="tab4">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Origen:</td>
+                        <td>
+                            <select name="origen" id="origen" style="width: 200px">
+                                <option value="M">México</option>
+                                <option value="E">Estados Unidos</option>
+                                <option value="C">Canada</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr></tr>
+                    <tr>
+                        <td>Etiqueta Producción:</td>
+                        <td>
+                            <select name="etiqueta_produccion" id="etiqueta_produccion" style="width: 200px">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr></tr>
+                    <tr>
+                        <td>Etiqueta Externa Japonesa 1:</td>
+                        <td>
+                            <select name="etiqueta_externa" id="etiqueta_externa" style="width: 200px">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr></tr>
+                    <tr>
+                        <td>Etiqueta Externa Japonesa 2:</td>
+                        <td>
+                            <select name="etiqueta_externa2" id="etiqueta_externa2" style="width: 200px">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Etiqueta Interna 1</td>
+                        <td>
+                            <select name="etiqueta_interna" id="etiqueta_interna" style="width: 200px">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Etiqueta Interna 2</td>
+                        <td>
+                            <select name="etiqueta_interna2" id="etiqueta_interna2" style="width: 200px">
+                                <option value="0">0</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Otros:</td>
+                        <td><input type="text" style="width: 200px"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="tab5">
+            <div>
+                <a href="javascript:agregar_receta();">Agregar receta</a>
+            </div>
+            <table style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Receta</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="tabla_recetas"></tbody>
+
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<br>
+<table>
+    <tbody>
+        <tr>
+            <td><input type="button" value="Empaque" id ="btnEmpaque" style="width: 100px; height: 35px" onclick="EmpaqueDialog();"></td>
+
+            <td><input type="button" value="Guardar" onclick="guarda_producto();" style="width: 100px; height: 35px"></td>
+
+            <td><input type="button" value="Cancelar" style="width: 100px; height: 35px" onclick="cancelar();"></td>
+        </tr>
+    </tbody>
+</table>
+
+<div id="NuevaReceta" style="display:none">
+        <td><input type="hidden" id="ClaveProductoX" name="ClaveProductoX" style="width: 60px" value="0" /></td>
+        <td><input type="hidden" id="idReceta" name="IdReceta" style="width: 60px" value="0" /></td>
+        <div id="table_recetas">
+            <div>
+                <div>Descripcion</div>
+                <div><input type="text" name="desc_receta" id="desc_receta" value=""></div>
+            </div>
+            <div style="margin-top:20px;">
+                <table>
+                    <tr>
+                        <td>Producto</td>
+                        <td><input type="text" id="ClaveProductoReceta" style="width: 60px" onKeyUp="busca_producto(this.id);" /></td>
+                        <td><select id="ProductoReceta" style="width: 250px" onChange="combo_change();"> </select>
+						</td>
+						<td><input type="text" id="Rendimiento" value="1" onkeypress="return isNumber(event)"></td>
+						<td><input type="button" value="Agregar" onclick="agregar_producto_receta();"></input></td>
+						<div>
+						</div>
+					</tr>
+				</table>
+			</div>
+			<div style="margin-top:20px;">
+				<table id="detalle_receta" class="table table-hover">
+					<thead>
+						<tr class="success">
+							<th style="text-align: left">Clave</th>
+							<th style="text-align: left">Nombre</th>
+							<th style="text-align: left">Cantidad</th>
+						</tr>
+					</thead>
+					<tbody id="recetas_body">
+					</tbody>				
+				</table>
+			</div>
+		</div>	
+		<br/>
+		<input type="button" id="botonReceta" value="Guardar" onclick="submit_form_receta();"></input>
+</div>
+
+<form id="formaEmpaquesProducto" style="display:none">
+    <table id="TablaEmpaque">
+        <thead>
+            <tr>
+                <th>Activo</th>
+                <th>Empaque</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody id="TablaEmpaquesBody"></tbody>
+    </table>
+
+    <input type="button" value="Aceptar" onclick="minimizar()" />
+</form>
+
+<script>
+
+    var cargo
+    $(function () {
+        $("#tabs").tabs();
+    });
+
+    $(function () {
+        $("#fecha_produccion").datepicker();
+    });
+    $(function () {
+        $("#fecha_sacrificio").datepicker();
+    });
+        
+
+    var accesoEmpaques = false;
+    //Cargando datos
+    cargar_datos_de_producto_clase();
+    cargar_datos_de_producto_lineas();
+    cargar_datos_de_producto_categoria();
+    //Fecha
+    var d = new Date();
+    var dia = d.getDate();
+    var mes = d.getMonth();
+    var año = d.getFullYear();
+
+    var fecha = dia + "/" + (mes+1) + "/" + año;
+    document.getElementById("fecha_produccion").value = fecha;
+    document.getElementById("fecha_sacrificio").value = fecha;
+
+    function validarClave() {
+        var pData = "AClave=" + document.getElementById("clave").value;
+        var pUrl = "/Producto/ValidarClave";
+        $.getJSON(pUrl, pData, function (Result) {
+            if (Result == false && document.getElementById("clave").value.length != 0) {
+                document.getElementById("dispClave").style.color = "green";
+                document.getElementById("dispClave").innerHTML = "Clave Valida";
+                document.getElementById("clave").style.border = "thin solid green";
+            }
+            else {
+                document.getElementById("dispClave").style.color = "red";
+                document.getElementById("dispClave").innerHTML = "Clave Invalida";
+                document.getElementById("clave").style.border = "thin solid red";
+            }
+        });
+    }
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+    function cargar_datos_de_producto_clase() {
+        var pUrl = "/Clase/ListaClases";
+        $.post(pUrl, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+                var o = new Option(Result[i].Descripcion, Result[i].Clave);
+                o.innerHTML = Result[i].Descripcion; document.getElementById("clase").appendChild(o);
+            }
+        });
+    }
+    function cargar_datos_de_producto_lineas() {
+        var pUrl = "/Lineas/ObtenerLista";
+        $.getJSON(pUrl, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+                var o = new Option(Result[i].Descripcion, Result[i].Clave);
+                o.innerHTML = Result[i].Descripcion; document.getElementById("linea").appendChild(o);
+            }
+        });
+    }
+
+    function cargar_datos_de_producto_categoria() {
+        var pUrl = "/Categorias/ListaCategorias";
+        $.getJSON(pUrl, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+                var o = new Option(Result[i].Cat, Result[i].Id);
+                o.innerHTML = Result[i].Cat; document.getElementById("categoria").appendChild(o);
+            }
+        });
+    }
+    function tipo_fecha_produccion_change() {
+        var pValue = document.getElementById("tipo_fecha_produccion").value;
+
+        if (pValue == 1) {
+            document.getElementById("fecha_produccion").disabled = true;
+
+        }
+        else {
+            document.getElementById("fecha_produccion").disabled = false;
+        }
+    }
+
+    function tipo_fecha_sacrificio_change() {
+        var pValue = document.getElementById("tipo_fecha_sacrificio").value;
+
+        if (pValue == 1) {
+            document.getElementById("fecha_sacrificio").disabled = true;
+        }
+        else {
+            document.getElementById("fecha_sacrificio").disabled = false;
+        }
+    }
+
+    function tipo_fecha_caducidad_change() {
+        var pValue = document.getElementById("tipo_fecha_caducidad").value;
+
+        if (pValue != 3) {
+            document.getElementById("fecha_caducidad").disabled = true;
+            document.getElementById("dias_cad").disabled = false;
+            document.getElementById("calcula_dias_cad").disabled = false;
+        }
+        else {
+            document.getElementById("fecha_caducidad").disabled = false;
+            document.getElementById("dias_cad").disabled = true;
+            document.getElementById("calcula_dias_cad").disabled = true;
+        }
+    }
+    function cancelar() {
+        window.location = "/Producto"
+    }
+
+    function guarda_producto() {
+            
+        //Codigos y otros datos
+        var pClave = document.getElementById("clave").value.toString();
+        var pDescripcion = document.getElementById("descripcion").value.toString();
+        var pCodigo_sap       = document.getElementById("codigo_sap").value.toString();
+        var pCodigo_proveedor = document.getElementById("codigo_proveedor").value.toString();
+            
+
+        var pData = "CodigoProveedor=" + pCodigo_proveedor + "&CodigoSap=" + pCodigo_sap + "&Clave=" + pClave + "&Descripcion=" + pDescripcion;
+
+        //Datos de Producto
+        var pMercado           = document.getElementById("mercado").value.toString();
+        var pClase             = document.getElementById("clase").value.toString();
+        var pLinea             = document.getElementById("linea").value.toString();
+        var pGrupo             = document.getElementById("grupo").value.toString();
+        var pOperador          = document.getElementById("operador").value.toString();
+        var pRendimiento       = document.getElementById("rendimiento").value.toString();
+        var pMoldeado          = document.getElementById("moldeado").value.toString();
+        var pInventariable     = document.getElementById("inventariable").value.toString();
+        var pOrigen            = document.getElementById("origen").value.toString();// No se encuentra dato en base de datos ----- Pendiente
+        var pCaptura_pedimento = document.getElementById("captura_pedimento").value.toString();
+        var pCategoria         = document.getElementById("categoria").value.toString();
+
+        pData = pData + "&Mercado=" + pMercado + "&Clase=" + pClase + "&Linea=" + pLinea + "&Grupo=" + pGrupo + "&Operador=" + pOperador + "&Rendimiento=" + pRendimiento + "&Moldeado=" + pMoldeado + "&Inventariable=" + pInventariable + "&Captura_Pedimento=" + pCaptura_pedimento + "&Categoria=" + pCategoria;
+
+        //Pesos y Redondeo
+        var pPeso_fijo        = document.getElementById("peso_fijo").value.toString();
+        var pPeso_minimo      = document.getElementById("peso_minimo").value.toString();
+        var pPeso_maximo      = document.getElementById("peso_maximo").value.toString();
+        var pPeso_tara        = document.getElementById("peso_tara").value.toString();
+        var pDecimales        = document.getElementById("decimales").value.toString();//Tipo de Redondeo:
+        var pFormato_etiqueta = document.getElementById("formato_etiqueta").value.toString();
+        var pTemperatura      = document.getElementById("temperatura").value.toString();
+        var pClave_alm        = document.getElementById("clave_alm").value.toString();
+        var pKilos_por_caja   = document.getElementById("kilos_por_caja").value.toString();
+
+        pData = pData + "&Pesofijo=" + pPeso_fijo + "&Pesominimo=" + pPeso_minimo + "&Pesomaximo=" + pPeso_maximo + "&Pesotara=" + pPeso_tara + "&Decimales=" + pDecimales + "&Formato_Etiqueta=" + pFormato_etiqueta + "&Temperatura=" + pTemperatura + "&Clave_Alm=" + pClave_alm + "&Kilos_Por_Caja=" + pKilos_por_caja;
+
+        //Datos de Caducidad
+        var pTipo_fecha_produccion  = document.getElementById("tipo_fecha_produccion").value.toString();
+        var pFecha_produccion       = document.getElementById("fecha_produccion").value.toString();
+        var pTipo_fecha_sacrificio  = document.getElementById("tipo_fecha_sacrificio").value.toString();
+        var pFecha_sacrificio       = document.getElementById("fecha_sacrificio").value.toString();
+        var pTipo_fecha_caducidad   = document.getElementById("tipo_fecha_caducidad").value.toString();
+        var pDias_cad               = document.getElementById("dias_cad").value.toString();
+        var pCalcula_dias_cad       = document.getElementById("calcula_dias_cad").value.toString();
+        var pCopias                 = document.getElementById("copias").value.toString();
+        var pOtros_caducidad        = document.getElementById("otros").value.toString(); //Otros de caducidad------Pendiente----Donde se guarda en la base de datos
+
+        pData = pData + "&Tipo_Fecha_Produccion=" + pTipo_fecha_produccion + "&Fecha_Produccion=" + pFecha_produccion + "&Tipo_Fecha_Sacrificio=" + pTipo_fecha_sacrificio + "&Fecha_Sacrificio=" + pFecha_sacrificio + "&Tipo_Fecha_Caducidad=" + pTipo_fecha_caducidad + "&Diascad=" + pDias_cad + "&Calcula_Dias_Cad=" + pCalcula_dias_cad + "&Copias=" + pCopias + "&Otros=" + pOtros_caducidad;
+
+        //Especificacion de Etiquetas
+        var pOrigen              = document.getElementById("origen").value.toString(); //No se encontro dato en la base de datos
+        var pEtiqueta_produccion = document.getElementById("etiqueta_produccion").value.toString(); //No se encontro dato en la base de datos
+        var pEtiqueta_externa    = document.getElementById("etiqueta_externa").value.toString();
+        var pEtiqueta_externa2   = document.getElementById("etiqueta_externa2").value.toString();
+        var pEtiqueta_interna    = document.getElementById("etiqueta_interna").value.toString();
+        var pEtiqueta_interna2   = document.getElementById("etiqueta_interna2").value.toString();
+        var pOtros_etiquetas     = document.getElementById("otros").value.toString();
+
+        //pData = pData + "&=" + pOrigen + "&=" + pEtiqueta_produccion + "&=" + pEtiqueta_externa + "&=" + pEtiqueta_externa2 + "&=" + pEtiqueta_interna + "&=" + pEtiqueta_interna2 + "&OtrosDos=" + pOtros_etiquetas;
+
+        alert("pData: "+pData);
+        var pUrl = "/Producto/ProductoInsertar";
+        $.post(pUrl, pData, function (Result) {
+
+            guardarEmpaquesProductos();
+        });
+        guardarEmpaquesProductos();
+    }
+
+    function agregar_receta() {
+        $("#desc_receta").removeAttr('disabled');
+        var dato1 = document.getElementById("dispClave").innerHTML;
+        var dato2 = "Clave Valida";
+        if (dato1.localeCompare(dato2) != 0) {
+            alert("Favor de introducir una clave valida");
+            return false;
+        }
+        var pClave = document.getElementById("clave").value.toString();
+        if (pClave.length == 0) {
+            alert("La clave del producto no es válida");
+            $("#clave").focus();
+            return false;
+        }
+
+        var pDescripcion = document.getElementById("descripcion").value.toString();
+        if (pDescripcion.length == 0) {
+            alert("La descripción no es válida");
+            $("#descripcion").focus();
+            return false;
+        }
+
+        var pTabla = document.getElementById("recetas_body");
+        while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+            pTabla.removeChild(pTabla.firstChild);
+        }
+        document.getElementById("botonReceta").value = "Guardar";
+        document.getElementById("desc_receta").value = "";
+        $("#NuevaReceta").dialog({
+            title: "Nueva Receta",
+            height: 330,
+            width: 756,
+            modal: true,
+        });
+
+        var pUrl = "/Producto/ListaProductos";
+        $.post(pUrl, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+
+                if (Result[i].Descripcion != "") {
+                    var o = new Option(Result[i].Descripcion, Result[i].Clave);
+                    o.innerHTML = Result[i].Descripcion;
+                    document.getElementById("ProductoReceta").appendChild(o);
+                }
+            }
+        });
+        document.getElementById("ClaveProductoReceta").value = "" + document.getElementById("ProductoReceta").value;
+    }
+
+    function combo_change() {
+        document.getElementById("ClaveProductoReceta").value = "" + document.getElementById("ProductoReceta").value;
+    }
+    function busca_producto(x) {
+        var y = document.getElementById(x).value
+        document.getElementById("ProductoReceta").value = y;
+    }
+
+    function agregar_producto_receta() {
+        var pClaveR = document.getElementById("ClaveProductoReceta").value;
+        var pClaveRR = "'" + pClaveR + "'";
+        var pDescripcionR = document.getElementById("ProductoReceta");
+        var pDescripcionR = pDescripcionR.options[pDescripcionR.selectedIndex].text;
+        var pRendimientoR = document.getElementById("Rendimiento").value;
+
+        if (isNaN(parseFloat(pRendimientoR))) {
+            window.alert("El rendimiento no es válido");
+            document.getElementById("Rendimiento").focus();
+            return;
+        }
+
+        var items = document.getElementsByClassName("rowReceta");
+
+        var existe = false;
+        $(items).each(function () {
+            if (this.innerText == pClaveR) {
+                window.alert("Producto ya se encuentra en la lista");
+                existe = true;
+            }
+        });
+
+        if (!existe) {
+            $("#recetas_body").append("<tr class='trReceta' id='trReceta" + pClaveR + "' name='trReceta" + pClaveR + "'><td class='rowReceta' id='-1'>" + pClaveR + "</td><td>" + pDescripcionR + "</td><td style='text-align: left'	>" + pRendimientoR + '</td><td><input type="button" value="Eliminar" onClick="remueve_producto_receta(' + pClaveRR + ');"></input></td></tr>');
+        }
+
+    }
+
+    function remueve_producto_receta(pClaveR) {
+        var tipo = document.getElementById("botonReceta").value;
+        var row = document.getElementById("trReceta" + pClaveR);
+        if (tipo.localeCompare("Modificar") == 0 && row.children[0].id != -1) {
+            if (window.confirm("¿Eliminar producto modificado?")) {
+                row.style.display = 'none';
+            }
+        } else {
+            if (window.confirm("¿Eliminar producto?")) {
+                $("#trReceta" + pClaveR).remove();
+            }
+        }
+    }
+
+    function submit_form_receta() {
+        var tipo = document.getElementById("botonReceta").value;
+        if (tipo.localeCompare("Modificar") == 0) { update_form_receta(); return false; }
+        var pReceta = document.getElementById("idReceta").value;//ID de la receta
+        var pProductoX = document.getElementById("clave").value;//Clave del Producto Nuevo
+        var descReceta = document.getElementById("desc_receta").value;//Descripcion de la receta
+        if (descReceta.length == 0) {
+            window.alert("Se debe poner una descripción a la receta");
+            document.getElementById("desc_receta").focus();
+            return;
+        }
+
+        if ($(".trReceta").length == 0) {
+            window.alert("Se deben de capturar productos de la receta");
+            document.getElementById("ClaveProductoReceta").focus();
+            return;
+        }
+        //Guarda RecetaM
+        var pData = "Id=" + pReceta + "&Producto=" + pProductoX + " &Descripcion=" + descReceta;
+        var pUrl = "/recetas/guarda_receta_productoM";
+        $.post(pUrl, pData, function (Result) {
+            var pUrlModificarReceta = 'javascript:modificar_receta(' + Result.Id.toString() + ', "' + descReceta + '")';
+            var pUrlEliminarReceta = 'javascript:eliminar_receta(' + Result.Id.toString() + ')';
+
+
+            //Recorriendo tabla y agregando productos
+            var r = 0;
+            var table = document.getElementById("recetas_body");
+            $.post("/recetas/GeneraClave", "campo=ID&tabla=DRASRECETAD", function (ResultClave) {
+                while (row = table.rows[r++]) {
+                    //Guarda RecetaD Nota: Esto se debe realizar mediante un ciclo.
+                    var pData2 = "Id=" + ResultClave + "&Id_Receta=" + Result.Id.toString() + "&Producto=" + row.children[0].innerText + " &Rendimiento=" + row.children[2].innerText; //verificar datos sean correctos
+                    var pUrl2 = "/recetas/guarda_receta_productoD";
+                    $.post(pUrl2, pData2, function (Result2) { });
+                    ResultClave++;
+                    alert(ResultClave);
+                }
+            });
+            $("#tabla_recetas").append("<tr style='font-size: 10px;' id='trRecetaM" + Result.Id.toString() + "'><td>" + descReceta + "</td><td><a href='" + pUrlModificarReceta + "'>Modificar</a> <a href='" + pUrlEliminarReceta + "'>Eliminar</a></td>");
+        });
+
+        document.getElementById("clave").disabled = "disabled";
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+
+    function update_form_receta() {
+        var pReceta = document.getElementById("idReceta").value;//ID de la receta
+        if ($(".trReceta").length == 0) {
+            window.alert("Se deben de capturar productos de la receta");
+            document.getElementById("ClaveProductoReceta").focus();
+            return;
+        }
+
+        var r = 0;
+        var table = document.getElementById("recetas_body");
+        while (row = table.rows[r++]) {
+            //Actualiza RecetaD
+            if (row.style.display == 'none') {
+                alert("Eliminar Producto");
+                $.post("/recetas/eliminarProductoReceta", "AId=" + row.children[0].id, function (eliminado) { });
+            }
+            else {
+                if (row.children[0].id == -1) {
+                    alert("Agregando Producto: " + row.children[1].innerText);
+                    var pData2 = "Id=0&Id_Receta=" + pReceta + "&Producto=" + row.children[0].innerText + " &Rendimiento=" + row.children[2].innerText;
+                    var pUrl2 = "/recetas/guarda_receta_productoD";
+                    $.post(pUrl2, pData2, function (Result2) { });
+                }
+
+            }
+
+        }
+
+        document.getElementById("clave").disabled = "disabled";
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+
+    function EmpaqueDialog() {
+        var pClave = document.getElementById("clave").value.toString();
+
+        if (pClave.length == 0) {
+            alert("La clave del producto no es válida");
+            $("#clave").focus();
+            return false;
+        }
+
+        var pDescripcion = document.getElementById("descripcion").value.toString();
+        if (pDescripcion.length == 0) {
+            alert("La descripción no es válida");
+            $("#descripcion").focus();
+            return false;
+
+        }
+
+        desplegarListaEmpaques();
+
+        $("#dialog:ui-dialog").dialog("destroy");
+        $("#formaEmpaquesProducto").dialog({
+            title: "Empaque de Producto",
+            height: 600,
+            width: 700,
+            modal: true,
+        });
+
+    }
+
+    function desplegarListaEmpaques() {//Despliega la lista de todos los empaques separados por clasificación
+
+
+        if (accesoEmpaques == false) {
+            var pTabla = document.getElementById("TablaEmpaquesBody");
+
+            while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+                pTabla.removeChild(pTabla.firstChild);
+            }
+
+            var pUrl0 = "/empaques/obtenerempaquesproducto";
+            var pData0 = "Clave=" + document.getElementById("clave").value;
+            $.get(pUrl0, pData0, function (empaquesProd) {
+                var pUrl = "/empaques/obtenerlistatiposempaques";
+                $.get(pUrl, function (pTipoEmpaque) {//Obtiene lista de los tipos de empaques que hay
+                    var pUrl2 = "/empaques/obtenerempaques";
+                    $.get(pUrl2, function (Result) {
+                        for (var i = 0; i < Result.length; i++) {
+                            var pFila = document.createElement("tr");
+                            var pCelda1 = document.createElement("td");
+                            var pCelda2 = document.createElement("td");
+                            var pCelda3 = document.createElement("td");
+
+                            pFila.appendChild(pCelda1);
+                            pFila.appendChild(pCelda2);
+                            pFila.appendChild(pCelda3);
+
+                            if (i == 0 || Result[i].IdTipoEmpaque != Result[i - 1].IdTipoEmpaque) {
+                                var pFilaTipo = document.createElement("tr");
+                                var pCeldaTipo1 = document.createElement("th");
+                                var pCeldaTipo2 = document.createElement("th");
+                                var pCeldaTipo3 = document.createElement("th");
+
+                                for (var j = 0; j < pTipoEmpaque.length; j++) {
+                                    if (pTipoEmpaque[j].Id == Result[i].IdTipoEmpaque) {
+                                        pCeldaTipo2.textContent = pTipoEmpaque[j].Nombre;
+                                        pFilaTipo.appendChild(pCeldaTipo1);
+                                        pFilaTipo.appendChild(pCeldaTipo2);
+                                        pFilaTipo.appendChild(pCeldaTipo3);
+                                        document.getElementById("TablaEmpaquesBody").appendChild(pFilaTipo);
+                                        break;
+                                    }
+
+                                }
+                            }
+
+                            var pCheckBox = document.createElement("input");
+                            var pInput = document.createElement("input");
+
+                            pCheckBox.id = "chk";
+                            pCheckBox.type = "checkbox";
+                            pCheckBox.name = "chk";
+                            pCheckBox.value = Result[i].Clave;
+                            pCheckBox.setAttribute("onclick", "cambiarEstadoInput(this," + Result[i].Clave + ")");
+
+                            pCelda2.textContent = Result[i].Nombre;
+                            pInput.id = "inp" + Result[i].Clave;
+                            pInput.setAttribute("class", "inputsCantidad");
+                            pInput.disabled = "disabled";
+                            pInput.name = "inp";
+
+                            if (i == Result.length - 1) {
+                                $(".inputsCantidad").numeric(//Valida que solo se pueda introducir numeros en el input
+                                {
+                                    negative: false
+                                });
+                            }
+
+                            for (var k = 0; k < empaquesProd.length; k++) {//Activa los checkbox de los empaques ya agregados a ese producto asi como su cantidad.
+                                if (empaquesProd[k].IdEmpaque == Result[i].Clave) {
+                                    pCheckBox.checked = true;
+                                    pInput.removeAttribute("disabled");
+                                    pInput.value = empaquesProd[k].Cantidad;
+                                    break;
+                                }
+                            }
+
+                            pCelda1.appendChild(pCheckBox);
+                            pCelda3.appendChild(pInput);
+
+                            document.getElementById("TablaEmpaquesBody").appendChild(pFila);
+
+                        }
+                    });
+                });
+            });
+
+            document.getElementById("TablaEmpaque").style.display = "block";
+        }
+    }
+
+       
+
+    function guardarEmpaquesProductos() {
+
+        if (validarInputsVacios()) {
+
+            var pUrl = "/empaques/insertarempaquesproducto";
+            var pData = "IdProducto=" + document.getElementById("clave").value +"&"+ $("#formaEmpaquesProducto").serialize();
+            alert("insertando: " + pData);
+            $.post(pUrl, pData, function (Result) {
+            });
+        }
+
+    }
+
+    function minimizar() {
+        accesoEmpaques = true;
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+
+    function validarInputsVacios() {//Valida que los campos no esten vacíos antes de insertar o modificar.
+        var pInputs = document.getElementsByClassName("inputsCantidad");
+        for (var i = 0; i < pInputs.length; i++) {
+            var pInput = pInputs[i];
+            if (pInput.value.length == 0 && pInput.disabled == false) {
+                alert("Capture la cantidad");
+                pInput.focus();
+                return false;
+            }
+        }
+        return true;
+    }
+    function modificar_receta(Id, Receta) {
+        var pTabla = document.getElementById("recetas_body");
+        while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+            pTabla.removeChild(pTabla.firstChild);
+        }
+        document.getElementById("desc_receta").value = Receta;
+        document.getElementById("desc_receta").disabled = "disabled";
+        document.getElementById("idReceta").value = Id;
+
+        var pUrl = "/Recetas/ObtenerLista_Receta_ProductoD";
+        var pData = "Id_Receta=" + Id;
+        $.post(pUrl, pData, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+                var pClaveRR = "'" + Result[i].Producto + "'";
+                $("#recetas_body").append("<tr class='trReceta' id='trReceta" + Result[i].Producto + "' name='trReceta" + Result[i].Producto + "'><td class='rowReceta'  id='" + Result[i].Id + "'>" + Result[i].Producto + "</td><td>" + Result[i].DescripcionProducto + "</td><td style='text-align: left'	>" + Result[i].Rendimiento + '</td><td><input type="button" value="Eliminar" onClick="remueve_producto_receta(' + pClaveRR + ');"></input></td></tr>');
+            }
+        });
+
+        document.getElementById("botonReceta").value = "Modificar";
+        $("#NuevaReceta").dialog({
+            title: "Modificar Receta",
+            height: 330,
+            width: 756,
+            modal: true,
+        });
+
+    }
+
+    function eliminar_receta(Id) {
+        var pUrl = "/Recetas/eliminarReceta";
+        var pData = "Id_Receta=" + Id;
+        $.post(pUrl, pData, function (Result) {
+
+            if (Result) {
+                alert("Receta Eliminada");
+                $("#trRecetaM" + Id).remove();
+            }
+        });
+    }
+
+</script>

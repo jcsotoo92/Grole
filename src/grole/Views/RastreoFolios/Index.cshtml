@@ -1,0 +1,66 @@
+﻿
+        <h3>Rastreo de Folios</h3>
+        <div>
+            <div>
+                <div>Folio:</div>
+                <div><input type="text" id="inpFolio" autofocus></div>
+            </div>
+            <div>
+                <div>Producto:</div>
+                <div><input type="text" id="inpProducto"></div>
+            </div>
+            <div>
+                <div><button onclick="consulta();">Consultar</button></div>
+            </div>
+        </div>
+        <div id="divData" style="margin-top: 30px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 100px; text-align: center;">Fecha</th>
+                        <th style="width: 100px;">Folio</th>
+                        <th style="width: 100px; text-align: left;">Producto</th>
+                        <th style="width: 100px; text-align: right;">Peso</th>
+                        <th>Codigo Barras</th>
+                        <th style="width: 100px; text-align: center;">Tarima</th>
+                    </tr>
+                </thead>
+                <tbody id="RastreoBody">
+
+
+                </tbody>
+
+            </table>
+        </div>
+        <script type="text/javascript">
+
+	function consulta(){
+
+		if (isNaN(parseInt(document.getElementById("inpFolio").value))){
+
+			window.alert("El folio no es válido");
+			document.getElementById("inpFolio").focus();
+			return;
+
+		}
+
+		if (isNaN(parseInt(document.getElementById("inpProducto").value))){
+
+			window.alert("El producto no es válido");
+			document.getElementById("inpProducto").focus();
+			return;
+		}
+
+		var pUrl = "/RastreoFolios/ObtenerRastreoFolios";
+		var pData = "Folio=" + document.getElementById("inpFolio").value + "&Producto=" + document.getElementById("inpProducto").value;
+
+		$.get(pUrl, pData, function (Result) {
+
+		    for (var i = 0; i < Result.length; i++) {
+		        alert("TEnemos un REsultado: "+Result[i].Producto);
+		        $("#RastreoBody").append("<tr><td style='text-align: center;'>" + Result[i].Fecha + "</td><td style='text-align: center;'>" + Result[i].Folio + "</td><td>" + Result[i].Producto + "</td><td style='text-align: right;'>" + Result[i].Peso.toFixed(2) + "</td><td style='text-align: center; padding-left: 10px;'>" + Result[i].CodigoBarras + "</td><td style='text-align: center;'>" + Result[i].Tarima + "</td></tr>");
+		    }
+		});
+	}
+
+</script>

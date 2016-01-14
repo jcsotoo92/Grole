@@ -1,0 +1,30 @@
+﻿@model List<grole.src.Entidades.DetalleUsoEmpaque>
+<h2>Detalle de uso de empaque</h2>
+
+<p>Fecha inicial: @Context.Request.Query["Fechaini"]</p>
+<p>Fecha final: @Context.Request.Query["Fechafin"]</p>
+<p>Empaque: @Model[0].Nombre</p>
+
+<a href="#">Excel</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Descripcion</th>
+            <th>Cantidad producida</th>
+            <th>Empaque</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>@item.RProducto</td>
+                <td>@item.Descripcion</td>
+                <td>@item.RCantidad</td>
+                <td>@item.Rempaque</td>
+            </tr>
+        }
+    </tbody>
+</table>

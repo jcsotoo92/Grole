@@ -1,0 +1,248 @@
+﻿@model List<grole.src.Entidades.ClaseOrdenProduccion>
+
+<h2>Clase Orden Producción</h2>
+<div>
+    <a href="javascript:capturarClaseOrdenProduccion();">Nueva clase orden producción</a>
+</div>
+<table id="tableClaseOrdenProduccion">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Clase</th>
+            <th>Activo</th>
+            <th>OCRCODE</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="bodyClaseOrdenProduccion">
+        @foreach (var item in Model)
+        {
+            <tr id="tr@(item.Id)">
+                <td>@item.Id</td>
+                <td id="clase@(item.Id)">@item.Clase</td>
+                <td id="activo@(item.Id)">@item.Activo</td>
+                <td id="ocrcode@(item.Id)">@item.OcrCode</td>
+                <td><a href="javascript:capturarClaseOrdenProduccionModificar(@(item.Id));">Modificar</a></td>
+                <td><a href="javascript:eliminarClaseOrdenProduccion(@(item.Id));">Eliminar</a></td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+<form action="/claseordenproduccion/insertar" method="post" id="FormaClaseOrdenProduccion" style="display:none;">
+    <div id="divId" style="display:none">
+        <div>
+            Id:
+        </div>
+        <input type="text" id="txtId" name="Id" disabled="disabled">
+    </div>
+    <div>
+        Clase:
+    </div>
+    <div>
+        <input type="text" name="Clase" id="inpClase" value="" maxlength="20">
+    </div>
+    <div>
+        Activo:
+    </div>
+    <div>
+        <select id="inpActivo" name="Activo">
+            <option value="Si">Si</option>
+            <option value="No" selected="selected">No</option>
+        </select>
+    </div>
+    <div>
+        OCRCODE:
+    </div>
+    <div>
+        <input type="text" name="OcrCode" id="inpOcrCode" value="" maxlength="8">
+    </div>
+    <div>
+        <button id="btnModificar" onclick="modificarClaseOrdenProduccion(event);" style="display:none">Modificar</button>
+        <button id="btnGuardar" onclick="insertarClaseOrdenProduccion(event);">Insertar</button>&nbsp;&nbsp;<button id="btnCancelar" onclick="cancelarCaptura(event);">Cancelar</button>
+    </div>
+
+</form>
+
+<script>
+    
+    function capturarClaseOrdenProduccion() {//Abre la ventana modal para insertar una clase orden produccion
+
+        document.getElementById("btnModificar").style.display = "none";
+        document.getElementById("btnGuardar").style.display   = "inline-block";
+        document.getElementById("divId").style.display        = "none";
+
+        $("#FormaClaseOrdenProduccion").dialog({
+            title: "Nueva clase orden producción",
+            height: 600,
+            width: 500,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpClase").focus();
+                document.getElementById("inpClase").value   = "";
+                document.getElementById("inpActivo").value  = "No";
+                document.getElementById("txtId").value      = "";
+                document.getElementById("inpOcrCode").value = "";
+            }
+        });
+    }
+
+    function capturarClaseOrdenProduccionModificar(Id) {//Abre la ventana modal para modificar una clase orden produccion
+        document.getElementById("btnModificar").style.display = "inline-block";
+        document.getElementById("btnGuardar").style.display   = "none";
+        document.getElementById("divId").style.display        = "block";
+        
+        $("#FormaClaseOrdenProduccion").dialog({
+            title: "Modificar clase orden producción",
+            height: 600,
+            width: 500,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpClase").focus();
+                document.getElementById("inpClase").value   = "";
+                document.getElementById("inpActivo").value  = "";
+                document.getElementById("txtId").value      = Id;
+                document.getElementById("inpClase").value   = document.getElementById("clase" + Id).textContent;
+                document.getElementById("inpActivo").value  = document.getElementById("activo" + Id).textContent;
+                document.getElementById("inpOcrCode").value = document.getElementById("ocrcode" + Id).textContent;
+            }
+        });
+    }
+
+    function cancelarCaptura(e) {//Cierra la ventana modal
+        e.preventDefault();
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+
+    function modificarClaseOrdenProduccion(e) {//Hace el post para modificar una clase orden produccion en la base de datos
+        e.preventDefault();
+
+        if (hayVacios())
+            return;
+
+        var pUrl = "/claseordenproduccion/modificar";
+        var pData = $("#FormaClaseOrdenProduccion").serialize() + "&Id="+document.getElementById("txtId").value;
+        $.post(pUrl, pData, function (Result) {
+            if (Result != null) {
+                insertarClaseOrdenProduccionEnTabla(Result, true);
+                $(".ui-dialog-titlebar-close").trigger('click');
+            } else {
+                window.alert("Ya existe una clase orden producción con el mismo nombre");
+                document.getElementById("inpDescripcion").focus();
+            }
+            
+        });
+    }
+
+    function hayVacios() {//Valida que los campos en el formulario no esten vacíos.
+        var pClase   = document.getElementById("inpClase").value;
+        var pActivo  = document.getElementById("inpActivo").value;
+        var pOcrCode = document.getElementById("inpOcrCode").value;
+
+        if (pClase.trim().length == 0) {
+            window.alert("La descripción no puede estar en blanco");
+            document.getElementById("inpClase").focus();
+            return true;
+        }
+
+        if (pActivo.trim().length == 0) {
+            window.alert("Activo no puede estar en blanco");
+            document.getElementById("inpActivo").focus();
+            return true;
+        }
+
+        if (pOcrCode.trim().length == 0) {
+            window.alert("OCRCODE no puede estar en blanco");
+            document.getElementById("inpOcrCode").focus();
+            return true;
+        }
+    }
+
+    function insertarClaseOrdenProduccion(e) {//Hace el post para insertar una clase orden producción en la base de datos.
+        e.preventDefault();
+
+        if (hayVacios())
+            return;
+
+        var pData = $("#FormaClaseOrdenProduccion").serialize();
+        var pUrl  = "/claseordenproduccion/insertar";
+
+        $.post(pUrl, pData, function (Result) {
+            if (Result != null) {
+                insertarClaseOrdenProduccionEnTabla(Result, false);
+                $(".ui-dialog-titlebar-close").trigger('click');
+            } else {
+                window.alert("Ya existe una clase orden producción con el mismo nombre");
+                document.getElementById("inpDescripcion").focus();
+            }
+        });
+    }
+
+    function insertarClaseOrdenProduccionEnTabla(AClaseOrdenProduccion, modificar) {//Inserta o actualiza los datos en la tabla dependiendo si es una inserción o modificación
+        if (!modificar) {//Si no es modificacíon se agrega una nueva fila en la tabla
+            var pFila            = document.createElement("tr");
+            var pCeldaId         = document.createElement("td");
+            var pCeldaClase      = document.createElement("td");
+            var pCeldaActivo     = document.createElement("td");
+            var pCeldaOcrCode    = document.createElement("td");
+            var pCeldaEliminar   = document.createElement("td");
+            var pAnchorEliminar  = document.createElement("a");
+            var pCeldaModificar  = document.createElement("td");
+            var pAnchorModificar = document.createElement("a");
+
+            pFila.id         = "tr" + AClaseOrdenProduccion.Id.toString();
+            pCeldaClase.id   = "clase" + AClaseOrdenProduccion.Id.toString();
+            pCeldaActivo.id  = "activo" + AClaseOrdenProduccion.Id.toString();
+            pCeldaOcrCode.id = "ocrcode" + AClaseOrdenProduccion.Id.toString();
+
+            pCeldaId.textContent         = AClaseOrdenProduccion.Id;
+            pCeldaClase.textContent      = AClaseOrdenProduccion.Clase;
+            pCeldaActivo.textContent     = AClaseOrdenProduccion.Activo;
+            pCeldaOcrCode.textContent    = AClaseOrdenProduccion.OcrCode;
+            pAnchorEliminar.textContent  = "Eliminar";
+            pAnchorModificar.textContent = "Modificar";
+
+            pAnchorEliminar.href  = "javascript:eliminarClaseOrdenProduccion(" + AClaseOrdenProduccion.Id.toString() + ");";
+            pAnchorModificar.href = "javascript:capturarClaseOrdenProduccionModificar(" + AClaseOrdenProduccion.Id.toString() + ");";
+
+            pCeldaEliminar.appendChild(pAnchorEliminar);
+            pCeldaModificar.appendChild(pAnchorModificar);
+            pFila.appendChild(pCeldaId);
+            pFila.appendChild(pCeldaClase);
+            pFila.appendChild(pCeldaActivo);
+            pFila.appendChild(pCeldaOcrCode);
+            pFila.appendChild(pCeldaModificar);
+            pFila.appendChild(pCeldaEliminar);
+
+            document.getElementById("bodyClaseOrdenProduccion").insertBefore(pFila, document.getElementById("bodyClaseOrdenProduccion").firstChild);
+
+        } else {//Si es modificación se actualizan los valores
+            document.getElementById("clase" + AClaseOrdenProduccion.Id).textContent   = AClaseOrdenProduccion.Clase;
+            document.getElementById("activo" + AClaseOrdenProduccion.Id).textContent  = AClaseOrdenProduccion.Activo
+            document.getElementById("ocrcode" + AClaseOrdenProduccion.Id).textContent = AClaseOrdenProduccion.OcrCode
+        }
+    }
+
+    function eliminarClaseOrdenProduccion(AId) {//Hace el post para eliminar una clase orden produccion.
+
+            if (!window.confirm("¿Eliminar clase orden producción?")) {
+                return;
+            }
+
+            var pUrl  = "/claseordenproduccion/eliminar";
+            var pData = "Id=" + AId.toString();
+
+            $.post(pUrl, pData, function (Result) {
+                if (Result.Result == true) {
+                    window.alert("Clase orden producción eliminada con éxito");
+                    document.getElementById("tr" + AId.toString()).remove();
+                }
+                else {
+                    window.alert(Result.Mensaje);
+                }
+            });
+        }
+
+</script>

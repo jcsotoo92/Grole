@@ -1,0 +1,108 @@
+﻿<h2>Consulta de folios</h2>
+
+<form action="/obtenertablafolios" method="post" id="formaFolios">
+    <label for="inpFolio">Folio: </label>
+    <input type="text" id="inpFolio" name="Folio" value="" />
+    <input type="submit" value="Consultar" onclick="consultar(event)" />
+</form>
+
+<a href="#">Excel</a>
+
+<div id="cargando"></div>
+<div id="tablaFolios" style="display:none">
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Folio</th>
+                <th>Producto</th>
+                <th>Lote</th>
+                <th>Código Barras</th>
+                <th>Peso</th>
+                <th>Embarcado</th>
+                <th>Tarima</th>
+                <th>Fecha Embarque</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoConsultaFolios"></tbody>
+    </table>
+    <div class="dataTables_info" id="tablaFolios_info"></div>
+</div>
+
+<script>
+    $(document).ready(
+        function () {
+            $("#inpFolio").numeric(
+				{
+				    negative: false,
+				    decimal: false
+				});
+            document.getElementById("inpFolio").focus();
+
+
+        }
+    );
+
+    function consultar(e) {
+        e.preventDefault();
+
+        if (document.getElementById("inpFolio").value.length == 0) {
+            window.alert("Debe introducir un folio");
+            return;
+        }
+
+        limpiarTabla("cuerpoConsultaFolios");
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        var pUrl = "/etiquetas/obtenertablafolio";
+        var pData = $("#formaFolios").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            var pInfo = document.getElementById("tablaFolios_info");
+            for (var i = 0; i < Result.length; i++) {
+                var pFolio = Result[i];
+
+                var pFila               = document.createElement("tr");
+                var pCeldaFecha         = document.createElement("td");
+                var pCeldaFolio         = document.createElement("td");
+                var pCeldaProducto      = document.createElement("td");
+                var pCeldaLote          = document.createElement("td");
+                var pCeldaCodBarras     = document.createElement("td");
+                var pCeldaPeso          = document.createElement("td");
+                var pCeldaEmbarcado     = document.createElement("td");
+                var pCeldaTarima        = document.createElement("td");
+                var pCeldaFechaEmbarque = document.createElement("td");
+
+                pCeldaFecha.textContent         = $.datepicker.formatDate('dd/mm/yy', new Date(pFolio.Fecha));
+                pCeldaFolio.textContent         = zeroPad(pFolio.Folio, 6);
+                pCeldaProducto.textContent      = pFolio.Producto;
+                pCeldaLote.textContent          = pFolio.Lote;
+                pCeldaCodBarras.textContent     = pFolio.CodigoBarras;
+                pCeldaPeso.textContent          = Number(pFolio.Peso).toFixed(2);
+                pCeldaEmbarcado.textContent     = pFolio.Embarcado;
+                pCeldaTarima.textContent        = pFolio.Tarima;
+                pCeldaFechaEmbarque.textContent = $.datepicker.formatDate('dd/mm/yy', new Date(pFolio.Emb_Fecha));
+                                
+                pFila.appendChild(pCeldaFecha);
+                pFila.appendChild(pCeldaFolio);
+                pFila.appendChild(pCeldaProducto);
+                pFila.appendChild(pCeldaLote);
+                pFila.appendChild(pCeldaCodBarras);
+                pFila.appendChild(pCeldaPeso);
+                pFila.appendChild(pCeldaEmbarcado);
+                pFila.appendChild(pCeldaTarima);
+                pFila.appendChild(pCeldaFechaEmbarque);
+
+                document.getElementById("cuerpoConsultaFolios").appendChild(pFila);
+
+            }
+            
+            pInfo.textContent = "Son" + Result.length + "registros";
+            $cargando.html("");
+            document.getElementById("tablaFolios").style.display = "block";
+        });
+    }
+
+    
+</script>

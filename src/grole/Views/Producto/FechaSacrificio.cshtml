@@ -1,0 +1,92 @@
+﻿<h2>Cambiar fecha de sacrificio de producto</h2>
+
+<form action="/producto/obtenerproducto" method="get">
+    <label for="inpClaveProd">Producto: </label>
+    <input type="text" name="Clave" value="" id="inpClaveProd" onkeyup="buscarProducto()"/>
+    <select id="listaProductos" onchange="cambiarOpcionCombo()"></select>
+    <input type="submit" value="Información" onclick="desplegarInformacion(event)"/>
+</form>
+
+<form action="/producto/cambiarfechasacrificio" method="post" id="formaFechas"style="display:none">
+    <div>
+        <label form="inpFechaAnterior">Fecha de Sacrificio: </label>
+        <input type="text"  value="" id="inpFechaAnterior" disabled="disabled"/>
+    </div>
+    <div>
+        <label form="inpFechaNueva">Nueva Fecha de Sacrificio: </label>
+        <input type="text" value="" id="inpFechaNueva" name="Fecha_Sacrificio" class="datepicker"/>
+        <input type="submit" value="Cambiar Fecha Sacrificio" onclick="cambiarFechaSacrificio(event)"/>
+    </div>
+</form>
+
+<script>
+    $(document).ready(
+        function () {
+            $("#inpClaveProd").numeric(//Valida que solo se pueda introducir numeros en el input de producto
+			{
+			    negative: false,
+			    decimal: false
+			});
+
+            var selectProd = document.getElementById("listaProductos");
+            if (!selectProd.hasChildNodes()) {//Llena lista desplegable de productos
+                $.get("/producto/obtenerproductos", function (Result) {
+                    document.getElementById("inpClaveProd").value = Result[0].Clave;
+                    for (var i = 0; i < Result.length; i++) {
+
+                        var optionProd         = document.createElement("option");
+                        optionProd.id          = Result[i].Clave;
+                        optionProd.value       = Result[i].Clave;
+                        optionProd.textContent = "(" + Result[i].Clave + ") " + Result[i].Descripcion;
+                        if (i == 0)
+                            document.getElementById("listaProductos").value = Result[i];
+                        selectProd.appendChild(optionProd);
+                    }
+                });
+            }
+        }
+    );
+
+    function desplegarInformacion(e) {//Obtiene la fecha de sacrificio del producto indicado y la muestra
+        event.preventDefault();
+        var pClave = document.getElementById("inpClaveProd").value;
+
+        var pUrl  = "/producto/obtenerfechadesacrificiodeproducto";
+        var pData = "Clave=" + pClave;
+        $.get(pUrl, pData, function (Result) {
+            document.getElementById("formaFechas").style.display = "block";
+            document.getElementById("inpFechaAnterior").value    = Result.Fecha_Sacrificio;
+            document.getElementById("inpFechaNueva").value       = "";
+        });
+    }
+    
+    function cambiarFechaSacrificio(e) {//Hace el post para cambiar la fecha de sacrificio de un producto
+        e.preventDefault();
+        var pClave = document.getElementById("inpClaveProd").value;
+        var pFecha = document.getElementById("inpFechaNueva").value;
+        
+        if (pFecha.length == 0) {
+            window.alert("Introduzca la fecha nueva");
+            return;
+        }
+        
+        if (window.confirm("¿Cambiar fecha de sacrificio de producto?")) {
+            var pUrl = "/producto/modificarfechasacrificio";
+            var pData = "Clave=" + pClave + "&Fecha_Sacrificio=" + pFecha;
+            $.post(pUrl, pData, function (Result) {
+                if (Result != "null") {
+                    window.alert("Cambio realizado con éxito");
+                    document.getElementById("formaFechas").style.display = "none";
+                }
+            });
+        }
+    }
+    
+    function buscarProducto() {//Actualiza el valor de la lista desplegable de productos en base al id introducido en el input
+        document.getElementById("listaProductos").value = document.getElementById("inpClaveProd").value;
+    }
+
+    function cambiarOpcionCombo() {//Actualiza el valor del input de productos al seleccionar otra opcion en la lista desplegable
+        document.getElementById("inpClaveProd").value = document.getElementById("listaProductos").value;
+    }
+</script>

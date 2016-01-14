@@ -1,0 +1,109 @@
+﻿@model List<grole.src.Entidades.LoteNoInventariable>
+
+<h2>Lotes no inventariables</h2>
+<a href="javascript: capturarLote()">Agregar lote no inventariable</a>
+<table>
+    <thead>
+        <tr>
+            <th>Lote</th>
+            <th>Opción 1</th>
+        </tr>
+    </thead>
+    <tbody id="cuerpoLotes">
+        @foreach(var item in Model)
+        {
+            <tr id="tr@(item.Clave)">
+                <td>@item.Lote</td>
+                <td><a href="javascript: eliminarLote(@item.Clave)">Eliminar</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<form action="/lotes/insertar" id="FormaLotes" method="post" style="display:none">
+    <label for="inpLote"></label>
+    <input type="text" id="inpLote" name="Lote"/>
+    <input type="submit" value="Aceptar" onclick="insertarLote(event)"/>
+    <input type="button" value="Cancelar" onclick="cancelar(event)" />
+</form>
+
+<script>
+    $(document).ready(
+		function () {//Valida que sea número y que no tenga decimales ni negativos
+		    $("#inpLote").numeric(
+				{
+				    negative: false,
+				    decimal: false
+				});
+		}
+	)
+
+    function insertarLoteEnTabla(lote) {//Inserta un lote en la tabla(vista)
+        var fila          = document.createElement("tr");
+        var celdaLote     = document.createElement("td");
+        var celdaEliminar = document.createElement("td");
+        var aEliminar     = document.createElement("a");
+
+        fila.id               = "tr" + lote.Clave;
+        aEliminar.href        = "eliminarLote("+lote.Clave+")";
+        aEliminar.textContent = "Eliminar";
+        celdaLote.textContent = lote.Lote;
+
+        celdaEliminar.appendChild(aEliminar);
+        fila.appendChild(celdaLote);
+        fila.appendChild(celdaEliminar);
+
+        document.getElementById("cuerpoLotes").appendChild(fila);
+    }
+
+    function insertarLote(e) {//Hace el post para insertar un lote en la base de datos
+        e.preventDefault();
+        var pUrl = "/lotesnoinventariables/insertar";
+        var pData = $("#FormaLotes").serialize();
+        $.post(pUrl, pData, function (Result) {
+            if (Result != null) {
+                insertarLoteEnTabla(Result);
+                cerrarVentana();
+            }else
+                window.alert("Ya existe un lote con ese número");
+            
+        });
+    }
+
+    function capturarLote() {//Abre la ventana modal para insertar un lote
+        $("#FormaLotes").dialog({
+            title: "Insertar lote",
+            height: 130,
+            width: 280,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpLote").focus();
+                document.getElementById("inpLote").value = "";
+            }
+        });
+    }
+
+    function eliminarLote(clave) {//Hace el post para eliminar un lote de la base de datos
+        if (window.confirm("¿Eliminar lote no inventariable?")) {
+            var pUrl  = "/lotes/eliminar";
+            var pData = "Clave=" + clave;
+            $.post(pUrl, pData, function (Result) {
+                if (Result.Result == true) {
+                    window.alert("Lote eliminado con éxito");
+                    document.getElementById("tr" + clave).remove();
+                } else {
+                    window.alert(Result.Mensaje);
+                }
+            });
+        }
+    }
+
+    function cancelar(e) {//Cierra ventana modal
+        event.preventDefault();
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+
+    function cerrarVentana() {//Cierra ventana modal
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+</script>

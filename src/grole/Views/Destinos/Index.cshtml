@@ -1,0 +1,201 @@
+﻿@model List<grole.src.Entidades.Destino>
+
+<h2>Destinos</h2>
+<div>
+    <a href="javascript:capturarDestino();">Nuevo Destino</a>
+</div>
+
+<table id="tableDestinos">
+    <thead>
+        <tr>
+            <th>Clave</th>
+            <th>Destino</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="bodyDestinos">
+        @foreach (var item in Model)
+        {
+            <tr id="tr@(item.Clave)">
+                <td>@item.Clave</td>
+                <td id="td@(item.Clave)">@item._Destino</td>
+                <td><a href="javascript:capturarDestinoModificar(@(item.Clave));">Modificar</a></td>
+                <td><a href="javascript:eliminarDestino(@(item.Clave));">Eliminar</a></td>
+            </tr>}
+
+    </tbody>
+</table>
+
+<form id="FormaDestino" style="display:none" method="post">
+    <div>
+        Destino:
+    </div>
+    <div id="divClave" style="display:none">
+        <input type="text" id="txtClave" disabled="disabled">
+    </div>
+    <div>
+        <input name="_Destino" id="inpDestino" value="" maxlength="50">
+    </div>
+    <div>
+        <button id="btnModificar" onclick="modificarDestino(event);" style="display:none">Modificar</button>
+        <button id="btnGuardar" onclick="insertarDestino(event);">Insertar</button>&nbsp;&nbsp;<button id="btnCancelar" onclick="cancelarCaptura(event);">Cancelar</button>
+    </div>
+</form>
+
+<script>
+
+	function capturarDestino(){//Abre la ventana modal para insertar una destino
+
+		document.getElementById("btnModificar").style.display = "none";
+		document.getElementById("btnGuardar").style.display   = "inline-block";
+		document.getElementById("divClave").style.display     = "none";
+
+		$("#FormaDestino").dialog({
+				title: "Nueva Destino",
+                height: 600,
+                width: 500,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpDestino").focus();
+					document.getElementById("inpDestino").value = "";
+					document.getElementById("txtClave").value   = "";
+                }
+            });
+	}
+
+	function capturarDestinoModificar(clave){//Abre la ventana modal para modificar una destino
+		document.getElementById("btnModificar").style.display = "inline-block";
+		document.getElementById("btnGuardar").style.display   = "none";
+		document.getElementById("divClave").style.display     = "block";
+
+		$("#FormaDestino").dialog({
+				title: "Modificar Destino",
+                height: 600,
+                width: 500,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpDestino").focus();
+					document.getElementById("inpDestino").value = "";
+					document.getElementById("txtClave").value   = clave;
+					document.getElementById("inpDestino").value = document.getElementById("td"+clave).textContent;
+                }
+            });
+	}
+
+	function cancelarCaptura(e) {//Cierra la ventana modal
+	    e.preventDefault();
+		$(".ui-dialog-titlebar-close").trigger('click');
+	}
+
+	function modificarDestino(e) {//Hace el post para modificar una destino en la base de datos.
+	    e.preventDefault();
+
+		var pClave    = document.getElementById("txtClave").value;
+		var p_Destino = document.getElementById("inpDestino").value;
+
+		if (p_Destino.trim().length == 0){
+			window.alert("El destino no puede estar en blanco");
+			document.getElementById("inpDestino").focus();
+			return;
+		}
+
+		var pData = "Clave=" + pClave + "&_Destino=" + p_Destino;
+		var pUrl  = "/destinos/modificar";
+
+		$.post(pUrl, pData, function(Result)
+		{
+		    if (Result != null) {
+		        insertarDestinoEnTabla(Result, true);
+		        $(".ui-dialog-titlebar-close").trigger('click');
+		    } else {
+		        window.alert("Ya existe un destino con el mismo nombre");
+		        document.getElementById("inpDestino").focus();
+		    }
+		    
+				
+		});
+	}
+
+	function insertarDestino(e) {//Hace el post para insertar una destino en la base de datos
+	    e.preventDefault();
+
+		var pClave    = "0";
+		var p_Destino = document.getElementById("inpDestino").value;
+
+		if (p_Destino.trim().length == 0){
+			window.alert("El destino no puede estar en blanco");
+			document.getElementById("inpDestino").focus();
+			return;
+		}
+
+		var pData = "Clave=" + pClave + "&_Destino=" + p_Destino;
+
+		var pUrl = "/destinos/insertar";
+
+		$.post(pUrl, pData, function(Result)
+		{
+		    if (Result != null) {
+		        insertarDestinoEnTabla(Result, false);
+		        $(".ui-dialog-titlebar-close").trigger('click');
+		    } else {
+		        window.alert("Ya existe un destino con el mismo nombre");
+		        document.getElementById("inpDestino").focus();
+		    }
+		});
+	}
+
+	function insertarDestinoEnTabla(ADestino, modificar) {//Inserta o actualiza los datos en la tabla dependiendo si es una inserción o modificación
+        if(!modificar){
+		    var pFila            = document.createElement("tr");
+		    var pCeldaClave      = document.createElement("td");
+		    var pCelda_Destino   = document.createElement("td");
+		    var pCeldaEliminar   = document.createElement("td");
+		    var pAnchorEliminar  = document.createElement("a");
+		    var pCeldaModificar  = document.createElement("td");
+		    var pAnchorModificar = document.createElement("a");
+
+		    pFila.id          = "tr" + ADestino.Clave.toString();
+		    pCelda_Destino.id = "td" + ADestino.Clave.toString();
+
+		    pCeldaClave.textContent      = ADestino.Clave;
+		    pCelda_Destino.textContent   = ADestino._Destino;
+		    pAnchorEliminar.textContent  = "Eliminar";
+		    pAnchorModificar.textContent = "Modificar";
+
+		    pAnchorEliminar.href  = "javascript:eliminarDestino(" + ADestino.Clave.toString() + ");";
+		    pAnchorModificar.href = "javascript:capturarDestinoModificar(" + ADestino.Clave.toString() + ");";
+
+		    pCeldaEliminar.appendChild(pAnchorEliminar);
+		    pCeldaModificar.appendChild(pAnchorModificar);
+		    pFila.appendChild(pCeldaClave);
+		    pFila.appendChild(pCelda_Destino);
+		    pFila.appendChild(pCeldaModificar);
+		    pFila.appendChild(pCeldaEliminar);
+
+		    document.getElementById("bodyDestinos").insertBefore(pFila, document.getElementById("bodyDestinos").firstChild);
+		}else{
+			document.getElementById("td"+ADestino.Clave).textContent=ADestino._Destino;
+		}
+	}
+
+	function eliminarDestino(AClave){//Hace el post para eliminar una destino
+		if (!window.confirm("¿Eliminar destino?")){
+			return;
+		}
+
+		var pUrl  = "/destinos/eliminar";
+		var pData = "Clave=" + AClave.toString();
+
+		$.post(pUrl, pData, function(Result)
+			{
+				if (Result.Result == true)
+				{
+					window.alert("Destino eliminado con éxito");
+					document.getElementById("tr" + AClave.toString()).remove();
+				}
+				else{
+					window.alert(Result.Mensaje);
+				}
+			});
+	}
+</script>

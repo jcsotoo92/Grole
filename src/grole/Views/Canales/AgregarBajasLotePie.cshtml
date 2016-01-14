@@ -1,0 +1,73 @@
+﻿
+<h2>Agregar Bajas Lote Pie, Granja @ViewBag.Nombre</h2>
+<form id="Forma" name="Forma" action="/Canales/AgregaBajaLotePie" method="POST" enctype="application/x-www-form-urlencoded">
+    <input type="hidden" id="Granja" name="Granja" value="@ViewBag.Granja">
+    <input type="hidden" id="Fecha" name="Fecha" value="@ViewBag.Fecha">
+    <input type="hidden" id="Lote" name="Lote" value="@ViewBag.Lote">
+    <table>
+        <tr>
+            <td>Bajas:</td>
+            <td><input type="text" id="Bajas" name="Bajas" value="@ViewBag.Bajas" style="text-align:right"></td>
+        </tr>
+        <tr>
+            <td>Peso Bajas:</td>
+            <td><input type="text" id="PesoBaja" name="PesoBaja" value="@ViewBag.PesoBajas" style="text-align:right"></td>
+        </tr>
+        <tr>
+            <td>Motivo:</td>
+            <td><input type="text" id="MotivoBaja" name="MotivoBaja" value="@ViewBag.MotivoBaja"></td>
+        </tr>
+        <td><input type="button" id="Aceptar" onClick="actualiza_bajas_lote_pie();" value="Aceptar" style="width: 100px; height: 35px"></td>
+        <td><input type="button" id="Cancelar" value="Cancelar" onclick="cancelar();" style="width: 100px; height: 35px"></td>
+        <tr>
+    </table>
+</form>
+<script type="text/javascript">
+
+	$(document).ready(function () {
+            $("#Bajas").focus();
+       });
+
+    function actualiza_bajas_lote_pie()
+    {
+		var pCantidad = parseInt(document.getElementById("Bajas").value);
+		if (pCantidad.toString() == "NaN")
+		{
+			alert("El número de bajas no es válido");
+			$("#Bajas").focus();
+			return false;
+		}
+
+		if (pCantidad <= 0)
+		{
+			alert("El número de bajas no es válido");
+			$("#Bajas").focus();
+			return false;
+		}
+
+		var pPeso = parseFloat(document.getElementById("PesoBaja").value);
+		if (pPeso.toString() == "NaN")
+		{
+			alert("El peso de canales no es válido");
+			$("#PesoBaja").focus();
+			return false;
+		}
+
+		if (pPeso <= 0)
+		{
+			alert("El peso de canales no es válido");
+			$("#PesoBaja").focus();
+			return false;
+		}
+
+		document.forms["Forma"].submit();
+    }
+
+    function cancelar()
+    {
+    	var pFecha      = document.getElementById('Fecha').value.toString();
+    	var pGranja     = document.getElementById('Granja').value.toString();
+    	window.location = "/Canales/LotesPie?Fecha=" + pFecha + "&Granja=" + pGranja;
+    }
+
+</script>

@@ -1,0 +1,133 @@
+﻿@model List<grole.src.Entidades.AreaCortes>
+<h2>Resumen de Cortes Area</h2>
+<table>
+    <tr>
+        <td>Area:</td>
+        <td>
+            <select id=Areas>
+                @foreach (var item in Model)
+                {
+                    <option value="@(item.Id_Area)">@(item.Descripcion)</option>
+                }
+            </select>
+        </td>
+        <td><input type="text" id="Fecha" value=""/></td>
+        <td><input type="button" id="btnConsultar" value="Consultar" onClick="resumen_corte_areas();" /></td>
+        <td><input type="button" id="btnVerificar" value="Darlo como verificado" onClick="verificar_resumen_cortes();" /></td>
+    </tr>
+</table>
+<br />
+<div id="Loading">
+</div>
+<div id="div_excel">
+    <a href="/excel/resumen_cortes_area_">Excel</a>
+</div>
+<br />
+<div id="div_data">
+    <table class="consulta" style="margin-left: 0px; width: 100%;">
+        <thead id="ResultHead"></thead>
+        <tbody id="ResultBody"></tbody>
+        <tfoot id="ResultFoot"></tfoot>
+    </table>
+</div>
+<script type="text/javascript">
+
+	$(document).ready(function () {
+            $.datepicker.setDefaults($.datepicker.regional['es']);
+            $("#Fecha").datepicker({ changeMonth: true, changeYear: true });
+			$("#Areas").focus();
+			$("#div_excel").hide();
+			$("#btnVerificar").hide();
+			var d      = new Date();
+			var month  = d.getMonth() + 1;
+			var day    = d.getDate();
+			var output = (('' + day).length < 2 ? '0' : '') + day + '/' +
+                (('' + month).length < 2 ? '0' : '') + month + '/' +
+                d.getFullYear();
+			document.getElementById("Fecha").value = output;
+
+			
+	});
+
+	function produccion_verificada()
+	{
+		var pFecha = document.getElementById("Fecha").value.toString();
+		var pArea  = document.getElementById("Areas").value.toString();
+
+		if (pFecha.length == 0)
+		{
+				alert("Capture fecha");
+				$("#Fecha").focus();
+				return;
+		}
+		pUrl  = "/Cortes/ProduccionVerificada";
+		pData = "AFecha=" + pFecha + "&AArea=" + pArea;
+		$.post(pUrl, pData, function (Result) {
+		    if (Result)
+		        $("#btnVerificar").show();
+            else
+		        $("#btnVerificar").hide();
+		});
+
+
+	}
+
+	function resumen_corte_areas()
+	{
+	    var pFecha = document.getElementById("Fecha").value.toString();
+		var pArea  = document.getElementById("Areas").value.toString();
+
+		if (pFecha.length == 0)
+		{
+			alert("Capture fecha");
+			$("#Fecha").focus();
+			return;
+		}
+			
+
+		pUrl  = "/Cortes/ObtenerResumenCortesArea";
+		pData = "AFecha=" + pFecha + "&AArea=" + pArea;
+		$.get(pUrl, pData, function (Result) {
+		    var pTabla = document.getElementById("ResultHead");
+		    while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+		        pTabla.removeChild(pTabla.firstChild);
+		    }
+		    var pTabla = document.getElementById("ResultBody");
+		    while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+		        pTabla.removeChild(pTabla.firstChild);
+		    }
+		    for (var i = 0; i < Result.length; i++) {
+		        alert("Lote: " + Result[i].Lote + " - Descripcion: " + Result[i].Descripcion);
+		        if (i == 0)
+		        { $("#ResultHead").append("<tr><th>Lote</th><th>Clave</th><th>Descripcion</th><th>Cajas</th><th>Peso Real</th><th>Peso</th><th>Etq. Elim</th><th>Cajas Pend.</th></tr>"); }
+		        $("#ResultBody").append("<tr><td>" + Result[i].Lote + "</td><td>" + Result[i].Producto + "</td><td>" + Result[i].Descripcion + "</td><td>" + Result[i].Cantidad + "</td><td>" + Result[i].PesoNeto.toFixed(2) + "</td><td>" + Result[i].Peso.toFixed(2) + "</td><td>" + Result[i].Id + "</td><td>" + Result[i].Id_Area + "</td></tr>");
+		    }
+		    if(Result.length!=0)
+		        produccion_verificada();
+		});
+
+		
+	}
+
+
+
+	function verificar_resumen_cortes()
+	{
+		if (confirm("¿Dar producción como buena?"))
+		{
+			var pFecha = document.getElementById("Fecha").value.toString();
+			var pArea  = document.getElementById("Areas").value.toString();
+
+			pUrl  = "/Cortes/CambiarResumenVerificado";
+			pData = "AFecha=" + pFecha + "&AArea=" + pArea;
+			$.post(pUrl, pData, function (Result) {
+
+			    alert(Result);
+			    if (Result.length != 0) $("#btnVerificar").hide();
+
+			 });
+
+			
+		}
+	}
+</script>

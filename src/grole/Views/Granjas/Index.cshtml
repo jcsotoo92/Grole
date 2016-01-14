@@ -1,0 +1,212 @@
+@model List<grole.src.Entidades.Granja>
+
+<h2>Granjas</h2>
+<div>
+	<a href="javascript:capturarGranja();">Nueva Granja</a>
+</div>
+	
+<table id="tableGranjas">
+	<thead>
+		<tr>
+			<th>Clave</th>
+			<th>Nombre</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody id="bodyGranjas">
+		@foreach (var item in Model)
+		{
+			<tr id="tr@(item.Clave)">
+				<td>@item.Clave</td>
+				<td id="td@(item.Clave)">@item.Nombre</td>
+				<td><a href="javascript:capturarGranjaModificar(@(item.Clave));">Modificar</a></td>
+				<td><a href="javascript:eliminarGranja(@(item.Clave));">Eliminar</a></td>
+			</tr>	
+		}
+			
+	</tbody>
+</table>	
+	
+<form id="FormaGranja" style="display:none" method="post">
+	<div>
+		Nombre:
+	</div>
+	<div id="divClave" style="display:none">
+			<input  type="text" id="txtClave" disabled="disabled">
+	</div>
+	<div>
+		<input name="Nombre" id="inpNombre" value="" maxlength="50">
+	</div>
+	<div>
+		<button id="btnModificar" onclick="modificarGranja(event);" style="display:none">Modificar</button>
+		<button id="btnGuardar" onclick="insertarGranja(event);">Insertar</button>&nbsp;&nbsp;<button id="btnCancelar" onclick="cancelarCaptura(event);">Cancelar</button>
+	</div>
+</form>
+	
+
+
+<script>
+	
+	function capturarGranja(){//Abre la ventana modal para insertar una granja
+		
+		document.getElementById("btnModificar").style.display = "none";
+		document.getElementById("btnGuardar").style.display   = "inline-block";
+		document.getElementById("divClave").style.display     = "none";
+		
+		/*$("#FormaGranja").dialog({
+				title: "Nueva Granja",
+                height: 600,
+                width: 500,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpNombre").focus();
+					document.getElementById("inpNombre").value = "";
+					document.getElementById("txtClave").value  = "";
+                }
+            });*/
+		$("#FormaGranja").dialog({
+		    title: "Nueva Granja",
+		    height: 600,
+		    width: 500,
+		    modal: true,
+		    open: function (event, ui) {
+		        document.getElementById("inpNombre").focus();
+		        document.getElementById("inpNombre").value = "";
+		        document.getElementById("txtClave").value  = "";
+		    }
+		});
+	}
+	
+	function capturarGranjaModificar(clave){//Abre la ventana modal para modificar una granja
+		document.getElementById("btnModificar").style.display = "inline-block";
+		document.getElementById("btnGuardar").style.display   = "none";
+		document.getElementById("divClave").style.display     = "block";
+		
+		$("#FormaGranja").dialog({
+				title: "Modificar Granja",
+                height: 600,
+                width: 500,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpNombre").focus();
+					document.getElementById("inpNombre").value = "";
+					document.getElementById("txtClave").value  = clave;
+					document.getElementById("inpNombre").value = document.getElementById("td"+clave).textContent;
+                }
+            });
+	}
+	
+	function cancelarCaptura(e) {//Cierra la ventana modal
+	    e.preventDefault();
+		$(".ui-dialog-titlebar-close").trigger('click');
+	} 
+	
+	function modificarGranja(e) {//Hace el post para modificar una granja en la base de datos.
+	    e.preventDefault();
+
+		var pClave  = document.getElementById("txtClave").value;
+		var pNombre = document.getElementById("inpNombre").value;
+		
+		if (pNombre.trim().length == 0){
+			window.alert("El nombre no puede estar en blanco");
+			document.getElementById("inpNombre").focus();
+			return;
+		}
+		
+		var pData = "Clave=" + pClave + "&Nombre=" + pNombre;
+		var pUrl = "/granjas/modificar";
+		
+		$.post(pUrl, pData, function(Result)
+		{
+		    if (Result != null) {
+		        insertarGranjaEnTabla(Result, true);
+		        $(".ui-dialog-titlebar-close").trigger('click');
+		    } else {
+		        window.alert("Ya existe una granja con el mismo nombre");
+		        document.getElementById("inpNombre").focus();
+		    }
+		});
+	}
+	
+	function insertarGranja(e) {//Hace el post para insertar una granja en la base de datos
+	    e.preventDefault();
+
+		var pClave  = "0";
+		var pNombre = document.getElementById("inpNombre").value;
+		
+		if (pNombre.trim().length == 0){
+			window.alert("El nombre no puede estar en blanco");
+			document.getElementById("inpNombre").focus();
+			return;
+		}
+		
+		var pData = "Clave=" + pClave + "&Nombre=" + pNombre;
+		var pUrl = "/granjas/insertar";
+		
+		$.post(pUrl, pData, function(Result)
+			{
+		    if (Result != null) {
+		        insertarGranjaEnTabla(Result, false);
+		        $(".ui-dialog-titlebar-close").trigger('click');
+		    } else {
+		        window.alert("Ya existe una granja con el mismo nombre");
+		        document.getElementById("inpNombre").focus();
+		    }
+			});
+	}
+	
+	function insertarGranjaEnTabla(AGranja, modificar) {//Inserta o actualiza los datos en la tabla dependiendo si es una inserción o modificación
+        if(!modificar){
+		    var pFila            = document.createElement("tr");
+		    var pCeldaClave      = document.createElement("td");
+		    var pCeldaNombre     = document.createElement("td");
+		    var pCeldaEliminar   = document.createElement("td");
+		    var pAnchorEliminar  = document.createElement("a");
+		    var pCeldaModificar  = document.createElement("td");
+		    var pAnchorModificar = document.createElement("a");
+
+		    pFila.id        = "tr" + AGranja.Clave.toString();
+		    pCeldaNombre.id = "td" + AGranja.Clave.toString();
+
+		    pCeldaClave.textContent      = AGranja.Clave;
+		    pCeldaNombre.textContent     = AGranja.Nombre;
+		    pAnchorEliminar.textContent  = "Eliminar";
+		    pAnchorModificar.textContent = "Modificar";
+
+		    pAnchorEliminar.href  = "javascript:eliminarGranja(" + AGranja.Clave.toString() + ");";
+		    pAnchorModificar.href = "javascript:capturarGranjaModificar(" + AGranja.Clave.toString() + ");";
+		
+		    pCeldaEliminar.appendChild(pAnchorEliminar);
+		    pCeldaModificar.appendChild(pAnchorModificar);
+		    pFila.appendChild(pCeldaClave);
+		    pFila.appendChild(pCeldaNombre);
+		    pFila.appendChild(pCeldaModificar);
+		    pFila.appendChild(pCeldaEliminar);
+
+		    document.getElementById("bodyGranjas").insertBefore(pFila, document.getElementById("bodyGranjas").firstChild);
+		}else{
+			document.getElementById("td"+AGranja.Clave).textContent=AGranja.Nombre;
+		}
+	}
+	
+	function eliminarGranja(AClave){//Hace el post para eliminar una granja
+		if (!window.confirm("¿Eliminar granja?")){
+			return;
+		}
+		
+		var pUrl = "/granjas/eliminar";
+		var pData = "Clave=" + AClave.toString();
+		
+		$.post(pUrl, pData, function(Result)
+			{
+				if (Result.Result == true)
+				{
+					window.alert("Granja eliminada con éxito");
+					document.getElementById("tr" + AClave.toString()).remove();
+				}	
+				else{
+					window.alert(Result.Mensaje);
+				}
+			});
+	}
+</script>

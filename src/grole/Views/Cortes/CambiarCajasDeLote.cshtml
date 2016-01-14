@@ -1,0 +1,184 @@
+﻿<h2>Cambiar cajas de lote</h2>
+<form id="formaCambiarCajasDeLote">
+    <label for="inpFecha">Fecha: </label>
+    <input type="text" value="" id="inpFecha" class="datepicker" name="Fecha"/>
+    <label for="inpLote">Lote: </label>
+    <input type="text" value="0" id="inpLote" name="Lote"/>
+    <input type="hidden" value="0" id="inpLote2"/>
+    <input type="submit" value="Consultar" onclick="consultar(event)"/>
+</form>
+
+<div id="tabla" style="display:none">
+    <button onclick="capturarNuevoLote()">Cambiar de lote</button>
+    <form id="formCajasLote" method="post" action="/cortes/cambiarcajasdelote">
+        <input type="hidden" value="" id="LoteNuevo" name="LoteNuevo"/>
+        <table id="tablaCajas">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" name="name" id="chkPrincipal" value="" onclick="seleccionarTodo()" /></th>
+                    <th>Código</th>
+                    <th>Folio</th>
+                    <th>Producto</th>
+                    <th>Descripción</th>
+                    <th>Peso</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpoTabla"></tbody>
+        </table>
+    </form>
+    <div id="info"></div>
+</div>
+<div style="display:none" id="formNuevoLote">
+    <label for="inpLoteNuevo">Introduzca el lote nuevo: </label>
+    <input type="text" value="" id="inpLoteNuevo"/>
+    <button onclick="cambiarCajaDeLote()">Cambiar</button>
+</div>
+<script>
+    $(document).ready(function () {
+        $(".datepicker").datepicker('setDate', new Date());
+        $("#inpLote").val("1");
+        $("#inpLote,#inpLoteNuevo").numeric(
+            {
+                negative: false,
+                decimal: false
+            });
+    });
+    function consultar(e) {
+        e.preventDefault();
+
+        var pFecha = document.getElementById("inpFecha").value.toString();
+        var pLote = document.getElementById("inpLote").value.toString();
+
+        if (pFecha.length == 0) {
+            window.alert("Capture fecha");
+            $("#inpFecha").focus();
+            return;
+        }
+
+        if (pLote.length == 0) {
+            window.alert("Capture lote");
+            $("#inpLote").focus();
+            return;
+        }
+
+        document.getElementById("chkPrincipal").checked = false;
+        limpiarTabla("cuerpoTabla", null);
+
+        var pUrl = "/cortes/obtenertablalote";
+        var pData = $("#formaCambiarCajasDeLote").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+                document.getElementById("inpLote2").value = document.getElementById("inpLote").value;
+
+                var item = Result[i];
+
+                var pFila             = document.createElement("tr");
+                var pCeldaChk         = document.createElement("td");
+                var pChk              = document.createElement("input");
+                var pCeldaCodigo      = document.createElement("td");
+                var pCeldaFolio       = document.createElement("td");
+                var pCeldaProducto    = document.createElement("td");
+                var pCeldaDescripcion = document.createElement("td");
+                var pCeldaPeso        = document.createElement("td");
+
+                pFila.id       = item.CodigoBarras;
+                pChk.type      = "checkbox";
+                pChk.className = "checks";
+                pChk.name      = "Chk";
+                pChk.value     = item.CodigoBarras;
+
+                pCeldaCodigo.textContent      = item.CodigoBarras;
+                pCeldaFolio.textContent       = item.Folio;
+                pCeldaProducto.textContent    = item.Producto;
+                pCeldaDescripcion.textContent = item.Descripcion;
+                pCeldaPeso.textContent        = Number(item.Peso).toFixed(2);
+                
+                pCeldaChk.appendChild(pChk);
+                pFila.appendChild(pCeldaChk);
+                pFila.appendChild(pCeldaCodigo);
+                pFila.appendChild(pCeldaFolio);
+                pFila.appendChild(pCeldaProducto);
+                pFila.appendChild(pCeldaDescripcion);
+                pFila.appendChild(pCeldaPeso);
+
+                document.getElementById("cuerpoTabla").appendChild(pFila);
+            }
+            $("#info").text("Son " + Result.length + " registros");
+            $("#tabla").show();
+        });
+    }
+
+    function capturarNuevoLote() {
+        var haySeleccionados = false;
+        var checks = document.getElementsByClassName("checks");
+        for (var i = 0; i < checks.length; i++) {
+            if (checks[i].checked) {
+                haySeleccionados = true;
+                break;
+            }
+        }
+
+        if (!haySeleccionados) {
+            window.alert("Debe seleccionar al menos una caja");
+            return
+        } else {
+            $("#formNuevoLote").dialog({
+                title: "Cambiar Lote",
+                height: 180,
+                width: 300,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpLoteNuevo").focus();
+                    document.getElementById("inpLoteNuevo").value = "1";
+                }
+            });
+        }
+    }
+
+    function cambiarCajaDeLote() {
+        var pLote = document.getElementById("inpLoteNuevo");
+
+        if (pLote.value.length == 0) {
+            window.alert("El lote no es válido");
+            return;
+        }
+
+        if (document.getElementById("inpLote2").value == pLote.value) {
+            window.alert("La caja ya está en ese lote");
+            return;
+        }
+
+        document.getElementById("LoteNuevo").value = pLote.value;
+
+        var pUrl = "/cortes/cambiarcajasdelote";
+        var pData = $("#formCajasLote").serialize();
+        $.post(pUrl, pData, function (Result) {
+            if (Result == 0) {
+                window.alert("Hubo algún problema, no se afectó ninguna fila, reportelo al dpto. de sistemas");
+                cerrarCaptura();
+            } else {
+                window.alert("Se cambió correctamente");
+                cerrarCaptura();
+                $("#tabla").hide();
+            }
+        });
+
+    }
+    function seleccionarTodo() {
+        var checks = document.getElementsByClassName("checks");
+        if (document.getElementById("chkPrincipal").checked) {
+            for (var i = 0; i < checks.length; i++) {
+                checks[i].checked = true;
+            }
+        } else {
+            for (var i = 0; i < checks.length; i++) {
+                checks[i].checked = false;
+            }
+        }
+    }
+
+    function cerrarCaptura() {//Cierra la ventana modal.
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+</script>

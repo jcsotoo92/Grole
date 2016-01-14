@@ -1,0 +1,119 @@
+﻿<h2>Consulta de pedimentos</h2>
+
+<form action="/obtenertablapedimentos" method="post" id="formaPedimentos">
+    <label for="inpPedimento">Pedimento: </label>
+    <input type="text" id="inpPedimento" name="Pedimento" value="" />
+    <input type="submit" value="Consultar" onclick="consultar(event)" />
+</form>
+
+<a href="#">Excel</a>
+
+<div id="cargando"></div>
+<div id="tablaPedimentos" style="display:none">
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Descripción</th>
+                <th>KG</th>
+                <th>Salidas</th>
+                <th>Saldo</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoConsultaPedimentos"></tbody>
+        <tfoot id="footerTablaPedimentos"></tfoot>
+    </table>
+    <div class="dataTables_info" id="tablaPedimentos_info"></div>
+</div>
+
+<script>
+    $(document).ready(
+        function () {
+            $("#inpPedimento").numeric(
+				{
+				    negative: false,
+				    decimal: false
+				});
+            document.getElementById("inpPedimento").focus();
+
+
+        }
+    );
+
+    function consultar(e) {
+        e.preventDefault();
+
+        if (document.getElementById("inpPedimento").value.length == 0) {
+            window.alert("Debe introducir un pedimento");
+            return;
+        }
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        var pTotalKilos = 0, pTotalSalidas = 0, pTotalSaldo = 0;
+
+        var pUrl = "/cortes/obtenertablapedimento";
+        var pData = $("#formaPedimentos").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            var pInfo = document.getElementById("tablaPedimentos_info");
+            for (var i = 0; i < Result.length; i++) {
+                var pPedimento = Result[i];
+
+                var pFila             = document.createElement("tr");
+                var pCeldaProducto    = document.createElement("td");
+                var pCeldaDescripcion = document.createElement("td");
+                var pCeldaKilos       = document.createElement("td");
+                var pCeldaSalidas     = document.createElement("td");
+                var pCeldaSaldo       = document.createElement("td");
+
+                pCeldaProducto.textContent    = pPedimento.Producto;
+                pCeldaDescripcion.textContent = pPedimento.Lote;
+                pCeldaKilos.textContent       = Number(pPedimento.Kilos).toFixed(2);
+                pCeldaSalidas.textContent     = Number(pPedimento.Salidas).toFixed(2);
+                pCeldaSaldo.textContent       = Number(pPedimento.Kilos - pPedimento.Salidas).toFixed(2);
+
+                pTotalKilos   += pPedimento.Kilos;
+                pTotalSalidas += pPedimento.Salidas;
+                pTotalSaldo   += (pPedimento.Kilos - pPedimento.Salidas);
+
+                pFila.appendChild(pCeldaProducto);
+                pFila.appendChild(pCeldaDescripcion);
+                pFila.appendChild(pCeldaKilos);
+                pFila.appendChild(pCeldaSalidas);
+                pFila.appendChild(pCeldaSaldo);
+
+                document.getElementById("cuerpoConsultaPedimentos").appendChild(pFila);
+ 
+            }
+            var pFilaTotales             = document.createElement("tr");
+            var pCeldaProductoTotales    = document.createElement("td");
+            var pCeldaDescripcionTotales = document.createElement("td");
+            var pCeldaKilosTotales       = document.createElement("td");
+            var pCeldaSalidasTotales     = document.createElement("td");
+            var pCeldaSaldoTotales       = document.createElement("td");
+
+            pCeldaDescripcionTotales.textContent = "TOTAL";
+            pCeldaKilosTotales.textContent       = Number(pTotalKilos).toFixed(2);
+            pCeldaSaldoTotales.textContent       = Number(pTotalSaldo).toFixed(2);
+            pCeldaSalidasTotales.textContent     = Number(pTotalSalidas).toFixed(2);
+
+            pTotalKilos   += pPedimento.Kilos;
+            pTotalSalidas += pPedimento.Salidas;
+            pTotalSaldo   += (pPedimento.Kilos - pPedimento.Salidas);
+
+            pFilaTotales.appendChild(pCeldaProductoTotales);
+            pFilaTotales.appendChild(pCeldaDescripcionTotales);
+            pFilaTotales.appendChild(pCeldaKilosTotales);
+            pFilaTotales.appendChild(pCeldaSaldoTotales);
+            pFilaTotales.appendChild(pCeldaSalidasTotales);
+
+            document.getElementById("footerTablaPedimentos").appendChild(pFilaTotales);
+
+            pInfo.textContent = "Son " + Result.length + " registros";
+            $cargando.html("");
+            document.getElementById("tablaPedimentos").style.display = "block";
+        });
+    }
+
+</script>

@@ -1,0 +1,60 @@
+﻿@model List<grole.src.Entidades.DetalleCorteFecha>
+<h2>Detalle de resúmen de corte</h2>
+<p>Fecha: @Context.Request.Query["fecha"]</p>
+<p>Cámara: @Context.Request.Query["camara"]</p>
+<p>Embarcado: @Context.Request.Query["embarcado"]</p>
+
+<a href="#">Excel</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Folio</th>
+            <th>Lote</th>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Código Barras</th>
+            <th>Peso</th>
+            <th>Tarima</th>
+            <th>Ubicación</th>
+            <th>Entrada aplicada</th>
+            <th>Folio resúmen entrada</th>
+        </tr>
+    </thead>
+
+    <tbody id="cuerpoTablaResumenCorte">
+      @{ decimal pSumaPeso = 0;
+         foreach (var item in Model)
+         {
+            <tr>
+                <td>@item.Folio</td>
+                <td>@item.Lote</td>
+                <td>@item.Producto</td>
+                <td>@item.Descripcion</td>
+                <td>@item.CodigoBarras</td>
+                <td>@item.Peso</td>
+                <td>@item.Tarima</td>
+                <td>@item.Ubicacion</td>
+                <td>@item.Entrada_Aplicada</td>
+                <td>@item.Id_Acum</td>
+            </tr>
+              pSumaPeso += @item.Peso;
+          }
+          }
+    </tbody>
+    <tfoot id="footerTablaResumenCorte">
+        <tr>
+            <th>Total: </th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th>@pSumaPeso.ToString("#.##")</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </tfoot>
+
+</table>

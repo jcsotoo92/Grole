@@ -1,0 +1,160 @@
+@model List<grole.src.Entidades.TipoEmpaque>
+<h2>Tipos Empaque</h2>
+
+<a href="javascript:capturarAgregarTipoEmpaque();">Agregar tipo de empaque</a>
+
+<table>
+	<thead>
+		<tr>
+			<th>Nombre</th>
+			<th></th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody id="cuerpoTabla">
+		@foreach(var item in Model){
+		<tr id="tr@(item.Id)">
+			<td id="nom@(item.Id)">@item.Nombre</td>
+			<td><a href="javascript:capturarModificarTipoEmpaque(@item.Id,'@item.Nombre')">Modificar</a></td>
+			<td><a href="javascript:eliminarTipoEmpaque(@item.Id)">Eliminar</a></td>
+		</tr>	
+		}
+		
+	</tbody>
+</table>
+
+<form action="" method="post" id="FormaTipoEmpaque" style="display:none">
+	<label for="inpNombre">Nombre: </label>
+	<input type="hidden" id="inpId" name="Id"/>
+	<input type="text" id="inpNombre" name="Nombre" maxlength="120"/>
+	<input type="submit" id="btnAgregar" value="Agregar" onclick="agregarTipoEmpaque(event)">
+	<input type="submit" id="btnModificar" value="Modificar" onclick="modificarTipoEmpaque(event)">
+	<input type="button" value="Cancelar" onclick="cancelar(event)">
+</form>
+
+<script>
+	function capturarAgregarTipoEmpaque(){//Abre la ventana modal para insertar un nuevo tipo de empaque
+		document.getElementById("btnModificar").style.display = "none";
+		document.getElementById("btnAgregar").style.display   = "inline-block";
+		
+		$("#FormaTipoEmpaque").dialog({
+				title: "Nuevo tipo de empaque",
+                height: 180,
+                width: 300,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpNombre").focus();
+					document.getElementById("inpNombre").value = "";
+                }
+            });
+	}
+	
+	function capturarModificarTipoEmpaque(Aid, Anombre){//Abre la ventana modal para modificar un tipo de empaque
+		document.getElementById("btnModificar").style.display = "inline-block";
+		document.getElementById("btnAgregar").style.display   = "none";
+		
+		$("#FormaTipoEmpaque").dialog({
+				title: "Modificar tipo de empaque",
+                height: 180,
+                width: 300,
+                modal: true,
+                open: function (event, ui) {
+					document.getElementById("inpNombre").value = Anombre;
+					document.getElementById("inpId").value     = Aid;
+                    document.getElementById("inpNombre").focus();
+                }
+            });
+	}
+	
+	function agregarTipoEmpaque(e){//Hace el post para insertar un tipo de empaque en la base de datos
+		e.preventDefault();
+		
+		var pUrl  = "/empaques/agregartipoempaque";
+		var pData = $("#FormaTipoEmpaque").serialize();
+		
+		$.post(pUrl, pData, function (Result){
+			if(Result!=null){
+				insertarTipoEmpaqueEnTabla(Result,false);
+				cerrarVentana();
+			}else{
+				window.alert("Ya existe un tipo de empaque con el mismo nombre");
+				document.getElementById("inpNombre").focus();
+			}
+		});
+	}
+	
+	function modificarTipoEmpaque(e){//Hace el post para modificar un tipo de empaque en la base de datos
+		e.preventDefault();
+		
+		var pUrl  = "/empaques/modificartipoempaque";
+		var pData = $("#FormaTipoEmpaque").serialize();
+		
+		$.post(pUrl, pData, function (Result){
+			if(Result!=null){
+				insertarTipoEmpaqueEnTabla(Result,true);
+				cerrarVentana();
+			}else{
+				window.alert("Ya existe un tipo de empaque con el mismo nombre");
+				document.getElementById("inpNombre").focus();
+			}
+			
+		});
+	}
+	
+	function eliminarTipoEmpaque(Aid){//Hace el post para eliminar un tipo de empaque de la base de datos
+		if(window.confirm("¿Eliminar tipo empaque?")){
+			var pUrl  = "/empaques/eliminartipoempaque";
+			var pData = "Clave="+Aid;
+			$.post(pUrl,pData, function (Result){
+				if(Result.Result==true){
+					window.alert("Tipo de empaque eliminado con éxito");
+					document.getElementById("tr"+Aid).remove();
+				}else{
+					window.alert(Result.Mensaje);
+				}
+			});
+		}
+	}
+
+	function insertarTipoEmpaqueEnTabla(ATipoEmpaque, AEsModificar){//Inserta un nuevo tipo de empaque o actualiza la tabla del tipo que se modificó
+		if(AEsModificar){
+			document.getElementById("nom"+ATipoEmpaque.Id).textContent = ATipoEmpaque.Nombre;
+		}else{
+			var pFila           = document.createElement("tr");
+			var pCeldaNombre    = document.createElement("td");
+			var pCeldaModificar = document.createElement("td");
+			var pCeldaEliminar  = document.createElement("td");
+			var pLinkModificar  = document.createElement("a");
+			var pLinkEliminar   = document.createElement("a");
+			
+			pFila.id 		= "tr" + ATipoEmpaque.Id;
+			pCeldaNombre.id = "nom" + ATipoEmpaque.Id;
+			
+			pCeldaNombre.textContent   = ATipoEmpaque.Nombre;
+			pLinkModificar.textContent = "Modificar";
+			pLinkEliminar.textContent  = "Eliminar";
+			
+			pLinkModificar.href = "javascript:capturarModificarTipoEmpaque(" + ATipoEmpaque.Id + ",'" + ATipoEmpaque.Nombre + "')";
+			pLinkEliminar.href  = "javascript:eliminarTipoEmpaque(" + ATipoEmpaque.Id + ")";
+			
+			pCeldaModificar.appendChild(pLinkModificar);
+			pCeldaEliminar.appendChild(pLinkEliminar);
+			pFila.appendChild(pCeldaNombre);
+			pFila.appendChild(pCeldaModificar);
+			pFila.appendChild(pCeldaEliminar);
+			
+			var pCuerpoTabla = document.getElementById("cuerpoTabla");
+			pCuerpoTabla.insertBefore(pFila, pCuerpoTabla.firstChild);
+		}
+	}
+	
+	function cancelar(e){//Cierra ventana modal
+		e.preventDefault();
+		$(".ui-dialog-titlebar-close").trigger('click');
+	}
+
+	function cerrarVentana(){//Cierra ventana modal
+		$(".ui-dialog-titlebar-close").trigger('click');
+	}
+
+</script>

@@ -1,0 +1,321 @@
+@model List<grole.src.Entidades.UsuarioBascula>
+	
+<head>
+	
+</head>
+<h3>Usuario de Bascula</h3>
+<div>
+	<a href="javascript:NuevoUsuario();">Nuevo</a>
+	<br>
+	<br>
+</div>
+<div>
+	Buscar: <input type="text" name="Buscar" id="Buscar" onkeyup="javascript:GoogleLike();">
+	<br>
+	<br>
+</div>
+
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th scope="col">Nombre</th>
+			<th scope="col">Contraseña</th>
+			<th scope="col">Titular</th>
+			<th scope="col">Lotes</th>
+			<th scope="col">Editar</th>
+			<th scope="col">Eliminar</th>
+		</tr>
+	</thead>
+
+	<tbody id="bodyUsuarios">
+		@foreach (var item in Model)
+		{
+			<tr id="tr@(item.CLAVE)">
+				<td>@item.NOMBRE</td>
+				<td>*****</td>
+				<td>@item.TITULAR</td>
+				<td>@item.LOTES</td>
+				<td><a href="javascript:modificarUsuario('@(item.CLAVE)','@(item.NOMBRE)', '@(item.CONTRASENA)', '@(item.TITULAR)', '@(item.LOTES)');">Editar</a></td>
+				<td><a href="javascript:eliminarUsuario(@(item.CLAVE));">Eliminar</a></td>
+			</tr>
+		}
+	<tbody>
+</table>
+
+<div id= "ModificarUsuario" style="display:none;">
+	<table>
+		<tbody>
+		<tr>
+			<td>Clave:</td>
+			<td><input type="text" id="mopClave" name="Clave" value="0001" disabled=""></td>
+		</tr>	
+		<tr>
+			<td>Nombre:</td>
+			<td><input type="text" id="mopNombre" name="Nombre" value="0001" disabled=""></td>
+		</tr>
+		<tr>
+			<td>Password:</td>
+			<td><input type="Password" id="mopPassword" name="Password" maxlength="4" value="2425"></td>
+		</tr>
+		<tr>
+			<td>Titular</td>
+			<td><input type="text" id="mopTitular" name="Titular" value="Exportaciones"></td>
+		</tr>
+		<tr>
+			<td>Lotes:</td>
+			<td><input type="text" id="mopLotes" name="Lotes" value="*"></td>
+		</tr>
+		<tr>
+			<td><input type="button" value="Guardar" onclick="actualiza_usuario_bascula();" style="width: 100px; height: 35px"></td>
+			<td><input type="button" value="Cancelar" onclick="cancelarCaptura();" style="width: 100px; height: 35px"></td>
+		</tr>
+	</tbody></table>
+</div>
+
+<div id= "NuevoUsuario" style="display:none;">
+	<table>
+		<tbody><tr>
+			<td>Nombre:</td>
+			<td><input type="text" id="inpNombre" name="Nombre" maxlength="4"></td>
+		</tr>
+		<tr>
+			<td>Password:</td>
+			<td><input type="Password" id="inpPassword" name="Password" maxlength="4"></td>
+		</tr>
+		<tr>
+			<td>Titular</td>
+			<td><input type="text" id="inpTitular" name="Titular"></td>
+		</tr>
+		<tr>
+			<td>Lotes:</td>
+			<td><input type="text" id="inpLotes" name="Lotes" value="*"></td>
+		</tr>
+		<tr>
+			<td><input type="button" value="Guardar" onclick="guarda_usuario_bascula();" style="width: 100px; height: 35px"></td>
+			<td><input type="button" value="Cancelar" onclick="cancelarCaptura();" style="width: 100px; height: 35px"></td>
+		</tr>
+	</tbody></table>
+</div>
+<script>
+	
+//Generando Vistas
+	function modificarUsuario(AClave, ANombre, AContrasena, ATitular, ALotes)
+	{ 
+		
+		$("#dialog:ui-dialog").dialog("destroy");
+		$("#ModificarUsuario").dialog({
+				title: "Modificar Usuario",
+                height: 270,
+                width: 383,
+                modal: true,
+                open: function (event, ui) {
+					
+                document.getElementById("mopClave").value = "" + AClave;					
+        		document.getElementById("mopNombre").focus();
+				document.getElementById("mopNombre").value = "" + ANombre;
+				document.getElementById("mopPassword").value = "" + AContrasena;
+				document.getElementById("mopTitular").value = "" + ATitular;
+				document.getElementById("mopLotes").value = "" + ALotes;
+				}
+            });
+		
+	}
+		
+	function cancelarCaptura(){
+		$(".ui-dialog-titlebar-close").trigger('click');
+	}
+	
+	function NuevoUsuario()
+	{
+		$("#dialog:ui-dialog").dialog("destroy");
+		$("#NuevoUsuario").dialog({
+				title: "Nuevo Usuario ",
+                height: 239,
+                width: 383,
+                modal: true,
+            });
+	}
+	function cancelarCaptura(){
+		$(".ui-dialog-titlebar-close").trigger('click');
+	}
+	
+	
+	function insertarUsuarioEnTabla(AUsuarioBascula)
+	{
+		//File a insertar
+		var pFila = document.createElement("tr");
+		pFila.id = "tr" + AUsuarioBascula.CLAVE;
+		//Clave
+		var pCeldaClave = document.createElement("td");
+		pCeldaClave.textContent = AUsuarioBascula.CLAVE;
+		//Nombre
+		var pCeldaNombre = document.createElement("td");
+		pCeldaNombre.textContent = AUsuarioBascula.NOMBRE;
+		//Password
+		var pCeldaPassword = document.createElement("td");
+		pCeldaPassword.textContent = "*****";
+		//Titular
+		var pCeldaTitular = document.createElement("td");
+		pCeldaTitular.textContent = AUsuarioBascula.TITULAR;
+		//Lotes
+		var pCeldaLotes = document.createElement("td");
+		pCeldaLotes.textContent = AUsuarioBascula.LOTES;
+		//Eliminar Usuario
+		var pCeldaEliminar = document.createElement("td");
+		var pAnchorEliminar = document.createElement("a");
+		pAnchorEliminar.href = "javascript:eliminarUsuario('" + AUsuarioBascula.CLAVE +"');";
+		pAnchorEliminar.textContent = "Eliminar";
+		pCeldaEliminar.appendChild(pAnchorEliminar);
+		//Modificar Usuario
+		var pCeldaModificar = document.createElement("td");
+		var pAnchorModificar = document.createElement("a");
+		pAnchorModificar.href = "javascript:modificarUsuario('"+AUsuarioBascula.CLAVE+"','"+AUsuarioBascula.NOMBRE+"','"+AUsuarioBascula.CONTRASENA+"','"+AUsuarioBascula.TITULAR+"','"+AUsuarioBascula.LOTES+"');";
+		pAnchorModificar.textContent = "Editar";
+		pCeldaModificar.appendChild(pAnchorModificar);
+	
+		//Insertando datos a la tabla
+		//pFila.appendChild(pCeldaClave);
+		pFila.appendChild(pCeldaNombre);
+		pFila.appendChild(pCeldaPassword);
+		pFila.appendChild(pCeldaTitular);
+		pFila.appendChild(pCeldaLotes);
+		pFila.appendChild(pCeldaModificar);
+		pFila.appendChild(pCeldaEliminar);
+		
+		document.getElementById("bodyUsuarios").insertBefore(pFila, document.getElementById("bodyUsuarios").firstChild);
+	}	
+	
+	
+	
+//Conexiones a la base de datos(Consultas, Insercion, Modificacion y Eliminacion)
+
+function guarda_usuario_bascula()
+	{
+		var pNombre = document.getElementById("inpNombre").value.toString();
+		if (pNombre.length == 0)
+		{
+			alert("La el nombre no es válido");
+			$("#inpNombre").focus();
+			return false;
+		}
+
+		var pPassword = document.getElementById("inpPassword").value.toString();
+		if (pPassword.length == 0)
+		{
+			alert("El password no es válido");
+			$("#inpPassword").focus();
+			return false;
+		}
+		var pTitular = document.getElementById("inpTitular").value.toString();
+		if (pTitular.length == 0)
+		{
+			alert("El titular no es válido");
+			$("#inpTitular").focus();
+			return false;
+		}
+		var pLotes = document.getElementById("inpLotes").value.toString();
+		if (pLotes.length == 0)
+		{
+			alert("Los lotes no son válidos");
+			$("#inpLotes").focus();
+			return false;
+		}
+		var pData = "NOMBRE=" + pNombre + "&CONTRASENA=" + pPassword + "&TITULAR=" + pTitular + "&LOTES=" + pLotes;
+		var pUrl = "/UsuarioBascula/insertar";
+		$.post(pUrl, pData, function(Result)
+			{
+				$(".ui-dialog-titlebar-close").trigger('click');
+				insertarUsuarioEnTabla(Result);
+			});
+	}
+	
+	function eliminarUsuario(AClave)
+	{    
+		if (!window.confirm("¿Eliminar Usuario?"))
+		{
+			return;
+		}
+		
+		var pUrl = "/UsuarioBascula/eliminar";
+		var pData = "Clave=" + AClave.toString();
+		
+		$.post(pUrl, pData, function(Result)
+			{
+				if (Result.Result == true)
+				{
+					window.alert("Usuario eliminado con éxito");
+					document.getElementById("tr" + AClave.toString()).remove();
+				}	
+				else{
+					window.alert(Result.Mensaje);
+				}
+			});
+	}
+	
+	function actualiza_usuario_bascula()
+	{
+		var pClave = document.getElementById("mopClave").value;
+		var pNombre = document.getElementById("mopNombre").value;
+		var pPassword = document.getElementById("mopPassword").value;
+		if (pPassword.trim().length == 0)
+		{
+			window.alert("La contrasena no puede estar en blanco");
+			document.getElementById("mopContrasena").focus();
+			return;
+		}
+		var pTitular = document.getElementById("mopTitular").value;
+		if (pTitular.trim().length == 0)
+		{
+			window.alert("El titular no puede estar en blanco");
+			document.getElementById("mopTitular").focus();
+			return;
+		}
+		var pLotes = document.getElementById("mopLotes").value;
+		if (pLotes.trim().length == 0)
+		{
+			window.alert("Los lotes no pueden estar en blanco");
+			document.getElementById("mopLotes").focus();
+			return;
+		}
+		
+		
+		var pData = "CLAVE=" + pClave + "&NOMBRE=" + pNombre + "&CONTRASENA=" + pPassword + "&TITULAR=" + pTitular + "&LOTES=" + pLotes;
+		var pUrl = "/UsuarioBascula/modificar";
+		
+		$.post(pUrl, pData, function(Result)
+			{
+				$(".ui-dialog-titlebar-close").trigger('click');
+				insertarUsuarioEnTabla(Result);
+			});
+			document.getElementById("tr" + pClave.toString()).remove();
+	}
+	
+	function GoogleLike()
+	{
+		var pBusqueda = document.getElementById("Buscar").value;
+		
+		var pData = "Filtrado=" + pBusqueda;
+		var pUrl = "/UsuarioBascula/Buscar";
+		$.post(pUrl, pData, function(Result)
+			{
+				$(".ui-dialog-titlebar-close").trigger('click');
+				$("tbody").children().remove()
+				NuevaBusqueda(Result);
+				// Aqui ya tengo el resultado solo falta borrar la tabla e insertar los nuevos resultados, insertarUsuarioEnTabla(Result);
+			});
+	}
+	
+	function NuevaBusqueda(Result)
+	{
+		if(Result.length == 0)
+		{
+			alert("No se encontro ningun resultado");
+		}
+		for(var i=0;i<Result.length;i++)
+		{	
+			insertarUsuarioEnTabla(Result[i]);
+		}
+	}
+
+	  
+</script>

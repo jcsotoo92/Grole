@@ -1,0 +1,88 @@
+﻿<h2>Pendientes de recepción de cajas en embarques</h2>
+<form id="formaPendientes">
+    <label for="inpFecha">Fecha:</label>
+    <input type="text" value="" id="inpFecha" name="Fecha" class="datepicker"/>
+    <input type="submit" value="Consultar" onclick="consultar(event)"/>
+</form>
+<div id="divTabla" style="display:none">
+    <a href="#">Excel</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Descripción</th>
+                <th>Pendientes</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla"></tbody>
+        <tfoot id="footerTabla">
+            <tr>
+                <th id="nohayregistros"></th>
+                <th></th>
+                <th id="total"></th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        $(".datepicker").datepicker('setDate', new Date());
+    });
+    function consultar(e) {
+        e.preventDefault();
+
+        var pFecha = document.getElementById("inpFecha");
+
+        if (pFecha.value.length == 0) {
+            window.alert("Debe introducir la fecha");
+            pFecha.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFecha.value)) {
+            window.alert("Fecha no válida");
+            pFecha.focus();
+        }
+
+        limpiarTabla("cuerpoTabla", null);
+
+        var pUrl = "/cortes/ObtenerTablaPendientesRecepcionEmbarques";
+        var pData = $("#formaPendientes").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            var pTotalCajas = 0;
+
+            for(var i = 0; i < Result.length; i++){
+                var item = Result[i];
+                
+                var pFila             = document.createElement("tr");
+                var pCeldaProducto    = document.createElement("td");
+                var pCeldaDescripcion = document.createElement("td");
+                var pCeldaPendientes  = document.createElement("td");
+                var pEnlacePendientes = document.createElement("a");
+
+                pCeldaProducto.textContent    = item.Producto;
+                pCeldaDescripcion.textContent = item.Descripcion;
+                pEnlacePendientes.textContent = item.Cajas;
+
+                pEnlacePendientes.href = "/cortes/detallerecepcioncajasembarque?Fecha=" + document.getElementById("inpFecha").value+"&Producto="+item.Producto;
+
+                pTotalCajas += item.Cajas;
+
+                pCeldaPendientes.appendChild(pEnlacePendientes);
+                pFila.appendChild(pCeldaProducto);
+                pFila.appendChild(pCeldaDescripcion);
+                pFila.appendChild(pCeldaPendientes);
+
+                document.getElementById("cuerpoTabla").appendChild(pFila);
+            }
+            if (Result.length > 0) {
+                document.getElementById("nohayregistros").textContent = "";
+                document.getElementById("total").textContent          = pTotalCajas;
+            } else {
+                document.getElementById("nohayregistros").textContent = "No hay registros";
+                document.getElementById("total").textContent          = "";
+            }
+            document.getElementById("divTabla").style.display = "block";
+        });
+    }
+</script>

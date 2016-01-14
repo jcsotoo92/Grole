@@ -1,0 +1,141 @@
+﻿<h2>Proyección de empaque</h2>
+
+<form action="/etiquetas/obtenertablaproyeccionempaque" method="get" id="formaProyeccionEmpaque">
+    <label for="inpFechaIni">Fecha inicial: </label>
+    <input type="text" value="" id="inpFechaIni" class="datepicker" name="FechaIni" />
+    <label for="inpFechaFin">Fecha final: </label>
+    <input type="text" value="" id="inpFechaFin" class="datepicker" name="FechaFin" />
+    <select id="listaTipos" name="Tipo">
+        <option value="0">Todos</option>
+        <option value="Nacional">Nacional</option>
+        <option value="Exportacion">Exportación</option>
+    </select>
+    <input type="submit" value="Consultar" onclick="obtenerTablaProyeccionEmpaque(event)" />
+</form>
+
+<div id="cargando"></div>
+<div id="tablaProyeccionEmpaque" style="display:none">
+    <a href="#">Excel</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Código SAP</th>
+                <th>Nombre</th>
+                <th>Inventario</th>
+                <th>Producido</th>
+                <th>Pedido</th>
+                <th>F. Entrega</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaProyeccionEmpaque"></tbody>
+        <tfoot id="footerTablaProyeccionEmpaque"></tfoot>
+    </table>
+    <div class="dataTables_info" id="TablaProyeccionEmpaque_info"></div>
+</div>
+
+<script>
+    $(document).ready(
+        function () {
+            $(".datepicker").datepicker('setDate', new Date());
+        }
+        );
+
+    function obtenerTablaProyeccionEmpaque(e) {
+        e.preventDefault();
+        //Validaciones de vacíos
+        var pFechaIni = document.getElementById("inpFechaIni");
+        var pFechaFin = document.getElementById("inpFechaFin");
+
+        if (pFechaIni.value.length == 0) {
+            window.alert("Debe introducir la fecha inicial");
+            pFechaIni.focus();
+            return;
+        }
+        if (pFechaFin.value.length == 0) {
+            window.alert("Debe introducir la fecha final");
+            pFechaFin.focus();
+            return;
+        }
+
+        if (!validarFormatoFecha(pFechaIni.value)) {
+            window.alert("Fecha inicial no válida");
+            pFechaIni.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaFin.value)) {
+            window.alert("Fecha final no válida");
+            pFechaFin.focus();
+            return;
+        }
+
+        limpiarTabla("cuerpoTablaProyeccionEmpaque", "footerTablaProyeccionEmpaque");
+
+        var pUrl = "/etiquetas/obtenertablanoinventariadasproducto";
+        var pData = $("#formaProyeccionEmpaque").serialize();
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        $.get(pUrl, pData, function (Result) {
+            var pTotalCantidad = 0, pTotalPeso = 0;
+            for (var i = 0; i < Result.length; i++) {
+                var pNoInventariada = Result[i];
+
+                var pFila                   = document.createElement("tr");
+                var pCeldaCódigoSAP         = document.createElement("td");
+                var pCeldaNombre            = document.createElement("td");
+                var pCeldaInventario        = document.createElement("td");
+                var pCeldaProducido         = document.createElement("td");
+                var pCeldaPedido            = document.createElement("td");
+                var pCeldaFechaEntrega      = document.createElement("td");
+
+                pFila.id = "fila" + i;
+
+                pCeldaCódigoSAP.textContent     = $.datepicker.formatDate('dd/mm/yy', new Date(pNoInventariada.CódigoSAP));
+                pCeldaNombre.textContent       = pNoInventariada.Nombre;
+                pCeldaInventario.textContent   = pNoInventariada.Producido;
+                pCeldaProducido.textContent    = pNoInventariada.Descripcion;
+                pCeldaPedido.textContent       = pNoInventariada.Pedido;
+                pCeldaFechaEntrega.textContent = Number(pNoInventariada.F. Entrega).toFixed(2);
+
+                pTotalCantidad += pNoInventariada.Pedido;
+                pTotalPeso     += pNoInventariada.F. Entrega;
+
+                pFila.appendChild(pCeldaCódigoSAP);
+                pFila.appendChild(pCeldaNombre);
+                pFila.appendChild(pCeldaInventario);
+                pFila.appendChild(pCeldaProducido);
+                pFila.appendChild(pCeldaPedido);
+                pFila.appendChild(pCeldaFechaEntrega);
+
+                document.getElementById("cuerpoTablaProyeccionEmpaque").appendChild(pFila);
+
+            }
+            var pFilaTotales              = document.createElement("tr");
+            var pCeldaDescripcionTotales  = document.createElement("td");
+            var pCeldaPedidoTotales       = document.createElement("td");
+            var pCeldaFechaEntregaTotales = document.createElement("td");
+
+            pCeldaDescripcionTotales.textContent  = "TOTAL";
+            pCeldaPedidoTotales.textContent       = Number(pTotalCantidad).toFixed(2);
+            pCeldaFechaEntregaTotales.textContent = Number(pTotalPeso).toFixed(2);
+
+
+            pFilaTotales.appendChild(pCeldaDescripcionTotales);
+            pFilaTotales.appendChild(document.createElement("td"));
+            pFilaTotales.appendChild(document.createElement("td"));
+            pFilaTotales.appendChild(document.createElement("td"));
+            pFilaTotales.appendChild(pCeldaPedidoTotales);
+            pFilaTotales.appendChild(pCeldaFechaEntregaTotales);
+            pFilaTotales.appendChild(document.createElement("td"));
+
+            document.getElementById("footerTablaProyeccionEmpaque").appendChild(pFilaTotales);
+
+            document.getElementById("TablaProyeccionEmpaque_info").textContent = "Son " + Result.length + " registros";
+            $cargando.html("");
+
+            document.getElementById("tablaProyeccionEmpaque").style.display = "block";
+         });
+
+    }    
+
+</script>

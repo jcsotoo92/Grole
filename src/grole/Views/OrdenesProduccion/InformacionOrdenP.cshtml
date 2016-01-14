@@ -1,0 +1,71 @@
+﻿
+        <h3>Informe de Orden de Producción</h3>
+        <div>
+            Orden:
+        </div>
+        <div>
+            <input type="text" id="inpOrden" autofocus>
+        </div>
+        <div>
+            <button id="btnConsultar" onclick="consultar();">Informe</button>
+        </div>
+        <div id="divData" style="margin-top: 30px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 100px; text-align: left;">Producto</th>
+                        <th style="width: 100px; text-align: left;">Codigo SAP</th>
+                        <th style="width: 200px; text-align: left;">Descripcion</th>
+                        <th style="width: 100px;">Embarcado</th>
+                        <th style="width: 100px;">Salida</th>
+                        <th style="width: 100px; text-align: right;">Cajas</th>
+                        <th style="width: 100px; text-align: right;">Kilos</th>
+                    </tr>
+                </thead>
+                <tbody id="informeBody">
+                </tbody>
+                <tfoot id="informeFoot">
+
+                </tfoot>
+            </table>
+        </div>
+        <script type="text/javascript">
+
+	function consultar(){
+        var CajasT = 0;
+	    var KilosT = 0;
+	    var pTabla = document.getElementById("informeBody");
+	    while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+	        pTabla.removeChild(pTabla.firstChild);
+	    }
+	    var pTablaFoot = document.getElementById("informeFoot");
+	    while (pTablaFoot.firstChild) {//Limpia la tabla evitando duplicidades
+	        pTablaFoot.removeChild(pTablaFoot.firstChild);
+	    }
+		if (isNaN(parseInt(document.getElementById("inpOrden").value))){
+
+			window.alert("La orden de producción no es válida");
+			document.getElementById("inpOrden").focus();
+			return;
+		}
+
+		var pUrl  = "/OrdenesProduccion/ObtenerTablaInformacionOrdenP";
+		var pData = "AOrdenP=" + document.getElementById("inpOrden").value;
+
+		$.get(pUrl, pData, function (Result) {
+            
+		    for(var i=0; i<Result.length; i++ )
+		    {
+		        $("#informeBody").append("<tr><td>" + Result[i].Producto + "</td><td>" + Result[i].CodigoSap + "</td><td>" + Result[i].Descripcion + "</td><td style='width: 100px; text-align: center'>" + Result[i].Embarcado + "</td><td style='width: 100px; text-align: center'>" + Result[i].ID_Salida + "</td><td style='width: 100px; text-align: right'>" + Result[i].Cajas + "</td><td style='width: 100px; text-align: right'>" + Result[i].Kilos.toFixed(2) + "</td></tr>");
+		        CajasT = CajasT + Result[i].Cajas;
+		        KilosT = KilosT + Result[i].Kilos;
+		    }
+
+		    $("#informeFoot").append("<tr><th></th><th></th><th></th><th></th><th></th><th style='width: 100px; text-align: right'>" + CajasT + "</th><th style='width: 100px; text-align: right'>" + KilosT.toFixed(2) + "</th></tr>");
+		});
+
+		
+
+	}
+
+        </script>

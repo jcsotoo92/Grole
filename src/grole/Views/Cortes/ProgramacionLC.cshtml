@@ -1,0 +1,218 @@
+﻿@model List<grole.src.Entidades.ProgramacionCorteD>
+<h2>Programación de cortes</h2>
+<form id="consultaPLC">
+    <label for="inpFecha">Fecha: </label>
+    <input type="text" value="" class="datepicker" name="Fecha" id="inpFecha"/>
+    <input type="submit" value="Consultar" onclick="consultar(event)" />
+</form>
+<a href="javascript:capturaAgregarProgramacion()">Nuevo lote programado</a>
+
+<div id="cargando"></div>
+<table id="tabla">
+    <thead>
+        <tr>
+            <th>Lote</th>
+            <th>Productos</th>
+            <th id="enlaces"></th>
+        </tr>
+    </thead>
+    <tbody id="cuerpoTabla">
+        @foreach (var item in Model)
+        {
+            <tr id="fila@(item.Id)">
+                <td>@item.Lote</td>
+                <td id="@item.Lote">@item.Productos</td>
+                @if (item.Productos.Equals("*"))
+                {
+                    <td>
+                        <a href="javascript:capturaEditarProgramacion('@item.Id', '@item.Lote')">Editar</a>
+                        <a href="javascript:eliminarLoteProgramado('@item.Id')">Eliminar</a>
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        <a href="javascript:capturaEditarProgramacion('@item.Id', '@item.Lote')">Editar</a>
+                        <a href="javascript:eliminarProgramacion('@item.Id')">Eliminar</a>
+                        <a href="" id="enlace@(item.Lote)">Datos de producción</a>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<form action="/cortes/nuevolp" method="post" id="formAgregarProgramacion" style="display:none">
+    <p id="pFecha"></p>
+    <input type="hidden" value="" name="Fecha" id="inpFechaHidden"/>
+    <label for="inpLote">Lote: </label>
+    <input type="text" value="1" id="inpLote" name="Lote"/>
+    <label for="inpProductos">Productos: </label>
+    <input type="text" value="" id="inpProductos" name="Productos"/>
+    <input type="button" value="Agregar" onclick="agregarProgramacion(event)"/>
+    <input type="button" value="Cancelar" onclick="cerrarCaptura(event)"/>
+</form>
+
+<form action="/cortes/editarlp" method="post" id="formEditarProgramacion" style="display:none">
+    <p id="pFecha"></p>
+    <input type="hidden" value="" name="Id" id="inpIdHidden" />
+    <label id="lblLote"></label>
+    <label for="inpProductos">Productos: </label>
+    <input type="text" value="" id="inpProductos" name="Productos" />
+    <input type="button" value="Editar" onclick="editarProgramacion(event)" />
+    <input type="button" value="Cancelar" onclick="cerrarCaptura(event)" />
+</form>
+
+<script>
+    $(document).ready(function () {
+        $(".datepicker").datepicker('setDate', new Date());
+    });
+
+    function consultar(e) {
+        e.preventDefault();
+
+        var pFecha = document.getElementById("inpFecha");
+
+        if (pFecha.value.length == 0) {
+            window.alert("Debe introducir una fecha");
+            $("#inpFecha").focus();
+            return;
+        }
+
+        if (!validarFormatoFecha(pFecha.value)) {
+            window.alert("Fecha no válida");
+            $("#inpFecha").focus();
+            return;
+        }
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+        limpiarTabla("cuerpoTabla", null);
+
+        var pUrl = "/cortes/obtenerprogramacionlc";
+        var pData = $("#consultaPLC").serialize();
+        
+        $.get(pUrl, pData, function (Result) {
+
+            for(var i = 0 ;i < Result.length;i++){
+                document.getElementById("cuerpoTabla").appendChild(tuplaAFila(Result[i]));
+            }
+            $cargando.html("");
+        });
+    }
+    function tuplaAFila(item) {
+        var pFila           = document.createElement("tr");
+        var pCeldaLote      = document.createElement("td");
+        var pCeldaProductos = document.createElement("td");
+        var pCeldaEnlaces   = document.createElement("td");
+
+        var pEnlaceEditar   = document.createElement("a");
+        var pEnlaceEliminar = document.createElement("a");
+        var pEnlaceDatosDeP = document.createElement("a");
+
+        pFila.id           = "fila" + item.Lote;
+        pCeldaProductos.id = item.Lote;
+
+        pCeldaLote.textContent      = item.Lote;
+        pCeldaProductos.textContent = item.Productos;
+                
+        pEnlaceEditar.href   = "javascript:capturaEditarProgramacion('" + item.Id + "','" + item.Lote + "')";
+        pEnlaceEliminar.href = "javascript:eliminarProgramacion('" + item.Id + "')";
+        
+        pEnlaceEditar.textContent   = "Editar ";
+        pEnlaceEliminar.textContent = "Eliminar";
+        if (item.Productos != "*") {
+            pEnlaceDatosDeP.textContent = " Datos de producción";
+            pEnlaceDatosDeP.id          = "enlace" + item.Lote;
+            pEnlaceDatosDeP.href        = "/cortes/mtomateriaprima?Id=" + item.Id + "&Fecha=" + document.getElementById("inpFecha").value + "&Lote=" + item.Lote;
+        }
+
+        pCeldaEnlaces.appendChild(pEnlaceEditar);
+        pCeldaEnlaces.appendChild(pEnlaceEliminar);
+        pCeldaEnlaces.appendChild(pEnlaceDatosDeP);
+
+        pFila.appendChild(pCeldaLote);
+        pFila.appendChild(pCeldaProductos);
+        pFila.appendChild(pCeldaEnlaces);
+        
+        return pFila;
+    }
+
+    function capturaAgregarProgramacion() {
+        $("#formAgregarProgramacion").dialog({
+            title: "Agregar programación",
+            height: 300,
+            width: 300,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpLote").focus();
+                document.getElementById("pFecha").textContent = "Fecha: " + document.getElementById("inpFecha").value;
+                document.getElementById("inpFechaHidden").value = document.getElementById("inpFecha").value;
+            }
+        });
+    }
+
+    function capturaEditarProgramacion(id, lote) {
+        $("#formEditarProgramacion").dialog({
+            title: "Editar programación",
+            height: 300,
+            width: 300,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("lblLote").textContent = "Lote: " + lote;
+                document.getElementById("pFecha").textContent  = "Fecha: " + document.getElementById("inpFecha").value;
+                document.getElementById("inpIdHidden").value   = id;
+            }
+        });
+    }
+
+    function agregarProgramacion(e) {
+        e.preventDefault();
+
+        var pUrl = "/cortes/NuevoLP";
+        var pData = $("#formAgregarProgramacion").serialize();
+        
+        $.post(pUrl, pData, function (Result) {
+            if (Result.mensaje != "") {
+                window.alert(Result.mensaje);
+            } else {
+                document.getElementById("cuerpoTabla").appendChild(tuplaAFila(Result.objeto));
+            }
+            cerrarCaptura();
+        });
+    }
+
+    function editarProgramacion(e) {
+        e.preventDefault();
+
+        var pUrl = "/cortes/editarLP";
+        var pData = $("#formEditarProgramacion").serialize();
+
+        $.post(pUrl, pData, function (Result) {
+            document.getElementById(Result.Lote).textContent = Result.Productos;
+            if (document.getElementById("enlace" + Result.Lote) != null && Result.Productos == "*") {
+                document.getElementById("enlace" + Result.Lote).remove();
+            }
+            cerrarCaptura();
+        });
+    }
+
+    function eliminarProgramacion(id) {
+        if (window.confirm("¿Eliminar lote programado?")) {
+            var pUrl = "/cortes/eliminarlp";
+            var pData = "Id=" + id;
+            $.post(pUrl, pData, function (Result) {
+                if (Result.Result == true) {
+                    window.alert("Lote programado eliminado con éxito");
+                    document.getElementById("fila" + id).remove();
+                } else {
+                    window.alert(Result.Mensaje);
+                }
+            });
+        }
+    }
+
+    function cerrarCaptura() {//Cierra la ventana modal.
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+</script>

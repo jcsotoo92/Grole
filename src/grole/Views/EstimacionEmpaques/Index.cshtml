@@ -1,0 +1,178 @@
+﻿@model List<grole.src.Entidades.EstimacionEmpaqueM>
+
+<h2>Estimación de empaque</h2>
+
+<a href="javascript:capturarEstimacionEmpaque()">Nuevo</a>
+<table>
+    <thead>
+        <tr>
+            <th>Folio</th>
+            <th>Descripción</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td class="idEstimacion">@item.Id</td>
+                <td>@item.Descripcion</td>
+                <td><a href="#">Editar</a></td>
+                <td><a href="#">Calcular</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<form id="formaEstimacionEmpaques" style="display:none">
+    <div>
+        <label for="inpDescripcion">Descripción: </label>
+        <input type="text" value="" />
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    <input type="text" value="" id="inpClaveProd" onkeyup="buscarProducto()" />
+                </th>
+                <th>
+                    <input type="text" disabled="disabled" id="listaProductos" />
+                </th>
+                <th>
+                    <input type="text" value="1" id="inpCantidad" />
+                </th>
+                <th>
+                    <button onclick="agregar(event)">+</button>
+                </th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaEstacionEmpaques"></tbody>
+    </table>
+    <div>
+        <input type="button" value="Guardar" onclick="guardar(event)"/>
+        <input type="button" value="Cancelar" onclick="cancelar(event)"/>
+    </div>
+</form>
+
+<script>
+    var selectProd;
+    var listaEstimacionProducto;
+
+    $(document).ready(
+        function () {
+            var ids = document.getElementsByClassName("idEstimacion");//Agrega los ceros que faltan a los ids.
+            for (var i = 0 ; i < ids.length; i++) {
+                ids[i].textContent = zeroPad(ids[i].textContent, 6);
+            }
+
+            $("#inpClaveProd,#inpCantidad").numeric(//Valida que solo se introduzcan numeros.
+				{
+				    negative: false,
+				    decimal: false
+				});
+
+            selectProd = new Array();
+            if (selectProd.length == 0) {//Llena una lista con todos los productos que hay.
+                $.get("/camaras/obtenerproductos", function (Result) {
+                    for (var i = 0; i < Result.length; i++) {
+                        var pProducto = {Id : Result[i].Clave, Descripcion : Result[i].Descripcion};
+                        selectProd.push(pProducto);
+                    }
+                });
+            }
+        }
+     );
+
+    function capturarEstimacionEmpaque() {
+        $("#formaEstimacionEmpaques").dialog({
+            title: "Estimación de empaque",
+            height: 400,
+            width: 800,
+            modal: true,
+            open: function (event, ui) {
+                listaEstimacionProducto = new Array();
+            }
+        });
+    }
+
+    function guardar(e) {
+        e.preventDefault();
+
+        var pUrl  = "";
+        var pData = "";
+    }
+
+    function cancelar(e) {
+        e.preventDefault();
+        if(window.confirm("¿Cancelar captura?"))
+            $(".ui-dialog-titlebar-close").trigger('click');
+    }
+
+    function buscarProducto() {
+        for (var i = 0; i < selectProd.length; i++) {
+            if (selectProd[i].Id == document.getElementById("inpClaveProd").value) {
+                document.getElementById("listaProductos").value = selectProd[i].Descripcion;
+            }
+        }
+    }
+
+    function agregar(e) {
+        e.preventDefault();
+
+        for (var i = 0 ; i < listaEstimacionProducto.length; i++) {
+            if (document.getElementById("inpClaveProd").value == listaEstimacionProducto[i].Id) {
+                window.alert("Ya existe ese producto en la lista");
+                return;
+            }
+        }
+
+        var pFila             = document.createElement("tr");
+        var pCeldaClave       = document.createElement("td");
+        var pCeldaDescripcion = document.createElement("td");
+        var pCeldaCantidad    = document.createElement("td");
+        var pCeldaEliminar    = document.createElement("td");
+        var pBotonEliminar    = document.createElement("button");
+
+        pFila.id = document.getElementById("cuerpoTablaEstacionEmpaques").childNodes.length;
+
+        pCeldaClave.textContent       = document.getElementById("inpClaveProd").value;
+        pCeldaDescripcion.textContent = document.getElementById("listaProductos").value;
+        pCeldaCantidad.textContent    = document.getElementById("inpCantidad").value;
+
+        pBotonEliminar.textContent = "Eliminar";
+        pBotonEliminar.setAttribute("onclick", "eliminarRegistroEstimacion(event,"+pFila.id+")");
+
+        pCeldaEliminar.appendChild(pBotonEliminar);
+        pFila.appendChild(pCeldaClave);
+        pFila.appendChild(pCeldaDescripcion);
+        pFila.appendChild(pCeldaCantidad);
+        pFila.appendChild(pCeldaEliminar);
+
+        document.getElementById("cuerpoTablaEstacionEmpaques").appendChild(pFila);
+
+        
+        var pEstimacionProducto = { Id: pCeldaClave.textContent, Descripcion: pCeldaDescripcion.textContent, Cantidad: pCeldaCantidad.textContent };
+        listaEstimacionProducto.push(pEstimacionProducto);
+    }
+
+    function eliminarRegistroEstimacion(e, id) {
+        e.preventDefault();
+
+        var pFila             = document.getElementById(id);
+        var pCeldaId          = pFila.childNodes[0];
+        var pCeldaDescripcion = pFila.childNodes[1];
+        var pCeldaCantidad    = pFila.childNodes[2];
+
+        for (var i = 0; i < listaEstimacionProducto.length; i++) {
+            if (listaEstimacionProducto[i].Id == pCeldaId.textContent && listaEstimacionProducto[i].Descripcion == pCeldaDescripcion.textContent && listaEstimacionProducto[i].Cantidad == pCeldaCantidad.textContent) {
+                listaEstimacionProducto.splice(i, 1);
+                break;
+            }
+        }
+
+        pFila.remove();
+
+        
+    }
+</script>

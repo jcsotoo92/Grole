@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="UTF-8">
+		<link href="~/public/styles/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+        <link href="~/public/styles/jquery-ui.structure.min.css" rel="stylesheet" type="text/css" />
+        <link href="~/public/styles/jquery-ui.theme.min.css" rel="stylesheet" type="text/css" />
+		<script src="/public/scripts/jquery-1.11.3.min.js"></script>
+		<script src="/public/scripts/jquery-ui.min.js"></script>
+		<script src="/public/scripts/jquery.numeric.js"></script>
+        <script src="~/public/scripts/utilidades.js"></script>
+        <script src="~/public/scripts/jquery.ui.datepicker-es.js"></script>
+		<title>Control de Rastro Grole</title>
+        <link href="/public/styles/bootstrap/css/bootstrap.css" rel="stylesheet">
+        <link href="/public/styles/site.css" rel="stylesheet" type="text/css" />
+		<script>
+            $(function () {
+                $.datepicker.setDefaults($.datepicker.regional['es']);
+			     $(".datepicker").datepicker({
+			         changeMonth: true,
+			         changeYear : true
+			     });
+  				});
+		</script>
+	</head>
+<body>
+    <div class="page">
+        <header id="header">
+            <div id="title">
+                <h1>Control de Rastro Grole</h1>
+            </div>
+            <br>
+            @if (string.IsNullOrEmpty(Context.User.Identity.Name))
+            {
+                <div id="logindisplay">
+                    [ <a href="/accounts/login">Accesar</a>]
+                </div>
+            }
+            else
+            {
+                <div id="logindisplay">
+                    Bienvenido(a) <strong>@Context.User.Identity.Name</strong>! [ <a href="/menu?Usuario=@(Context.Session.GetInt32("IdUsuario"))">Menu</a> ] [ <a href="/accounts/logout">Salir</a> ]
+                </div>
+            }
+            <div id="menucontainer">
+                <ul id="menu">
+                    <li><a href="/">Inicio</a></li>
+                    <li><a href="/Home/About">Acerca de</a></li>
+                </ul>
+            </div>
+        </header>
+        <main id="main">
+            @RenderBody()
+        </main>
+    </div>
+    
+</body>
+</html>

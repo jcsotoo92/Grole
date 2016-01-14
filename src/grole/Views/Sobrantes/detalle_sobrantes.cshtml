@@ -1,0 +1,53 @@
+﻿@model grole.src.Entidades.SobrantesM
+<div class="container">
+    <h1>Detalle de Formulas de Producción</h1>
+    <input type="hidden" id="inpFolio" value="@Model.id">
+    <div>
+        <div style="float:left; margin-left: 5px;">
+            <div>Clave:</div>
+            <div>
+                <input type="text" id="inpClave" class="input-small" autofocus>
+            </div>
+        </div>
+        <div style="float:left; margin-left: 5px;">
+            <div>Descripcion:</div>
+            <div>
+                <input type="text" id="inpDescripcionM" class="input" readonly>
+            </div>
+        </div>
+        <div style="float:left; margin-left: 20px;">
+            <div>Activo:</div>
+            <div>
+                <select id="inpActivo">
+                    <option>Si</option>
+                    <option>No</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <table id="gridLista" class="table">
+
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Nombre</th>
+                <th></th>
+            </tr>
+            <tr>
+                <th><input type="text" id="inpProducto"></th>
+                <th><input type="text" readonly id="inpDescripcion"></th>
+                <th><button class="btn" id="btnAgregar" style="margin-bottom: 10px;"><i class="icon-plus"></i></button></th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+
+    </table>
+    <div>
+        <button id="btnAceptar" class="btn">Aceptar</button>&nbsp;<button id="btnCancelar" class="btn">Cancelar</button>
+    </div>
+</div>
+
+<script type="application/dart" src="~/public/dart/detalle_sobrantes.dart.js">
+</script>
+<script src="~/public/scripts/dart.js"></script>

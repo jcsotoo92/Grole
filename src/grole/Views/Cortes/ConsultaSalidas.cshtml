@@ -1,0 +1,95 @@
+﻿<h2>Consulta de salidas</h2>
+
+<form action="/cortes/obtenertablasalidas" method="get" id="formaSalidaDelDia">
+    <label for="inpFechaIni">Fecha Inicial: </label>
+    <input type="text" value="" id="inpFechaIni" class="datepicker" name="FechaIni"/>
+    <label for="inpFechaFin">Fecha Final: </label>
+    <input type="text" value="" id="inpFechaFin" class="datepicker" name="FechaFin"/>
+    <input type="submit" value="Consultar" onclick="obtenerTablaSalidas(event)" />
+</form>
+
+
+<div id="cargando"></div>
+<div id="tablaSalidas" style="display:none">
+    <a href="#">Excel</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Clave</th>
+                <th>Descripción</th>
+                <th>Cajas</th>
+                <th>Kilos</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaSalidas"></tbody>
+    </table>
+    <div class="dataTables_info" id="TablaSalidas_info"></div>
+</div>
+
+<script>
+    function obtenerTablaSalidas(e) {
+        e.preventDefault();
+
+        //Validaciones de vacíos
+        var pFechaIni = document.getElementById("inpFechaIni");
+        var pFechaFin = document.getElementById("inpFechaFin");
+
+        if (pFechaIni.value.length == 0) {
+            window.alert("Debe introducir la fecha inicial");
+            pFechaIni.focus();
+            return;
+        }
+        if (pFechaFin.value.length == 0) {
+            window.alert("Debe introducir la fecha final");
+            pFechaFin.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaIni.value)) {
+            window.alert("Fecha inicial no válida");
+            pFechaIni.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaFin.value)) {
+            window.alert("Fecha final no válida");
+            pFechaFin.focus();
+            return;
+        }
+
+        limpiarTabla("cuerpoTablaSalidas");
+
+        var pUrl = "/cortes/obtenertablasalidas";
+        var pData = $("#formaSalidaDelDia").serialize();
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        $.get(pUrl, pData, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+                var pSalida = Result[i];
+    
+                var pFila             = document.createElement("tr");
+                var pCeldaClave       = document.createElement("td");
+                var pCeldaDescripcion = document.createElement("td");
+                var pCeldaCajas       = document.createElement("td");
+                var pCeldaKilos       = document.createElement("td");
+
+                pCeldaClave.textContent       = pSalida.Clave;
+                pCeldaDescripcion.textContent = pSalida.Descripcion;
+                pCeldaCajas.textContent       = pSalida.Cajas;
+                pCeldaKilos.textContent       = Number(pSalida.Kilos).toFixed(2);
+
+                pFila.appendChild(pCeldaClave);
+                pFila.appendChild(pCeldaDescripcion);
+                pFila.appendChild(pCeldaCajas);
+                pFila.appendChild(pCeldaKilos);
+
+                document.getElementById("cuerpoTablaSalidas").appendChild(pFila);
+                
+            }
+            document.getElementById("TablaSalidas_info").textContent = "Son " + Result.length + " registros";
+            $cargando.html("");
+
+            document.getElementById("tablaSalidas").style.display = "block";
+         });
+    }
+
+</script>

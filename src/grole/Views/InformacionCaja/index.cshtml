@@ -1,0 +1,98 @@
+﻿
+<h2>Información de Caja</h2>
+<form action="/CortarCanales/CortarCanal" method="get">
+    <table>
+        <tr>
+            <td>Folio</td>
+            <td><input type="text" name="Folio" id="Folio" /></td>
+        </tr>
+        <tr>
+            <td>Fecha</td>
+            <td><input type="text" name="Fecha" id="Fecha" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="button" name="btnInfo" value="Información" onclick="get_info_etiqueta();" /></td>
+        </tr>
+    </table>
+
+    <br/>
+
+    <div id="info" name="info">
+        <table>
+            <tr>
+                <td style="font-weight:bold;">Producto:</td>
+                <td><label value="Producto" name="producto" id="producto" /></td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold;">Código:</td>
+                <td><label value="Código" name="codigo" id="codigo" /></td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold;">Fecha Producción:</td>
+                <td><label value="" name="fecha" id="fecha" /></td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold;">Fecha Sacrificio:</td>
+                <td><label value="" name="fecha_sacrificio" id="fecha_sacrificio" /></td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold;">Peso:</td>
+                <td><label value="" name="peso" id="peso" /></td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold;">Tarima:</td>
+                <td><label value="" name="tarima" id="tarima" /></td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold;">Báscula</td>
+                <td><label value="" name="bascula" id="bascula" /></td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold;">Folio Salida:</td>
+                <td><label value="" name="folio_salida" id="folio_salida" /></td>
+            </tr>
+        </table>
+    </div>
+
+</form>
+<script type="text/javascript">
+
+        $(document).ready(function () {
+            $.datepicker.setDefaults($.datepicker.regional['es']);
+            $("#Fecha").datepicker({ changeMonth: true, changeYear: true });
+			$("#info").hide();
+			$("#Folio").focus();
+        });
+
+        function get_info_etiqueta() {
+
+                var pFolio     = document.getElementById("Folio").value;
+                var pFecha     = document.getElementById("Fecha").value;
+
+                pUrl  = "/InformacionCaja/ObtenerDatosCaja?folio=" + pFolio.toString() + "&fecha=" + pFecha.toString();
+                pData = "folio=" + pFolio.toString() + "&fecha=" + pFecha.toString();
+
+                $.get(pUrl, pData, function (data) {
+                    alert("."+data.Producto+".");
+                    if (data.producto != "null") {
+                        document.getElementById("producto").innerText         = data.Producto;
+                        document.getElementById("codigo").innerText           = data.CodigoBarras;
+                        document.getElementById("fecha_sacrificio").innerText = data.Fecha_Sacrificio;
+                        document.getElementById("fecha").innerText            = data.Fecha;
+                        document.getElementById("peso").innerText             = data.Peso;
+                        document.getElementById("tarima").innerText           = data.Tarima;
+                        document.getElementById("bascula").innerText          = data.Bascula;
+                        document.getElementById("folio_salida").innerText     = data.Id_Salida;
+                        $("#info").show();
+                    } else {
+                        $("#Folio").focus();
+                        alert("No existe etiqueta");
+                    }
+                });
+
+                
+            }
+
+</script>
+

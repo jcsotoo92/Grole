@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1173E62B-0F65-498D-AA13-3CB978B54E3F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A79B757A-3FF0-486D-ADB2-37813A2C9493}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+		WE-Palette.css = WE-Palette.css
+		WebEssentials2015-Settings.json = WebEssentials2015-Settings.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "grole", "src\grole\grole.xproj", "{B836D353-E977-4BF4-818E-1E5EB0F23026}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B836D353-E977-4BF4-818E-1E5EB0F23026}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B836D353-E977-4BF4-818E-1E5EB0F23026}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B836D353-E977-4BF4-818E-1E5EB0F23026}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B836D353-E977-4BF4-818E-1E5EB0F23026}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B836D353-E977-4BF4-818E-1E5EB0F23026} = {1173E62B-0F65-498D-AA13-3CB978B54E3F}
+	EndGlobalSection
+EndGlobal

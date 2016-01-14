@@ -1,0 +1,126 @@
+﻿@model List<grole.src.Entidades.Granja>
+    <h2>Lotes en Pie</h2>
+    <div>
+        <div style="float: left; padding-top: 5px; padding-right: 5px;">Granja:</div>
+        <div style="float: left; padding-right: 5px;">
+            <select name="Granja" id="Granja" value="">
+                @foreach (var item in Model)
+                {
+                <option value="@item.Clave">@item.Nombre</option>
+                }
+            </select>
+        </div>
+        <div style="float: left; padding-top: 5px; padding-right: 5px;">Fecha:</div>
+        <div style="float: left; padding-right: 5px;"><input type="text" name="Fecha" id="Fecha" value="@ViewBag.Fecha" /></div>
+        <div style="float: left; padding-right: 5px; padding-top: 3px;"><input type="button" name="Consultar" id="Consultar" onclick="consulta_lotes_pie();" value="Consultar" /></div>
+        <div style="float: left; padding-right: 5px; padding-top: 3px;"><input type="button" name="Nuevo" id="Consultar" onclick="nuevo_lote_pie();" value="Nuevo" /></div>
+    </div>
+    <div id="Loading" style="clear:both;">
+    </div>
+    <br />
+    <div id="div_data">
+        <table id="TablaLotesPie" class="table">
+            <thead>
+                <tr>
+                    <th class="centro">Fecha</th>
+                    <th class="centro">Lote</th>
+                    <th class="derecha">Cantidad</th>
+                    <th class="derecha">Peso</th>
+                    <th class="izquierda">Estado</th>
+                    <th class="derecha">Bajas</th>
+                    <th class="derecha">Peso Bajas</th>
+                    <th class="centro">Indice</th>
+                    <th class="centro">Editar</th>
+                    <th class="centro">Eliminar</th>
+                    <th class="centro">Bajas</th>
+                    <th class="centro">Quitar Bajas</th>
+                </tr>
+            </thead>
+            <tbody id="TablaLotesPieBody"></tbody>
+        </table>
+    </div>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $.datepicker.setDefaults($.datepicker.regional['es']);
+            $("#Fecha").datepicker({ changeMonth: true, changeYear: true });
+            if ('@ViewBag.Granja' != 0)
+                document.getElementById("Granja").value = '@ViewBag.Granja';
+            consulta_lotes_pie();
+        });
+
+        function consulta_lotes_pie()
+        {
+            var pTabla = document.getElementById("TablaLotesPieBody");
+            while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+                pTabla.removeChild(pTabla.firstChild);
+            }
+            var pFecha  = document.getElementById("Fecha").value.toString();
+            var pGranja = document.getElementById("Granja").value.toString();
+
+            pUrl = "/canales/TablaLotesPie";
+            pData = "Fecha=" +  pFecha + "&Granja=" + pGranja;
+            $.getJSON(pUrl, pData, function (Result) {
+                for (var i = 0; i < Result.length; i++) {
+                    if (Result[i].Bajas == -1) var Bajas = ""; else Bajas = Result[i].Bajas;
+                    if (Result[i].PesoBajas == -1) var PesoBajas = ""; else PesoBajas = Result[i].PesoBajas;
+                    var fechasplit = Result[i].Fecha.split("/");
+                    var dia        = fechasplit[0];
+                    var mes        = fechasplit[1];
+                    var año        = fechasplit[2];
+                    $("#TablaLotesPieBody").append("<tr><td>" + Result[i].Fecha + "</td><td>" + Result[i].Lote + "</td><td>" + Result[i].Cantidad + "</td><td>" + Result[i].Peso + "</td><td>" + Result[i].Estatus + "</td><td>" + Bajas + "</td><td>" + PesoBajas + "</td><td>" + Result[i].Indice + "</td><td><a href='javascript:EditarLotePie(" + dia + "," + mes + "," + año + "," + pGranja + "," + Result[i].Lote + ");'>Editar</a></td><td><a href='javascript:EliminarLotePie(" + pGranja + "," + Result[i].Lote + ");'>Eliminar</a></td><td><a href='javascript:Bajas(" + pGranja + "," + Result[i].Lote + ");'>Bajas</a></td><td><a href='javascript:QuitarBajas(" + pGranja + "," + Result[i].Lote + ");'>Quitar Bajas</a></td></tr>");
+                }
+            });
+
+        }
+
+        function nuevo_lote_pie()
+        {
+            var pFecha  = document.getElementById("Fecha").value.toString();
+            var pGranja = document.getElementById("Granja").value.toString();
+
+            pUrl = "/Canales/NuevoLotePie?Fecha=" +  pFecha  + "&Granja=" + pGranja;
+
+            window.location = pUrl;
+        }
+
+        function EliminarLotePie(pGranja, pLote)
+        {
+            if (confirm("¿Eliminar Lote Pie?")) {
+                pUrl       = "/Canales/EliminarLotePie";
+                var pFecha = document.getElementById("Fecha").value.toString();
+                pData      = "AFecha=" + pFecha + "&AGranja=" + pGranja + "&ALote=" + pLote;
+                $.getJSON(pUrl, pData, function (Result) {
+                    if (Result) {
+                        alert("Lote Eliminado");
+                        consulta_lotes_pie();
+                    }
+                });
+            }
+
+        }
+        function EditarLotePie(dia, mes, año, pGranja, pLote)
+        {
+            pData           = "Dia=" + dia + "&Mes=" + mes + "&Año="+año+"&AGranja=" + pGranja + "&ALote=" + pLote;
+            pUrl            = "/Canales/EditarLotePie?" + pData;
+            window.location = pUrl;
+        }
+        function Bajas(pGranja, pLote)
+        {
+
+            var pFecha      = document.getElementById("Fecha").value.toString();
+            pData           = "AFecha=" + pFecha + "&AGranja=" + pGranja + "&ALote=" + pLote;
+            pUrl            = "/Canales/AgregarBajasLotePie?"+pData;
+            window.location = pUrl;
+        }
+
+        function QuitarBajas(pGranja, pLote) {
+
+            var pFecha = document.getElementById("Fecha").value.toString();
+            pData      = "Fecha=" + pFecha + "&Granja=" + pGranja + "&Lote=" + pLote;
+            pUrl       = "/Canales/QuitarBajasLotePie?" + pData;
+            window.location = pUrl;
+        }
+
+    </script>

@@ -1,0 +1,117 @@
+﻿@model List<grole.src.Entidades.Camara>
+<h2>Productos por Cámara</h2>
+<label for="listaCamaras">Cámara</label>
+<form id="formaResumenPtosCamara">
+    <select id="selectCamara" name="Camaras" multiple="multiple">
+        @foreach (var item in Model)
+        {
+            <option value="@item.Clave">
+                @item.Descripcion;
+            </option>
+        }
+    </select>
+    <input type="submit" value="Consultar" onclick="consultar(event)" id="btnConsultar"/>
+</form>
+
+<div id="divTabla" style="display: none">
+    <a href="#">Excel</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Código SAP</th>
+                <th>Descripción</th>
+                <th>Cajas</th>
+                <th>Kilos</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla"></tbody>
+        <tfoot>
+            <tr id="footerTabla">
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<script>
+    function getSelectValues(select) {
+        var result = [];
+        var options = select && select.options;
+        var opt;
+
+        for (var i = 0, iLen = options.length; i < iLen; i++) {
+            opt = options[i];
+
+            if (opt.selected) {
+                result.push(opt.value || opt.text);
+            }
+        }
+        return result;
+    }
+    function consultar(e) {
+        e.preventDefault();
+
+        if (getSelectValues(document.getElementById("selectCamara")).length == 0) {
+            window.alert("Debe seleccionar por lo menos una cámara");
+            return;
+        }
+
+        limpiarTabla("cuerpoTabla","footerTabla");
+
+        document.getElementById("btnConsultar").disabled = true;
+
+        var pUrl  = "/camaras/obtenertablaresumenptoscamara";
+        var pData = $("#formaResumenPtosCamara").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            var pSumaCajas = 0;
+            var pSumaKilos = 0.0;
+            for (var i = 0; i < Result.length; i++) {
+                var item = Result[i];
+
+                var pFila             = document.createElement("tr");
+                var pCeldaProducto    = document.createElement("td");
+                var pCeldaCodigoSAP   = document.createElement("td");
+                var pCeldaDescripcion = document.createElement("td");
+                var pCeldaCajas       = document.createElement("td");
+                var pCeldaKilos       = document.createElement("td");
+                var pEnlaceCajas      = document.createElement("a");
+
+                pCeldaProducto.textContent    = item.Producto;
+                pCeldaCodigoSAP.textContent   = item.CodigoSAP;
+                pCeldaDescripcion.textContent = item.Descripcion;
+                pEnlaceCajas.textContent      = item.Cajas;
+                pCeldaKilos.textContent       = Number(item.Kilos).toFixed(2);
+
+                pEnlaceCajas.href = "/camaras/detalleptoscamara?Camara="+item.Camara + "&Producto=" + item.Producto;
+
+                pSumaCajas += item.Cajas;
+                pSumaKilos += item.Kilos;
+
+                pCeldaCajas.appendChild(pEnlaceCajas);
+                pFila.appendChild(pCeldaProducto);
+                pFila.appendChild(pCeldaCodigoSAP);
+                pFila.appendChild(pCeldaDescripcion);
+                pFila.appendChild(pCeldaCajas);
+                pFila.appendChild(pCeldaKilos);
+
+                document.getElementById("cuerpoTabla").appendChild(pFila);
+            }
+
+            var pCeldaTotalCajas = document.createElement("th");
+            var pCeldaTotalKilos = document.createElement("th");
+
+            pCeldaTotalCajas.textContent = pSumaCajas;
+            pCeldaTotalKilos.textContent = Number(pSumaKilos).toFixed(2);
+
+            document.getElementById("footerTabla").appendChild(pCeldaTotalCajas);
+            document.getElementById("footerTabla").appendChild(pCeldaTotalKilos);
+
+            document.getElementById("btnConsultar").disabled  = false;
+            document.getElementById("divTabla").style.display = "block";
+        });
+    }
+</script>

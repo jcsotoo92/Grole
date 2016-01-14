@@ -1,0 +1,126 @@
+﻿<h2>Corte Fecha</h2>
+
+<form action="/obtenertablacortefecha" method="post" id="formaCorteFecha">
+    <label for="inpFecha">Fecha de producción: </label>
+    <input type="text" id="inpFecha" name="Fecha" value="" class="datepicker"/>
+    <input type="submit" value="Consultar" onclick="consultar(event)" />
+</form>
+
+
+<div id="cargando"></div>
+<div id="tablaCorteFecha" style="display:none">
+    <a href="#">Excel</a>
+    <div>
+        Pendientes: <a href="#" id="enlacePendientes"></a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Cámara</th>
+                <th>Nombre cámara</th>
+                <th>Embarcado</th>
+                <th>Cajas</th>
+                <th>Kilos</th>
+                <th>Aplicadas</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoCorteFecha"></tbody>
+        <tfoot id="footerTablaCorteFecha"></tfoot>
+    </table>
+    <div class="dataTables_info" id="tablaCorteFecha_info"></div>
+</div>
+
+<script>
+
+    function consultar(e) {
+        e.preventDefault();
+
+        var pInpFecha = document.getElementById("inpFecha");
+
+        if (pInpFecha.value.length == 0) {
+            window.alert("Debe introducir una fecha");
+            return;
+        }
+        if (!validarFormatoFecha(pInpFecha.value)) {
+            window.alert("Fecha no válida");
+            pInpFecha.focus();
+            return;
+        }
+
+        limpiarTabla("cuerpoCorteFecha", "footerTablaCorteFecha");
+
+        var $cargando   = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+        var pTotalKilos = 0, pTotalCajas = 0, pTotalAplicadas = 0;
+        var pUrl        = "/cortes/obtenertablacortefecha";
+        var pData       = $("#formaCorteFecha").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            $.get("/cortes/obtenerpendientescorte", pData, function (Pendientes) {
+                var pEnlacePendientes         = document.getElementById("enlacePendientes");
+                pEnlacePendientes.textContent = Pendientes;
+                pEnlacePendientes.href        = "/cortes/pendientesfecha?" + pData;
+            });
+            
+            var pInfo = document.getElementById("tablaCorteFecha_info");
+            for (var i = 0; i < Result.length; i++) {
+                var pCorteFecha = Result[i];
+
+                var pFila                 = document.createElement("tr");
+                var pCeldaCamara          = document.createElement("td");
+                var pCeldaNombreCamara    = document.createElement("td");
+                var pCeldaEmbarcado       = document.createElement("td");
+                var pCeldaCajas           = document.createElement("td");
+                var pEnlaceCajas          = document.createElement("a");
+                var pCeldaKilos           = document.createElement("td");
+                var pCeldaAplicadas       = document.createElement("td");
+
+                pCeldaCamara.textContent       = pCorteFecha.Camara;
+                pCeldaNombreCamara.textContent = pCorteFecha.NombreCamara;
+                pCeldaEmbarcado.textContent    = pCorteFecha.Embarcado;
+                pEnlaceCajas.textContent       = pCorteFecha.Cajas;
+                pCeldaKilos.textContent        = Number(pCorteFecha.Peso).toFixed(2);
+                pCeldaAplicadas.textContent    = pCorteFecha.Aplicadas;
+
+                pEnlaceCajas.href = "/cortes/resumenfecha?fecha=" + document.getElementById("inpFecha").value + "&camara=" + pCorteFecha.Camara + "&embarcado=" + pCorteFecha.Embarcado;
+
+                pTotalCajas     += pCorteFecha.Cajas;
+                pTotalKilos     += pCorteFecha.Peso;
+                pTotalAplicadas += (pCorteFecha.Aplicadas);
+
+                pCeldaCajas.appendChild(pEnlaceCajas);
+                pFila.appendChild(pCeldaCamara);
+                pFila.appendChild(pCeldaNombreCamara);
+                pFila.appendChild(pCeldaEmbarcado);
+                pFila.appendChild(pCeldaCajas);
+                pFila.appendChild(pCeldaKilos);
+                pFila.appendChild(pCeldaAplicadas);
+
+                document.getElementById("cuerpoCorteFecha").appendChild(pFila);
+            }
+
+            var pFilaTotales           = document.createElement("tr");
+            var pCeldaCamaraTotales    = document.createElement("td");
+            var pCeldaCajasTotales     = document.createElement("td");
+            var pCeldaKilosTotales     = document.createElement("td");
+            var pCeldaAplicadasTotales = document.createElement("td");
+
+            pCeldaCamaraTotales.textContent    = "TOTAL";
+            pCeldaCajasTotales.textContent     = pTotalCajas;
+            pCeldaKilosTotales.textContent     = Number(pTotalKilos).toFixed(2);
+            pCeldaAplicadasTotales.textContent = pTotalAplicadas;
+            
+            pFilaTotales.appendChild(pCeldaCamaraTotales);
+            pFilaTotales.appendChild(document.createElement("td"));
+            pFilaTotales.appendChild(document.createElement("td"));
+            pFilaTotales.appendChild(pCeldaCajasTotales);
+            pFilaTotales.appendChild(pCeldaKilosTotales);
+            pFilaTotales.appendChild(pCeldaAplicadasTotales);
+
+            document.getElementById("footerTablaCorteFecha").appendChild(pFilaTotales);
+
+            pInfo.textContent = "Son " + Result.length + " registros";
+            $cargando.html("");
+            document.getElementById("tablaCorteFecha").style.display = "block";
+        });
+    }
+</script>

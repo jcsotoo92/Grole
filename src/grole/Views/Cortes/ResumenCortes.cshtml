@@ -1,0 +1,97 @@
+﻿@model List<grole.src.Entidades.ClasificacionCorte>
+<h2>Resúmen de Cortes</h2>
+<br />
+<table>
+    <tr>
+        <td>Producto</td>
+        <td>Fecha:</td>
+        <td><input type="text" id="Fecha" value=""/></td>
+        <td>Clase:</td>
+        <td>
+            <select id="Clase" name="Clase" style="width: 250px">
+                @foreach (var item in Model)
+                {
+                    <option value="@(item.Lotes)">@(item.Descripcion)</option>
+                }
+            </select>
+        </td>
+        <td><input type="button" id="btnConsultar" value="Consultar" onclick="resumen_cortes();" /></td>
+    </tr>
+</table>
+<br />
+<div id="Loading">
+</div>
+<div id="div_excel">
+    <a href="/excel/consulta_cambios_tara">Excel</a>
+</div>
+<br />
+<div id="div_data">
+    <table class="consulta" style="margin-left: 0px; width: 100%;">
+        <thead id="ResultHead"></thead>
+        <tbody id="ResultBody"></tbody>
+        <tfoot id="ResultFoot"></tfoot>
+    </table>
+</div>
+
+        <script type="text/javascript">
+
+	$(document).ready(function () {
+            $.datepicker.setDefaults($.datepicker.regional['es']);
+            $("#Fecha").datepicker({ changeMonth: true, changeYear: true });
+            $("#div_excel").hide();
+            var d      = new Date();
+            var month  = d.getMonth() + 1;
+            var day    = d.getDate();
+            var output = (('' + day).length < 2 ? '0' : '') + day + '/' +
+                (('' + month).length < 2 ? '0' : '') + month + '/' +
+                d.getFullYear();
+            document.getElementById("Fecha").value = output;
+        });
+
+	$.ajaxSetup({
+					timeout: 120000
+				});
+
+	$(document).ajaxStart(function(){
+		document.getElementById("Loading").innerHTML     = "Cargando"
+		document.getElementById("btnConsultar").disabled = true;
+		$("#div_excel").hide();
+	});
+
+	$(document).ajaxStop(function(){
+		document.getElementById("Loading").innerHTML = ""
+		document.getElementById("btnConsultar").disabled = false;
+		$("#div_excel").show();
+	});
+
+
+	function resumen_cortes() {
+	    var pFecha = document.getElementById("Fecha").value.toString();
+	    var pLotes = document.getElementById("Clase").value.toString();
+
+	    if (pFecha.length == 0) {
+	        alert("Capture fecha");
+	        $("#Fecha").focus();
+	        return;
+	    }
+	    pUrl  = "/Cortes/ObtenerResumenCortesAdmin";
+	    pData = "AFecha=" + pFecha + "&ALotes=" + pLotes;
+	    $.get(pUrl, pData, function (Result) {
+	        var pTabla = document.getElementById("ResultHead");
+	        while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+	            pTabla.removeChild(pTabla.firstChild);
+	        }
+	        var pTabla = document.getElementById("ResultBody");
+	        while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+	            pTabla.removeChild(pTabla.firstChild);
+	        }
+	        for (var i = 0; i < Result.length; i++) {
+	            if (i == 0)
+	            { $("#ResultHead").append("<tr><th>Lote</th><th>Clave</th><th>Descripcion</th><th>Cajas</th><th>Peso Real</th><th>Peso</th><th>Etq. Elim</th><th>Cajas Pend.</th><th> Opcion 1</th></tr>"); }
+	            $("#ResultBody").append("<tr><td>" + Result[i].Lote + "</td><td>" + Result[i].Producto + "</td><td>" + Result[i].Descripcion + "</td><td>" + Result[i].Cantidad + "</td><td>" + Result[i].PesoNeto.toFixed(2) + "</td><td>" + Result[i].Peso.toFixed(2) + "</td><td>*" + Result[i].Id_Area + "</td><td>*" + Result[i].Id_Area + "</td><td><a href='CambiarFechaProduccion?AId="+Result[i].Id+"'>Cambiar Fecha de Produccion</a></td></tr>");
+
+	        }
+	    });
+
+	}
+        </script>

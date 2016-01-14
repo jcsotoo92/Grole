@@ -1,0 +1,143 @@
+﻿<h2>Consulta de cambios de taras</h2>
+
+<form action="/etiquetas/obtenertablacambiostaras" method="get" id="formaCambiosTaras">
+    <label for="inpClaveProd">Producto: </label>
+    <input type="text" id="inpClaveProd" name="Producto" onkeyup="buscarProducto();">
+    <select name="" id="listaProductos" onchange="cambiarOpcionCombo();"></select>
+    <label for="inpFechaIni">Fecha Inicial: </label>
+    <input type="text" value="" id="inpFechaIni" class="datepicker" name="FechaIni"/>
+    <label for="inpFechaFin">Fecha Final: </label>
+    <input type="text" value="" id="inpFechaFin" class="datepicker" name="FechaFin" />
+    <input type="submit" value="Consultar" onclick="obtenerTablaCambiosTaras(event)" />
+</form>
+
+<div id="cargando"></div>
+<div id="tablaCambiosTaras" style="display:none">
+    <a href="#">Excel</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tara anterior</th>
+                <th>Tara nueva</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaCambiosTaras"></tbody>
+    </table>
+    <div class="dataTables_info" id="TablaCambiosTaras_info"></div>
+</div>
+
+<script>
+    $(document).ready(
+        function () {
+            var selectProd = document.getElementById("listaProductos");
+            if (!selectProd.hasChildNodes()) {
+                $.get("/camaras/obtenerproductos", function (Result) {
+                    document.getElementById("inpClaveProd").value = Result[0].Clave;
+                    for (var i = 0; i < Result.length; i++) {
+
+                        var optionProd         = document.createElement("option");
+                        optionProd.id          = Result[i].Clave;
+                        optionProd.value       = Result[i].Clave;
+                        optionProd.textContent = "(" + Result[i].Clave + ") " + Result[i].Descripcion;
+                        if (i == 0)
+                            document.getElementById("listaProductos").value = Result[i];
+                        selectProd.appendChild(optionProd);
+                    }
+                });
+            }
+            $("#inpClaveProd").numeric(
+				{
+				    negative: false,
+				    decimal: false
+				});
+            document.getElementById("inpClaveProd").focus();
+        }
+        );
+
+    function obtenerTablaCambiosTaras(e) {
+        e.preventDefault();
+
+        var pProducto = document.getElementById("inpClaveProd");//Validaciones de vacíos
+        var pFechaIni = document.getElementById("inpFechaIni");
+        var pFechaFin = document.getElementById("inpFechaFin");
+
+        if (pProducto.value.length == 0) {
+            window.alert("Debe introducir un producto");
+            pProducto.focus();
+            return;
+        }
+        if (pFechaIni.value.length == 0) {
+            window.alert("Debe introducir la fecha inicial");
+            pFechaIni.focus();
+            return;
+        }
+        if (pFechaFin.value.length == 0) {
+            window.alert("Debe introducir la fecha final");
+            pFechaFin.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaIni.value)) {
+            window.alert("Fecha inicial no válida");
+            pFechaIni.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaFin.value)) {
+            window.alert("Fecha final no válida");
+            pFechaFin.focus();
+            return;
+        }
+
+        limpiarTabla("cuerpoTablaCambiosTaras");
+
+        var pUrl = "/producto/obtenertablacambiostaras";
+        var pData = $("#formaCambiosTaras").serialize();
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        $.get(pUrl, pData, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+                var pCambiosTaras = Result[i];
+
+                var pFila              = document.createElement("tr");
+                var pCeldaFecha        = document.createElement("td");
+                var pCeldaTaraAnterior = document.createElement("td");
+                var pCeldaTaraNueva    = document.createElement("td");
+                var pCeldaUsuario      = document.createElement("td");
+               
+                pCeldaFecha.textContent        = $.datepicker.formatDate('dd/mm/yy', new Date(pCambiosTaras.Fecha_Cambio));
+                pCeldaTaraAnterior.textContent = Number(pCambiosTaras.Tara_Anterior).toFixed(2);
+                pCeldaTaraNueva.textContent    = Number(pCambiosTaras.Tara_Nueva).toFixed(2);
+                pCeldaUsuario.textContent      = pCambiosTaras.Usuario;
+                               
+                pFila.appendChild(pCeldaFecha);
+                pFila.appendChild(pCeldaTaraAnterior);
+                pFila.appendChild(pCeldaTaraNueva);
+                pFila.appendChild(pCeldaUsuario);
+
+                document.getElementById("cuerpoTablaCambiosTaras").appendChild(pFila);
+
+            }
+
+            document.getElementById("TablaCambiosTaras_info").textContent = "Son " + Result.length + " registros";
+            $cargando.html("");
+
+            document.getElementById("tablaCambiosTaras").style.display = "block";
+         });
+
+    }
+
+    function buscarProducto() {//Actualiza el valor de la lista desplegable de productos en base al id introducido en el input
+        document.getElementById("listaProductos").value = document.getElementById("inpClaveProd").value;
+    }
+
+    function cambiarOpcionCombo() {//Actualiza el valor del input de productos al seleccionar otra opcion en la lista desplegable
+        document.getElementById("inpClaveProd").value = document.getElementById("listaProductos").value;
+    }
+
+    
+
+    
+</script>
+

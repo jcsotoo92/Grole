@@ -1,0 +1,111 @@
+﻿<h2>Regresar folio</h2>
+<form id="formRegresarFolio">
+    <label for="inpCodigoBarras">Código de barras: </label>
+    <input type="text" value=""  id="inpCodigoBarras" name="CodigoBarras"/>
+    <input type="submit" value="Información" onclick="informacion(event)" />
+</form>
+<div id="divPrincipal">
+    <table id="DatosCaja" style="display:none">
+        <tr>
+            <td><b>Producto:</b></td>
+            <td id="producto"></td>
+        <tr>
+        <tr>
+            <td><b>Fecha:</b></td>
+            <td id="fecha"></td>
+        <tr>
+        <tr>
+            <td><b>Folio:</b></td>
+            <td id="folio"></td>
+        <tr>
+        <tr>
+            <td><b>Peso:</b></td>
+            <td id="peso"></td>
+        <tr>
+        <tr>
+            <td><b>Tarima:</b></td>
+            <td id="tarima"></td>
+        <tr>
+            <tr>
+            <td><b>Embarcado:</b></td>
+            <td id="embarcado"></td>
+        <tr>
+        <tr>
+            <td><b>Salida:</b></td>
+            <td id="salida"></td>
+        <tr>
+        <tr>
+            <td><input type="button" id="btnRegresar" value="Regresar" onclick="regresarCaja();"></td>
+            <td><input type="button" id="btnCancelar" value="Cancelar" onclick="cancelar();"></td>
+        <tr>
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#inpCodigoBarras").focus();
+    });
+
+    function informacion(e) {
+        e.preventDefault();
+
+        var pCodigoBarras = document.getElementById("inpCodigoBarras");
+        if (pCodigoBarras.value.length == 0) {
+            window.alert("Introduzca un código de barras");
+            return;
+        }
+
+        var pUrl = "/cortes/obtenerinformacioncaja";
+        var pData = $("#formRegresarFolio").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            if (Result != null) {
+                var fecha = new Date(Result.Fecha);
+                fecha.setDate(fecha.getDate() + 1);
+                $("#producto").text(Result.Producto);
+                $("#fecha").text($.datepicker.formatDate('dd/mm/yy', fecha));
+                $("#folio").text(Result.Folio);
+                $("#peso").text(Number(Result.Peso).toFixed(2));
+                $("#tarima").text(Result.Tarima);
+                $("#embarcado").text(Result.Embarcado);
+                $("#salida").text(Result.Id_Salida);
+                $("#DatosCaja").show();
+                $("#mensaje").hide();
+                $("#inpCodigoBarras").prop('readOnly', true);
+                $("#btnInformacion").prop('disabled', true);
+            } else {
+                document.getElementById("mensaje").innerHTML = "";
+                document.getElementById("mensaje").innerHTML = Result.codigo;
+                $("#DatosCaja").hide();
+                $("#mensaje").show();
+                $("#inpCodigoBarras").prop('readOnly', true);
+                $("#btnInformacion").prop('disabled', true);
+            }
+        });
+    }
+
+    function regresarCaja() {
+        if (window.confirm("¿Regresar tarima?")) {
+            var pUrl = "/tarimas/regresartarima";
+            var pData = $("#formaRegresarFolio").serialize();
+
+            $.post(pUrl, pData, function (Result) {
+                window.alert(Result.mensaje);
+                cancelar();
+            });
+        }
+    }
+
+    function cancelar() {
+        $("#DatosCaja").hide();
+        $("#mensaje").hide();
+        $("#inpCodigoBarras").val("");
+        $("#inpCodigoBarras").prop('readOnly', false);
+        $("#btnInformacion").prop('disabled', false);
+        $("#inpCodigoBarras").focus();
+    }
+
+
+    
+
+
+</script>

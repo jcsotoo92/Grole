@@ -1,0 +1,56 @@
+﻿@model List<grole.src.Entidades.Corte>
+<h2>Detalle productos, cámara: @Context.Request.Query["Camara"]</h2>
+
+<a href="#">Excel</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Folio</th>
+            <th>Fecha</th>
+            <th>Código de Barras</th>
+            <th>Peso</th>
+            <th>Tarima</th>
+            <th>Cámara</th>
+            <th>Ubicación</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ decimal sumaPeso = 0;
+            @foreach (var item in Model)
+            {
+                sumaPeso += @item.Peso;
+                <tr>
+                    <td>@item.Folio</td>
+                    <td>@item.Fecha.ToShortDateString()</td>
+                    <td>@item.CodigoBarras</td>
+                    <td class="dosDecimales">@item.Peso</td>
+                    <td>@item.Tarima</td>
+                    <td>@item.Camara</td>
+                    <td>@item.Ubicacion</td>
+                </tr>
+            }
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>@Model.Count registros</th>
+            <th></th>
+            <th></th>
+            <th class="dosDecimales">@sumaPeso</th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </tfoot>
+</table>
+<script>
+    $(document).ready(function () {
+        var dosDecimals = document.getElementsByClassName("dosDecimales");
+        for (var i = 0; i < dosDecimals.length; i++) {
+            var item         = dosDecimals[i];
+            item.textContent = Number(item.textContent).toFixed(2);
+        }
+        
+    });
+</script>

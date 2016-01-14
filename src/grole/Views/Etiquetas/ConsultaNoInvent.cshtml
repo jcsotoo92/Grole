@@ -1,0 +1,188 @@
+﻿<h2>Consulta no inventariables</h2>
+
+<form action="/etiquetas/obtenertablanoinventariadas" method="get" id="formaNoInventariables">
+    <label for="inpClaveProd">Producto: </label>
+    <input type="text" id="inpClaveProd" name="Producto" onkeyup="buscarProducto();">
+    <select name="" id="listaProductos" onchange="cambiarOpcionCombo();"></select>
+    <label for="inpFechaIni">Fecha Inicial: </label>
+    <input type="text" value="" id="inpFechaIni" class="datepicker" name="FechaIni" />
+    <label for="inpFechaFin">Fecha Final: </label>
+    <input type="text" value="" id="inpFechaFin" class="datepicker" name="FechaFin" />
+    <input type="submit" value="Consultar" onclick="obtenerTablaNoInventariables(event)" />
+</form>
+
+<div id="cargando"></div>
+<div id="tablaNoInventariables" style="display:none">
+    <a href="#">Excel</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Lote</th>
+                <th>Clave</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Peso</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaNoInventariables"></tbody>
+        <tfoot id="footerTablaNoInventariables"></tfoot>
+    </table>
+    <div class="dataTables_info" id="TablaNoInventariables_info"></div>
+</div>
+
+<script>
+    $(document).ready(
+        function () {
+            var selectProd = document.getElementById("listaProductos");
+            if (!selectProd.hasChildNodes()) {
+                $.get("/camaras/obtenerproductos", function (Result) {
+                    document.getElementById("inpClaveProd").value = Result[0].Clave;
+                    for (var i = 0; i < Result.length; i++) {
+
+                        var optionProd         = document.createElement("option");
+                        optionProd.id          = Result[i].Clave;
+                        optionProd.value       = Result[i].Clave;
+                        optionProd.textContent = "(" + Result[i].Clave + ") " + Result[i].Descripcion;
+                        if (i == 0)
+                            document.getElementById("listaProductos").value = Result[i];
+                        selectProd.appendChild(optionProd);
+                    }
+                });
+            }
+            $("#inpClaveProd").numeric(
+				{
+				    negative: false,
+				    decimal: false
+				});
+            document.getElementById("inpClaveProd").focus();
+        }
+        );
+
+    function obtenerTablaNoInventariables(e) {
+        e.preventDefault();
+
+        var pProducto = document.getElementById("inpClaveProd");//Validaciones de vacíos
+        var pFechaIni = document.getElementById("inpFechaIni");
+        var pFechaFin = document.getElementById("inpFechaFin");
+
+        if (pProducto.value.length == 0) {
+            window.alert("Debe introducir un producto");
+            pProducto.focus();
+            return;
+        }
+        if (pFechaIni.value.length == 0) {
+            window.alert("Debe introducir la fecha inicial");
+            pFechaIni.focus();
+            return;
+        }
+        if (pFechaFin.value.length == 0) {
+            window.alert("Debe introducir la fecha final");
+            pFechaFin.focus();
+            return;
+        }
+
+        limpiarTabla("cuerpoTablaNoInventariables", "footerTablaNoInventariables");
+
+        var pUrl  = "/etiquetas/obtenertablanoinventariadas";
+        var pData = $("#formaNoInventariables").serialize();
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        $.get(pUrl, pData, function (Result) {
+            var pTotalCantidad = 0, pTotalPeso = 0;
+            for (var i = 0; i < Result.length; i++) {
+                var pNoInventariada = Result[i];
+
+                var pFila           = document.createElement("tr");
+                var pCeldaFecha     = document.createElement("td");
+                var pCeldaLote      = document.createElement("td");
+                var pCeldaClave     = document.createElement("td");
+                var pCeldaProducto  = document.createElement("td");
+                var pCeldaCantidad  = document.createElement("td");
+                var pCeldaPeso      = document.createElement("td");
+                var pCeldaEliminar  = document.createElement("td");
+                var pEnlaceEliminar = document.createElement("a");
+
+                pFila.id = "fila" + i;
+                
+                pCeldaFecha.textContent     = $.datepicker.formatDate('dd/mm/yy', new Date(pNoInventariada.Fecha));
+                pCeldaLote.textContent      = pNoInventariada.Lote;
+                pCeldaClave.textContent     = pNoInventariada.Producto;
+                pCeldaProducto.textContent  = pNoInventariada.Descripcion;
+                pCeldaCantidad.textContent  = pNoInventariada.Cantidad;
+                pCeldaPeso.textContent      = Number(pNoInventariada.Peso).toFixed(2);
+                pEnlaceEliminar.textContent = "Eliminar";
+
+                pTotalCantidad += pNoInventariada.Cantidad;
+                pTotalPeso     += pNoInventariada.Peso;
+
+                pEnlaceEliminar.href = "javascript:eliminarLoteNoInventariable("+i+",'" + pNoInventariada.Fecha + "','" + pNoInventariada.Lote + "','" + pNoInventariada.Producto + "')";
+                
+                pFila.appendChild(pCeldaFecha);
+                pFila.appendChild(pCeldaLote);
+                pFila.appendChild(pCeldaClave);
+                pFila.appendChild(pCeldaProducto);
+                pFila.appendChild(pCeldaCantidad);
+                pFila.appendChild(pCeldaPeso);
+                pCeldaEliminar.appendChild(pEnlaceEliminar);
+                pFila.appendChild(pCeldaEliminar);
+
+                document.getElementById("cuerpoTablaNoInventariables").appendChild(pFila);
+
+            }
+            var pFilaTotales             = document.createElement("tr");
+            var pCeldaDescripcionTotales = document.createElement("td");
+            var pCeldaCantidadTotales    = document.createElement("td");
+            var pCeldaPesoTotales        = document.createElement("td");
+
+            pCeldaDescripcionTotales.textContent = "TOTAL";
+            pCeldaCantidadTotales.textContent    = Number(pTotalCantidad).toFixed(2);
+            pCeldaPesoTotales.textContent        = Number(pTotalPeso).toFixed(2);
+            
+
+            pFilaTotales.appendChild(pCeldaDescripcionTotales);
+            pFilaTotales.appendChild(document.createElement("td"));
+            pFilaTotales.appendChild(document.createElement("td"));
+            pFilaTotales.appendChild(document.createElement("td"));
+            pFilaTotales.appendChild(pCeldaCantidadTotales);
+            pFilaTotales.appendChild(pCeldaPesoTotales);
+            pFilaTotales.appendChild(document.createElement("td"));
+            pFilaTotales.appendChild(document.createElement("td"));
+
+            document.getElementById("footerTablaNoInventariables").appendChild(pFilaTotales);
+
+            document.getElementById("TablaNoInventariables_info").textContent = "Son " + Result.length + " registros";
+            $cargando.html("");
+
+            document.getElementById("tablaNoInventariables").style.display = "block";
+         });
+
+    }
+
+    function eliminarLoteNoInventariable(id,fecha, lote, producto) {
+        if (window.confirm("¿Eliminar lote no inventariable?")) {
+            var pUrl = "/etiquetas/eliminarLoteNoInventariable";
+            var pData = "Fecha=" + fecha + "&Lote=" + lote + "&Producto=" + producto;
+
+            $.post(pUrl, pData, function (Result) {
+                if (Result.Result == true) {
+                    window.alert("Lote eliminado con éxito");
+                    document.getElementById("fila" + id).remove();
+                } else {
+                    window.alert(Result.Mensaje);
+                }
+            });
+        }
+    }
+
+    function buscarProducto() {//Actualiza el valor de la lista desplegable de productos en base al id introducido en el input
+        document.getElementById("listaProductos").value = document.getElementById("inpClaveProd").value;
+    }
+
+    function cambiarOpcionCombo() {//Actualiza el valor del input de productos al seleccionar otra opcion en la lista desplegable
+        document.getElementById("inpClaveProd").value = document.getElementById("listaProductos").value;
+    }
+
+</script>

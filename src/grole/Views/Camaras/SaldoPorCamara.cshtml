@@ -1,0 +1,68 @@
+﻿@model List<grole.src.Entidades.SaldoCamara>
+<h1>Saldos Cámaras Embarque</h1>
+    <br/>
+    <table>
+    <tr>
+        <td>Cámara:</td>
+        <td>
+            <select name="Camara" id="Camara">
+
+                @foreach (var item in Model)
+                {
+                    <option value="@item.Id">@item.Descripcion</option>
+                }
+
+                </select>
+                </td>
+                <td><input type="button" value="Consultar" onclick="get_saldo_camara();" /></td>
+                </tr>
+            </table>
+    <br/>
+    <div id="data">
+        <table class="consulta">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="centro" style="width: 150px">Descripción</th>
+                    <th class="centro" style="width: 80px">Cajas</th>
+                    <th class="centro" style="width: 80px">Kilos</th>
+                    <th class="centro" style="width: 80px">Fecha Min. Produccion</th>
+                    <th class="centro" style="width: 80px">Fecha Max. Produccion</th>
+                    <th class="centro" style="width: 80px">Cajas Acumulados</th>
+                    <th class="centro" style="width: 80px">Kilos Acumulados</th>
+                    <th>Fecha Min.</th>
+                    <th>Fecha Max.</th>
+                </tr>
+            </thead>
+            <tbody id="camaraBody"></tbody>
+        </table>
+    </div>
+    <script>
+        function get_saldo_camara() {
+
+            var pTabla = document.getElementById("camaraBody");
+		    while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+		        pTabla.removeChild(pTabla.firstChild);
+		    }
+		    var pCamara = document.getElementById("Camara").value.toString(); // 123;
+			var pUrl = "/camaras/obtener_validaciones_camaras";
+			var pData = "ACamara=" + pCamara;
+			$.get(pUrl, pData, function (data) {
+			    for(var i=0; i<data.length; i++)
+			    {
+			        var pUrl2 = "/camaras/obtener_saldo_camara_producto";
+			        pData2 = "AProducto=" + data[i].Producto + "&ACamara=" + pCamara;
+			        var prod = data[i].Producto;
+			        var desc = data[i].Descripcion;
+			        var FmiP = data[i].Fecha_Min_Produccion;
+			        var FmaP = data[i].Fecha_Max_Produccion;
+			        var kiMX = data[i].Kilos_Maxim;
+			        var Caja = data[i].Cantidad_Maxim;
+			        $.get(pUrl2, pData2, function (data2)
+			        {
+			            $("#camaraBody").append("<tr><td>" + prod + "</td><td>" + desc + "</td><td>" + Caja + "</td><td>" + kiMX + "</td><td>" + FmiP + "</td><td>" + FmaP + "</td><td>" + data2.Cajas + "</td><td>" + data2.Kilos + "</td><td>" + data2.Fecha_Min + "</td><td>" + data2.Fecha_Max + "</td></tr>");
+			        });
+			    }
+			});
+		}
+    </script>

@@ -1,0 +1,233 @@
+@model List<grole.src.Entidades.UsuarioPistola>
+	
+<h2>Usuarios Pistolas</h2>
+<div>
+	<div>
+		<a href="javascript:capturarUsuario();">Nuevo Usuario</a>
+	</div>
+
+</div>
+<table>
+	<thead>
+		<tr>
+			<th>Clave</th>
+			<th>Nombre</th>
+			<th>Titular</th>
+			<th></th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody id="bodyUsuarios">
+		@foreach(var item in Model){
+			<tr id="tr@(item.Clave)">
+				<td id="cla@(item.Clave)">@item.Clave</td>
+				<td id="nom@(item.Clave)">@item.Nombre</td>
+				<td id="tit@(item.Clave)">@item.Titular</td>
+				<td><a href="javascript:capturarModificarUsuario(@item.Clave,'@item.Contrasena')">Modificar</a></td>
+				<td><a href="javascript:eliminarUsuario(@item.Clave)">Eliminar</a></td>
+			</tr>
+			}
+	</tbody>
+</table>
+
+<form action="/usuarios/insertarusuariopistola" method="post" id="formaUsuario" style="display:none">
+	<div>
+		<input type="hidden" name="Clave" id="inpClave">
+		<div>Titular</div>
+		<input type="text" name="Titular" id="inpTitular" maxlength="40">
+	</div>
+	
+	<div>
+		<div>Nombre</div>
+		<input type="text" name="Nombre" id="inpNombre" maxlength="20">
+	</div>
+		
+	<div>
+		<div>Password</div>
+		<input type="password" name="Contrasena" id="inpPassword" maxlength="20">
+        <input type="hidden" name="Activo" value="Si" />
+	</div>
+	
+	<div>
+		<input type="submit" id="btnGuardar" value="Aceptar" onclick="insertarUsuario(event)">
+		<input type="submit" id="btnModificar" value="Modificar" onclick="modificarUsuario(event)" style="display:none">
+		<button onclick="cancelar(event)">Cancelar</button>
+	</div>
+</form>
+
+<script>		
+
+	function capturarUsuario(){//Abre la ventana modal para insertar un usuario de pistola
+		limpiarCampos();
+		
+		document.getElementById("btnGuardar").style.display   = "inline-block";
+		document.getElementById("btnModificar").style.display = "none";
+		
+		$("#formaUsuario").dialog({
+				title: "Nuevo Usuario Pistola",
+                height: 300,
+                width: 300,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpTitular").focus();
+					
+                }
+            });
+	}
+	
+	function insertarUsuario(e){//Hace el post para insertar un usuario de pistola en la base de datos
+		e.preventDefault();
+		
+		if(!validarCamposVacios())
+			return;
+		
+		var pUrl   = "/usuarios/insertarusuariopistola";
+		var pDatos = $("#formaUsuario").serialize();
+		
+		$.post(pUrl, pDatos, function (Result){
+		    if (Result != null) {
+		        
+				insertarUsuarioEnTabla(Result,false);
+				cerrarVentana();
+			}else
+				window.alert("Usuario ya existe");
+		});
+	}
+	
+	function validarCamposVacios(){//Valida que los campos de la forma no esten vacíos
+		var titular = document.getElementById("inpTitular");
+		var nombre  = document.getElementById("inpNombre");
+		var pass    = document.getElementById("inpPassword");
+		
+		if(titular.value.trim().length === 0){
+			window.alert("El nombre no debe estar en blanco");
+			nombre.focus();
+			return false;
+		}
+		
+		if(nombre.value.trim().length === 0){
+			window.alert("El correo no debe estar en blanco");
+			correo.focus();
+			return false;
+		}
+		
+		if(pass.value.trim().length === 0){
+			window.alert("El password no debe estar en blanco");
+			pass.focus();
+			return false;
+		}
+		return true;
+	}
+
+	function insertarUsuarioEnTabla(usuario, modificar){//Inserta o actualiza la fila de la tabla dependiendo si es inserción o modificación
+	    if (!modificar) {
+	        var fila           = document.createElement("tr");
+	        var celdaClave     = document.createElement("td");
+	        var celdaNombre    = document.createElement("td");
+	        var celdaTitular   = document.createElement("td");
+	        var celdaModificar = document.createElement("td");
+	        var linkModificar  = document.createElement("a");
+	        var celdaEliminar  = document.createElement("td");
+	        var linkEliminar  = document.createElement("a");
+
+	        celdaClave.textContent    = usuario.Clave;
+	        celdaNombre.textContent   = usuario.Nombre;
+	        celdaTitular.textContent  = usuario.Titular;
+	        linkModificar.textContent = "Modificar";
+	        linkModificar.href        = "javascript:capturarModificarUsuario(" + usuario.Clave + ",'" + usuario.Contrasena + "')";
+	        linkEliminar.textContent  = "Eliminar";
+	        linkEliminar.href         = "javascript:eliminarUsuario(" + usuario.Clave + ")";
+
+	        fila.id         = "tr" + usuario.Clave;
+	        celdaClave.id   = "cla" + usuario.Clave;
+	        celdaNombre.id  = "nom" + usuario.Clave;
+	        celdaTitular.id = "tit" + usuario.Clave;
+
+	        celdaModificar.appendChild(linkModificar);
+	        celdaEliminar.appendChild(linkEliminar);
+
+	        fila.appendChild(celdaClave);
+	        fila.appendChild(celdaNombre);
+	        fila.appendChild(celdaTitular);
+	        fila.appendChild(celdaModificar);
+	        fila.appendChild(celdaEliminar);
+
+	        document.getElementById("bodyUsuarios").insertBefore(fila, document.getElementById("bodyUsuarios").firstChild);
+	    } else {
+	        document.getElementById("cla" + usuario.Clave).textContent = usuario.Clave;
+	        document.getElementById("nom" + usuario.Clave).textContent = usuario.Nombre;
+	        document.getElementById("tit" + usuario.Clave).textContent = usuario.Titular;
+	    }
+	}
+	
+	function capturarModificarUsuario(id, pass){//Abre la ventana modal para modificar un usuario de pistola
+		limpiarCampos();
+		document.getElementById("btnGuardar").style.display   = "none";
+		document.getElementById("btnModificar").style.display = "inline-block";
+		
+		$("#formaUsuario").dialog({
+				title: "Modificar Usuario",
+                height: 300,
+                width: 300,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpTitular").focus();
+					document.getElementById("inpClave").value    = document.getElementById("cla" + id).textContent;
+					document.getElementById("inpTitular").value  = document.getElementById("tit" + id).textContent;
+					document.getElementById("inpNombre").value   = document.getElementById("nom" + id).textContent;
+               		document.getElementById("inpPassword").value = pass;
+			    }
+            });
+	}
+	
+	function modificarUsuario(e){//Hace el post para modificar un usuario de pistola en la base de datos
+		e.preventDefault();
+		
+		if(validarCamposVacios){
+			var pData = $("#formaUsuario").serialize();
+			var pUrl  = "/usuarios/modificarusuariopistola";
+			
+			$.post(pUrl, pData, function(Result)
+				{
+					$(".ui-dialog-titlebar-close").trigger('click');
+					if (Result != null) {
+					    
+						insertarUsuarioEnTabla(Result,true);
+						cerrarVentana();
+					}else
+						window.alert("Usuario ya existe");
+					});
+		}
+	}
+	
+	function eliminarUsuario(clave){//Hace el post para eliminar un usuario de pistola de la base de datos
+		if(window.confirm("¿Eliminar usuario?")){
+			var pUrl="/usuarios/eliminarusuariopistola";
+			var pData="Clave="+clave;
+			$.post(pUrl,pData, function (Result){
+				if(Result.Result==true){
+					window.alert("Usuario eliminado con éxito");
+					document.getElementById("tr"+clave).remove();
+				}else{
+					window.alert(Result.Mensaje);
+				}
+			});
+		}
+	}
+	
+	function cancelar(e){//Cierra ventana modal
+		event.preventDefault();
+		$(".ui-dialog-titlebar-close").trigger('click');
+	}
+	
+	function cerrarVentana(){//Cierra ventana modal
+		$(".ui-dialog-titlebar-close").trigger('click');
+	}
+	
+	function limpiarCampos(){//Limpia los campos de la forma
+		document.getElementById("inpClave").value    = "";
+		document.getElementById("inpTitular").value  = "";
+		document.getElementById("inpNombre").value   = "";
+		document.getElementById("inpPassword").value = "";
+	}
+</script>

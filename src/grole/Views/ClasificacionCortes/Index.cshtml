@@ -1,0 +1,222 @@
+﻿@model List<grole.src.Entidades.ClasificacionCorte>
+
+<h2>Clasificacion Cortes</h2>
+<div>
+    <a href="javascript:capturarClasificacionCorte();">Nueva clasificación de corte</a>
+</div>
+<table id="tableClasificacionCortes">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Descripción</th>
+            <th>Lotes</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="bodyClasificacionCortes">
+        @foreach (var item in Model)
+        {
+            <tr id="tr@(item.Id)">
+                <td>@item.Id</td>
+                <td id="des@(item.Id)">@item.Descripcion</td>
+                <td id="lotes@(item.Id)">@item.Lotes</td>
+                <td><a href="javascript:capturarClasificacionCorteModificar(@(item.Id));">Modificar</a></td>
+                <td><a href="javascript:eliminarClasificacionCorte(@(item.Id));">Eliminar</a></td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+    <form action="/clasificacioncortes/insertar" method="post" id="FormaClasificacionCorte" style="display:none;">
+        <div id="divId" style="display:none">
+            <div>
+                Clasificación:
+            </div>
+            <input type="text" id="txtId" name="Id" disabled="disabled">
+        </div>
+        <div>
+            Descripción:
+        </div>
+        <div>
+            <input type="text" name="Descripcion" id="inpDescripcion" value="" maxlength="50">
+        </div>
+        <div>
+            Lotes:
+        </div>
+        <div>
+            <input type="text" name="Lotes" id="inpLotes" value="" maxlength="50" />
+        </div>
+        <div>
+            <button id="btnModificar" onclick="modificarClasificacionCorte(event);" style="display:none">Modificar</button>
+            <button id="btnGuardar" onclick="insertarClasificacionCorte(event);">Insertar</button>&nbsp;&nbsp;<button id="btnCancelar" onclick="cancelarCaptura(event);">Cancelar</button>
+        </div>
+
+    </form>
+
+<script>
+
+    function capturarClasificacionCorte() {//Abre la ventana modal para insertar una clasificación de corte
+
+        document.getElementById("btnModificar").style.display   = "none";
+        document.getElementById("btnGuardar").style.display     = "inline-block";
+        document.getElementById("divId").style.display          = "none";
+        
+        $("#FormaClasificacionCorte").dialog({
+            title: "Nueva Clasificación Corte",
+            height: 600,
+            width: 500,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpDescripcion").focus();
+                document.getElementById("inpDescripcion").value = "";
+                document.getElementById("inpLotes").value       = "";
+                document.getElementById("txtId").value          = "";
+            }
+        });
+    }
+
+    function capturarClasificacionCorteModificar(Id) {//Abre la ventana modal para modificar una clasificación de corte
+        document.getElementById("btnModificar").style.display = "inline-block";
+        document.getElementById("btnGuardar").style.display   = "none";
+        document.getElementById("divId").style.display        = "block";
+        $("#dialog:ui-dialog").dialog("destroy");
+        $("#FormaClasificacionCorte").dialog({
+            title: "Modificar Clasificacion Corte",
+            height: 600,
+            width: 500,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpDescripcion").focus();
+                document.getElementById("inpDescripcion").value = "";
+                document.getElementById("inpLotes").value       = "";
+                document.getElementById("txtId").value          = Id;
+                document.getElementById("inpDescripcion").value = document.getElementById("des" + Id).textContent;
+                document.getElementById("inpLotes").value       = document.getElementById("lotes" + Id).textContent;
+            }
+        });
+    }
+
+    function cancelarCaptura(e) {//Cierra la ventana modal
+        e.preventDefault();
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+
+    function modificarClasificacionCorte(e) {//Hace el post para modificar una clasificación de corte en la base de datos
+        e.preventDefault();
+
+        if (hayVacios())
+            return;
+
+        var pUrl = "/ClasificacionCortes/modificar";
+        var pData = $("#FormaClasificacionCorte").serialize() + "&Id="+document.getElementById("txtId").value;
+        $.post(pUrl, pData, function (Result) {
+            if (Result != null) {
+                insertarClasificacionCorteEnTabla(Result, true);
+                $(".ui-dialog-titlebar-close").trigger('click');
+            } else {
+                window.alert("Ya existe una clasificación de corte con la misma descripción");
+                document.getElementById("inpDescripcion").focus();
+            }
+        });
+    }
+
+    function hayVacios() {//Valida que los campos en el formulario no esten vacíos.
+        var pDescripcion = document.getElementById("inpDescripcion").value;
+        var pLotes       = document.getElementById("inpLotes").value;
+
+        if (pDescripcion.trim().length == 0) {
+            window.alert("La descripción no puede estar en blanco");
+            document.getElementById("inpDescripcion").focus();
+            return true;
+        }
+
+        if (pLotes.trim().length == 0) {
+            window.alert("Lotes no puede estar en blanco");
+            document.getElementById("inpLotes").focus();
+            return true;
+        }
+    }
+
+    function insertarClasificacionCorte(e) {//Hace el post para insertar una clasficación de corte en la base de datos.
+        e.preventDefault();
+
+        if (hayVacios())
+            return;
+
+        var pData = $("#FormaClasificacionCorte").serialize();
+        var pUrl  = "/ClasificacionCortes/insertar";
+
+        $.post(pUrl, pData, function (Result) {
+            if (Result != null) {
+                insertarClasificacionCorteEnTabla(Result, false);
+                $(".ui-dialog-titlebar-close").trigger('click');
+            } else {
+                window.alert("Ya existe una clasificación de corte con la misma descripción");
+                document.getElementById("inpDescripcion").focus();
+            }
+        });
+    }
+
+    function insertarClasificacionCorteEnTabla(AClasificacionCorte, modificar) {//Inserta o actualiza los datos en la tabla dependiendo si es una inserción o modificación
+        if (!modificar) {//Si no es modificacíon se agrega una nueva fila en la tabla
+            var pFila             = document.createElement("tr");
+            var pCeldaId          = document.createElement("td");
+            var pCeldaDescripcion = document.createElement("td");
+            var pCeldaLotes       = document.createElement("td");
+            var pCeldaEliminar    = document.createElement("td");
+            var pAnchorEliminar   = document.createElement("a");
+            var pCeldaModificar   = document.createElement("td");
+            var pAnchorModificar  = document.createElement("a");
+
+            pFila.id             = "tr" + AClasificacionCorte.Id.toString();
+            pCeldaDescripcion.id = "des" + AClasificacionCorte.Id.toString()
+            pCeldaLotes.id       = "lotes" + AClasificacionCorte.Id.toString()
+
+            pCeldaId.textContent          = AClasificacionCorte.Id;
+            pCeldaDescripcion.textContent = AClasificacionCorte.Descripcion;
+            pCeldaLotes.textContent       = AClasificacionCorte.Lotes;
+            pAnchorEliminar.textContent   = "Eliminar";
+            pAnchorModificar.textContent  = "Modificar";
+
+            pAnchorEliminar.href  = "javascript:eliminarClasificacionCorte(" + AClasificacionCorte.Id.toString() + ");";
+            pAnchorModificar.href = "javascript:capturarClasificacionCorteModificar(" + AClasificacionCorte.Id.toString() + ");";
+
+            pCeldaEliminar.appendChild(pAnchorEliminar);
+            pCeldaModificar.appendChild(pAnchorModificar);
+            pFila.appendChild(pCeldaId);
+            pFila.appendChild(pCeldaDescripcion);
+            pFila.appendChild(pCeldaLotes);
+            pFila.appendChild(pCeldaModificar);
+            pFila.appendChild(pCeldaEliminar);
+
+            document.getElementById("bodyClasificacionCortes").insertBefore(pFila, document.getElementById("bodyClasificacionCortes").firstChild);
+
+        } else {//Si es modificación se actualizan los valores
+            document.getElementById("des" + AClasificacionCorte.Id).textContent   = AClasificacionCorte.Descripcion;
+            document.getElementById("lotes" + AClasificacionCorte.Id).textContent = AClasificacionCorte.Lotes
+        }
+    }
+
+    function eliminarClasificacionCorte(AId) {//Hace el post para eliminar una clasificación de corte.
+
+            if (!window.confirm("¿Eliminar clasificación de corte?")) {
+                return;
+            }
+
+            var pUrl  = "/ClasificacionCortes/eliminar";
+            var pData = "Id=" + AId.toString();
+
+            $.post(pUrl, pData, function (Result) {
+                if (Result.Result == true) {
+                    window.alert("ClasificacionCorte eliminada con éxito");
+                    document.getElementById("tr" + AId.toString()).remove();
+                }
+                else {
+                    window.alert(Result.Mensaje);
+                }
+            });
+        }
+    
+</script>
+               

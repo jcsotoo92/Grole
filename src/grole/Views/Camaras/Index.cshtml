@@ -1,0 +1,643 @@
+@model List<grole.src.Entidades.Camara>
+	
+<h2>Catálogo de Cámaras</h2>
+<a href="javascript:capturarCamara();">Nueva Cámara</a>
+<table>
+		<thead>
+			<tr>
+			<th>Clave</th>
+			<th>Nombre</th>
+			<th>Columnas</th>
+			<th>Filas</th>
+			<th>Profundidad</th>
+			<th>Permite salida</th>
+			<th>Valida posición</th>
+			<th>Valida productos</th>
+			<th>Activa</th>
+			<th>Embarque</th>
+		</tr>
+		</thead>
+		<tbody id="bodyCamaras">
+			@foreach(var item in Model){
+				<tr id="tr@(item.Clave)">
+					<td id="id@(item.Clave)">@item.Clave</td>
+					<td id="des@(item.Clave)">@item.Descripcion</td>
+					<td id="col@(item.Clave)">@item.Columnas</td>
+					<td id="fil@(item.Clave)">@item.Filas</td>
+					<td id="prof@(item.Clave)">@item.Profundidad</td>
+					<td id="per@(item.Clave)">@item.PermiteSalida</td>
+					<td id="valpos@(item.Clave)">@item.ValidaPosicion</td>
+					<td id="valprod@(item.Clave)">@item.ValidaProductos</td>
+					<td id="ac@(item.Clave)">@item.Activo</td>
+					<td id="em@(item.Clave)">@item.Embarque</td>
+					<td id="fe@(item.Clave)" style="display:none">@item.FechaEmbarque</td>
+					<td><a href="javascript:capturarModificarCamara(@item.Clave)">Modificar</a></td>
+					<td><a href="javascript:eliminarCamara(@item.Clave)">Eliminar</a></td>
+					<td><a href="javascript:capturarValidaciones(@item.Clave,'@item.Descripcion')">Validaciones</a></td>
+				</tr>
+				}
+		</tbody>
+</table>
+
+<div id="formaCamara" style="display:none">
+		
+	<div id="divClave">
+		<div>Clave</div>
+		<div>
+			<input id="inpClave" type="text" name="AClave">
+		</div>
+	</div>
+	<div id="divClave2" style="display:none">
+		<div>
+			<input id="txtClave" type="text" disabled="disabled">
+		</div>
+	</div>
+	<div>Nombre</div>
+	<div>
+		<input id="inpNombre" type="text" name="ADescripcion" maxlength="30">
+	</div>
+	<div>Columnas</div>
+	<div>
+		<input id="inpColumnas" type="text" name="AColumnas">
+	</div>
+	<div>Filas</div>
+	<div>
+		<input id="inpFilas" type="text" name="AFilas">
+	</div>
+	<div>Profundidad</div>
+	<div>
+		<input id="inpProfundidad" type="text" name="AProfundidad">
+	</div>
+	<div>Permite salida</div>
+	<div>
+		<select id="inpPermiteSalida" name="APermiteSalida">
+			<option value="Si" selected="selected">Si</option>
+			<option value="No">No</option>
+		</select>
+	</div>
+	<div>Valida posicion</div>
+	<div>
+		<select id="inpValidaPosicion" name="AValidaPosicion">
+			<option value="Si">Si</option>
+			<option value="No" selected="selected">No</option>
+		</select>
+	</div>	
+	<div>Valida producto</div>
+	<div>
+		<select id="inpValidaProducto" name="AValidaProducto">
+			<option value="Si">Si</option>
+			<option value="No" selected="selected">No</option>
+		</select>
+	</div>
+	<div>Embarque</div>
+	<div>
+		<select id="inpEmbarque" name="AEmbarque">
+			<option value="Si">Si</option>
+			<option value="No" selected="selected">No</option>
+		</select>
+	</div>
+	<div>Fecha embarque</div>
+	<div>
+		<input id="inpFechaEmbarque" class="datepicker" type="text" name="AFechaEmbarque">
+	</div>
+	<div>Activa</div>
+	<div>
+		<select id="inpActivo" name="AActivo">
+			<option value="Si" selected="selected">Si</option>
+			<option value="No">No</option>
+		</select>
+	</div>
+	<div>
+		<button id="btnInsertarModificar" onclick="insertarCamara();">Insertar</button>
+		<button onclick="cancelarCaptura();">Cancelar</button>
+	</div>
+</div>
+
+<div id="formaValidaciones" style="display:none">
+	<p id="camara"></p>
+
+	<div>Producto</div>
+	<div>
+		<input type="text" id="inpClaveProd" onkeyup="buscarProducto();">
+		<select name="" id="listaProductos" onchange="cambiarOpcionCombo();"></select>
+	</div>
+
+	<div>Cajas</div>
+	<div>
+		<input type="text" id="inpCajas" value="0">
+	</div>
+
+	<div>Kilos</div>
+	<div>
+		<input type="text" id="inpKilos" value="0">
+	</div>
+
+	<div>Fecha de produccion</div>
+	<div>
+		<input type="text" id="inpFechaProd" class="datepicker" value="01/01/2012" style="width: 120px">
+	</div>
+
+	<div>
+		<button id="btnAgregarValidacion" onclick="agregarValidacion();">Agregar</button>
+	</div>
+    
+	<div>
+		<button id="btnExport">
+			Excel
+		</button>
+	</div>
+
+	<div>
+		<table id="tablaValidaciones">
+			<thead>
+				<tr>
+					<th>Producto</th>
+					<th>Descripción</th>
+					<th>Cajas</th>
+					<th>Kilos</th>
+					<th>Fecha producción</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody id="cuerpoTablaValidaciones">
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<div id="formaInventarioProdDes" style="display:none">
+	<h3 id="invProd"></h3>
+	<table>
+		<thead>
+			<tr>
+				<th>Tarima</th>
+				<th>Folio</th>
+				<th>Fecha Producción</th>
+				<th>Fecha Código Barras</th>
+				<th>Producto</th>
+				<th>Descripción</th>
+				<th>Peso</th>
+				<th>Cámara</th>
+			</tr>
+		</thead>
+		<tbody id="bodyInv">
+			
+		</tbody>
+	</table>
+</div>
+
+<script>
+
+	$(document).ready(
+		function () {
+		    $("#inpClave,#inpColumnas, #inpFilas, #inpProfundidad, #inpClaveProd, #inpCajas, #inpKilos").numeric(
+				{
+				    negative: false,
+				    decimal: false
+				});
+		}
+	);
+
+	function mostrarInventarioProductoDesglosado(fechaIni,fechaFin,producto){//Hace el get para formar la tabla de inventario producto desglosado para despues visualizarlo en la modal
+		var pUrl="/camaras/mostrarinventarioproductodesglosado";
+		var pData="FechaIni="+fechaIni+"&FechaFin="+fechaFin+"&Producto="+producto;
+		
+		$.get(pUrl,pData,function (Result){
+			for(var i=0;i<Result.length;i++){
+				var fila                    = document.createElement("tr");
+				var celdaTarima             = document.createElement("td");
+				var celdaFolio              = document.createElement("td");
+				var celdaFechaProduccion    = document.createElement("td");
+				var celdaFechaCodigobarras  = document.createElement("td");
+				var celdaProducto           = document.createElement("td");
+				var celdaDescripcion        = document.createElement("td");
+				var celdaPeso               = document.createElement("td");
+				var celdaCamara             = document.createElement("td");
+				
+				var res = Result[i];
+
+				celdaTarima.textContent             = res.Tarima;
+				celdaFolio.textContent              = res.Folio;
+				celdaFechaProduccion.textContent    = res.Fecha;
+				celdaFechaCodigobarras.textContent  = res.FechaCodigoBarras;
+				celdaProducto.textContent           = res.Producto;
+				celdaDescripcion.textContent        = res.Descripcion;
+				celdaPeso.textContent               = res.Peso;
+				celdaCamara.textContent             = res.Camara;
+				
+				fila.appendChild(celdaTarima);
+				fila.appendChild(celdaFolio);
+				fila.appendChild(celdaFechaProduccion);
+				fila.appendChild(celdaFechaCodigobarras);
+				fila.appendChild(celdaProducto);
+				fila.appendChild(celdaDescripcion);
+				fila.appendChild(celdaPeso);
+				fila.appendChild(celdaCamara);
+				
+				document.getElementById("bodyInv").appendChild(fila);
+			}
+			document.getElementById("invProd").textContent="Producto: "+producto;
+		});
+		
+		$("#formaInventarioProdDes").dialog({
+				title: "Validaciones",
+                height: 600,
+                width: 800,
+                modal: true,
+                open: function (event, ui) {
+                }
+            });
+	}
+	
+	function agregarValidacion(){//Agrega una validación de cámara a la tabla.
+		var inpCajas     = document.getElementById("inpCajas");
+		var inpKilos     = document.getElementById("inpKilos");
+		var inpClaveProd = document.getElementById("inpClaveProd");
+		var inpFechaProd = document.getElementById("inpFechaProd");
+		var cuerpoTabla  = document.getElementById("cuerpoTablaValidaciones");
+		
+		if(inpCajas.value==0&&inpKilos.value==0){
+			window.alert("Cajas y Kilos no pueden ser ambos igual a cero");
+		}else if(inpCajas.value>0&&inpKilos>0){
+			window.alert("Cajas y Kilos no pueden ambos mayor a cero");
+		}else{
+			var pUrl="/camaras/obtenerinventarioproducto";
+			var pData="FechaIni="+inpFechaProd.value+"&FechaFin="+inpFechaProd.value+"&Producto="+inpClaveProd.value;
+			
+			$.get(pUrl,pData,function (Result){
+				if(inpCajas.value>0 && inpCajas.value>Result.Cajas){
+					window.alert("Las cajas capturadas son mayor al saldo en el periodo, el saldo para ese periodo es de "+Result.Cajas);
+				}else if(inpKilos.value> 0.0 && inpKilos.value>Result.Kilos){
+					window.alert("Los kilos capturadas son mayor al saldo en el periodo, el saldo para ese periodo es de "+Result.Kilos);
+				}else{
+					
+					var pUrlP  = "/camaras/insertarvalidacioncamara";
+					var pDataP = "Camara="+document.getElementById("camara").class+"&Producto="+inpClaveProd.value+"&Cantidad="+inpCajas.value+
+					"&Kilos="+inpKilos.value+"&FechaMin="+inpFechaProd.value+"&FechaMax="+inpFechaProd.value;
+					
+					$.post(pUrlP,pDataP,function (Result){
+						if(Result!=null){
+							cuerpoTabla.appendChild(crearFilaValidacion(Result));
+						}else
+							window.alert("Ya existe ese producto en la validación");
+					});
+				}
+				
+			});
+		}
+	}
+	
+	function eliminarValidacion(id){//Elimina una validación de cámara.
+		if(window.confirm("¿Eliminar validacion?")){
+			var pUrl="/camaras/eliminarvalidacion";
+			var pData="Clave="+id;
+			$.post(pUrl,pData, function (Result){
+				if(Result.Result==true){
+					window.alert("Validación eliminada con éxito");
+					document.getElementById("trVal"+id).remove();
+				}else{
+					window.alert(Result.Mensaje);
+				}
+			});
+		}
+	}
+	
+	function buscarProducto(){//Actualiza el valor de la lista desplegable de productos en base al id introducido en el input
+		document.getElementById("listaProductos").value=document.getElementById("inpClaveProd").value;
+	}
+	
+	function cambiarOpcionCombo(){//Actualiza el valor del input de productos al seleccionar otra opcion en la lista desplegable
+		document.getElementById("inpClaveProd").value=document.getElementById("listaProductos").value;
+	}
+	
+	
+	function crearFilaValidacion(res){//Crea una fila de la tabla de validaciones
+			var fila                 = document.createElement("tr");
+			var celdaProducto        = document.createElement("td");
+			var celdaDescripcion     = document.createElement("td");
+			var celdaCajas           = document.createElement("td");
+			var aCajas               = document.createElement("a");
+			var celdaKilos           = document.createElement("td");
+			var celdaFechaProduccion = document.createElement("td");
+			var celdaEliminar        = document.createElement("td");
+			var aEliminar            = document.createElement("a");
+			
+			fila.id="trVal"+res.Id;
+			
+			celdaProducto.textContent=res.Producto;
+			celdaDescripcion.textContent=res.Descripcion;
+			aCajas.href="javascript:mostrarInventarioProductoDesglosado('" + res.FechaMinProduccion + "','" + res.FechaMinProduccion + "','" + res.Producto + "')";
+			aCajas.textContent=res.CantidadMax;
+			celdaKilos.textContent=res.KilosMax;
+			celdaFechaProduccion.textContent=res.FechaMinProduccion;
+			aEliminar.href="javascript:eliminarValidacion("+res.Id+")";
+			aEliminar.textContent="Eliminar";
+			
+			celdaEliminar.appendChild(aEliminar);
+			celdaCajas.appendChild(aCajas);
+			fila.appendChild(celdaProducto);
+			fila.appendChild(celdaDescripcion);
+			fila.appendChild(celdaCajas);
+			fila.appendChild(celdaKilos);
+			fila.appendChild(celdaFechaProduccion);
+			fila.appendChild(celdaEliminar);
+		
+		return fila;
+	}
+
+	function capturarValidaciones(clave,nombre){//Abre la ventana modal para insertar una validación de cámara
+		var cuerpoTabla=document.getElementById("cuerpoTablaValidaciones");
+		
+		while(cuerpoTabla.hasChildNodes()){
+			cuerpoTabla.removeChild(cuerpoTabla.firstChild);
+		}
+		
+		document.getElementById("camara").textContent = "Validacion de cámara " + nombre;
+		document.getElementById("camara").class       = clave;
+		
+		$.get("/camaras/obtenervalidaciones","Clave="+clave, function (Result){
+			for(var i=0;i<Result.length;i++){
+				var res=Result[i];
+				cuerpoTabla.appendChild(crearFilaValidacion(res));
+			}
+		});
+		
+		var selectProd=document.getElementById("listaProductos");
+		if(!selectProd.hasChildNodes()){
+			$.get("/camaras/obtenerproductos",function (Result){
+				document.getElementById("inpClaveProd").value=Result[0].Clave;
+				for(var i=0;i<Result.length;i++){
+					
+					var optionProd=document.createElement("option");
+					optionProd.id=Result[i].Clave;
+					optionProd.value=Result[i].Clave;
+					optionProd.textContent="("+Result[i].Clave+") "+Result[i].Descripcion;
+					if(i==0)
+						document.getElementById("listaProductos").value=Result[i];
+					selectProd.appendChild(optionProd);
+				}
+			});
+		}
+		
+		$("#formaValidaciones").dialog({
+				title: "Validaciones",
+                height: 600,
+                width: 650,
+                modal: true,
+                open: function (event, ui) {
+                }
+            });
+	}
+	
+	function capturarModificarCamara(clave){//Abre la ventana modal para modificar una cámara
+		var btnInMod=document.getElementById("btnInsertarModificar")
+		btnInMod.setAttribute("onclick","modificarCamara()");
+		btnInMod.textContent="Modificar";
+		document.getElementById("divClave").style.display="none";
+		document.getElementById("divClave2").style.display="block";
+		
+		$("#formaCamara").dialog({
+				title: "Modificar cámara",
+                height: 600,
+                width: 500,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpNombre").focus();
+					document.getElementById("txtClave").value          = clave;
+					document.getElementById("inpNombre").value         = document.getElementById("des"+clave).textContent;
+					document.getElementById("inpColumnas").value       = document.getElementById("col"+clave).textContent;
+					document.getElementById("inpFilas").value          = document.getElementById("fil"+clave).textContent;
+					document.getElementById("inpProfundidad").value    = document.getElementById("prof"+clave).textContent;
+					document.getElementById("inpPermiteSalida").value  = document.getElementById("per"+clave).textContent;
+					document.getElementById("inpValidaPosicion").value = document.getElementById("valpos"+clave).textContent;
+					document.getElementById("inpValidaProducto").value = document.getElementById("valprod"+clave).textContent;
+					document.getElementById("inpEmbarque").value       = document.getElementById("em"+clave).textContent;
+					$( ".datepicker" ).datepicker('setDate', document.getElementById("fe"+clave).textContent);
+					document.getElementById("inpActivo").value         = document.getElementById("ac"+clave).textContent;
+                }
+            });
+	}
+	function modificarCamara(){//Hace el post para modificar una cámara en la base de datos
+		var clave          =document.getElementById("txtClave");
+		var nombre         =document.getElementById("inpNombre");
+		var columnas       = document.getElementById("inpColumnas");
+		var filas          = document.getElementById("inpFilas");
+		var profundidad    = document.getElementById("inpProfundidad");
+		var permiteSalida  = document.getElementById("inpPermiteSalida");
+		var validaPosicion = document.getElementById("inpValidaPosicion");
+		var validaProducto = document.getElementById("inpValidaProducto");
+		var embarque       = document.getElementById("inpEmbarque");
+		var fechaEmbarque  = document.getElementById("inpFechaEmbarque");
+		var activo         = document.getElementById("inpActivo");
+		
+		var pUrl="/camaras/modificar";
+		var pData="Clave=" + clave.value + "&Descripcion=" + nombre.value + 
+						"&Columnas=" + columnas.value + "&Filas=" + filas.value + 
+						"&Profundidad=" + profundidad.value + "&PermiteSalida=" + permiteSalida.value +  
+						"&ValidaPosicion=" + validaPosicion.value + "&ValidaProductos=" + validaProducto.value + 
+						"&Activo=" + activo.value + "&Embarque=" + embarque.value + 
+						"&FechaEmbarque=" + fechaEmbarque.value;
+						
+		$.post(pUrl, pData, function (Result) {
+            if (Result == null) {
+		        window.alert("Ya existe una camara con la misma descripción");
+		        document.getElementById("inpNombre").focus();
+		    } else if (Result.Clave == -1) {
+		        window.alert("Ya existe una camara con la misma clave");
+		        document.getElementById("txtClave").focus();
+		    } else {
+			    $(".ui-dialog-titlebar-close").trigger('click');
+				document.getElementById("des"+clave.value).textContent     = Result.Descripcion;
+				document.getElementById("col"+clave.value).textContent     = Result.Columnas;
+				document.getElementById("fil"+clave.value).textContent     = Result.Filas;
+				document.getElementById("prof"+clave.value).textContent    = Result.Profundidad;
+				document.getElementById("per"+clave.value).textContent     = Result.PermiteSalida;
+				document.getElementById("valpos"+clave.value).textContent  = Result.ValidaPosicion;
+				document.getElementById("valprod"+clave.value).textContent = Result.ValidaProductos;
+				document.getElementById("em" + clave.value).textContent    = Result.Embarque;
+				document.getElementById("fe" + clave.value).textContent    = Result.FechaEmbarque;
+				document.getElementById("ac"+clave.value).textContent      = Result.Activo;
+            }
+		});
+	}
+	
+	function insertarCamara(){//Hace el post para insertar una cámara en la base de datos
+		var clave          = document.getElementById("inpClave");
+		var nombre         = document.getElementById("inpNombre");
+		var columnas       = document.getElementById("inpColumnas");
+		var filas          = document.getElementById("inpFilas");
+		var profundidad    = document.getElementById("inpProfundidad");
+		var permiteSalida  = document.getElementById("inpPermiteSalida");
+		var validaPosicion = document.getElementById("inpValidaPosicion");
+		var validaProducto = document.getElementById("inpValidaProducto");
+		var embarque       = document.getElementById("inpEmbarque");
+		var fechaEmbarque  = document.getElementById("inpFechaEmbarque");
+		var activo         = document.getElementById("inpActivo");
+		
+		if(clave.value.trim().length==0){
+			window.alert("El campo clave no puede estar vacío");
+		}else if(nombre.value.trim().length==0){
+			window.alert("El campo nombre no puede estar vacío");
+		}else if(columnas.value.trim().length==0){
+			window.alert("El campo columnas no puede estar vacío");
+		}else if(filas.value.trim().length==0){
+			window.alert("El campo filas no puede estar vacío");
+		}else if(profundidad.value.trim().length==0){
+			window.alert("El campo profundidad no puede estar vacío");
+		}else if(fechaEmbarque.value.trim().length==0){
+			window.alert("El campo fecha no puede estar vacío");
+		}else{
+			
+			var pUrl="/camaras/insertar";
+			var pData="Clave=" + clave.value + "&Descripcion=" + nombre.value + 
+						"&Columnas=" + columnas.value + "&Filas=" + filas.value + 
+						"&Profundidad=" + profundidad.value + "&PermiteSalida=" + permiteSalida.value +  
+						"&ValidaPosicion=" + validaPosicion.value + "&ValidaProductos=" + validaProducto.value + 
+						"&Activo=" + activo.value + "&Embarque=" + embarque.value + 
+						"&FechaEmbarque=" + fechaEmbarque.value;
+			$.post(pUrl, pData, function (Result) {
+			    if (Result == null) {
+			        window.alert("Ya existe una camara con la misma descripción");
+			        document.getElementById("inpNombre").focus();
+			    } else if (Result.Clave == -1) {
+			        window.alert("Ya existe una camara con la misma clave");
+			        document.getElementById("txtClave").focus();
+			    } else {
+			        $(".ui-dialog-titlebar-close").trigger('click');
+			        insertarCamaraEnTabla(Result);
+			    }
+			});
+		}
+		
+	}
+
+	function insertarCamaraEnTabla(camara){//Inserta una cámara en la tabla de la vista
+	    var fila                 = document.createElement("tr");
+	    var celdaClave           = document.createElement("td");
+	    var celdaDescripcion     = document.createElement("td");
+	    var celdaColumnas        = document.createElement("td");
+	    var celdaFilas           = document.createElement("td");
+	    var celdaProfundidad     = document.createElement("td");
+	    var celdaPermiteSalida   = document.createElement("td");
+	    var celdaValidaPosicion  = document.createElement("td");
+	    var celdaValidaProductos = document.createElement("td");
+	    var celdaActivo          = document.createElement("td");
+	    var celdaEmbarque        = document.createElement("td");
+	    var celdaFechaEmbarque   = document.createElement("td");
+	    var celdaEditar          = document.createElement("td");
+	    var enlaceEditar         = document.createElement("a");
+	    var celdaEliminar        = document.createElement("td");
+	    var enlaceEliminar       = document.createElement("a");
+	    var celdaValidaciones    = document.createElement("td");
+	    var enlaceValidaciones   = document.createElement("a");
+
+		fila.id                 = "tr"+camara.Clave;
+		celdaClave.id           = "id" + camara.Clave;
+		celdaDescripcion.id     = "des" + camara.Clave;
+		celdaColumnas.id        = "col" + camara.Clave;
+		celdaFilas.id           = "fil" + camara.Clave;
+		celdaProfundidad.id     = "prof" + camara.Clave;
+		celdaPermiteSalida.id   = "per" + camara.Clave;
+		celdaValidaPosicion.id  = "valpos" + camara.Clave;
+		celdaValidaProductos.id = "valprod" + camara.Clave;
+		celdaActivo.id          = "ac" + camara.Clave;
+		celdaEmbarque.id        = "em" + camara.Clave;
+		celdaFechaEmbarque.id   = "fe" + camara.Clave;
+
+		celdaClave.textContent           = camara.Clave;
+		celdaDescripcion.textContent     = camara.Descripcion;
+		celdaColumnas.textContent        = camara.Columnas;
+		celdaFilas.textContent           = camara.Filas;
+		celdaProfundidad.textContent     = camara.Profundidad;
+		celdaPermiteSalida.textContent   = camara.PermiteSalida;
+		celdaValidaPosicion.textContent  = camara.ValidaPosicion;
+		celdaValidaProductos.textContent = camara.ValidaProductos;
+		celdaActivo.textContent          = camara.Activo;
+		celdaEmbarque.textContent        = camara.Embarque;
+		celdaFechaEmbarque.textContent   = camara.FechaEmbarque;
+		enlaceEditar.textContent         = "Modificar";
+		enlaceEliminar.textContent       = "Eliminar";
+		enlaceValidaciones.textContent   = "Validaciones";
+
+		celdaFechaEmbarque.style.display="none";
+		
+		enlaceEditar.href       = "javascript:capturarModificarCamara("+camara.Clave+")";
+		enlaceEliminar.href     = "javascript:eliminarCamara("+camara.Clave+")";
+		enlaceValidaciones.href = "javascript:capturarValidaciones("+camara.Clave+",'"+camara.Descripcion+"')";
+		
+		celdaEditar.appendChild(enlaceEditar);
+		celdaEliminar.appendChild(enlaceEliminar);
+		celdaValidaciones.appendChild(enlaceValidaciones);
+		
+		fila.appendChild(celdaClave);
+		fila.appendChild(celdaDescripcion);
+		fila.appendChild(celdaColumnas);
+		fila.appendChild(celdaFilas);
+		fila.appendChild(celdaProfundidad);
+		fila.appendChild(celdaPermiteSalida);
+		fila.appendChild(celdaValidaPosicion);
+		fila.appendChild(celdaValidaProductos);
+		fila.appendChild(celdaActivo);
+		fila.appendChild(celdaEmbarque);
+		fila.appendChild(celdaFechaEmbarque);
+		fila.appendChild(celdaEditar);
+		fila.appendChild(celdaEliminar);
+		fila.appendChild(celdaValidaciones);
+
+		document.getElementById("bodyCamaras").insertBefore(fila, document.getElementById("bodyCamaras").firstChild);
+	}
+	
+	function eliminarCamara(clave){//Hace el post para eliminar una cámara de la base de datos
+		if(window.confirm("¿Eliminar cámara?")){
+			var pUrl="/camaras/eliminar";
+			var pData="Clave="+clave;
+			$.post(pUrl,pData, function (Result){
+				if(Result.Result==true){
+					window.alert("Cámara eliminada con éxito");
+					document.getElementById("tr"+clave).remove();
+				}else{
+					window.alert(Result.Mensaje);
+				}
+			});
+		}
+	}
+	
+	
+	
+	function cancelarCaptura(){//Cierra la ventana modal.
+		$(".ui-dialog-titlebar-close").trigger('click');
+	}
+	
+	function capturarCamara(){//Abre la ventana modal para insertar una cámara
+		limpiarForma();
+		var btnInMod=document.getElementById("btnInsertarModificar")
+		btnInMod.setAttribute("onclick","insertarCamara()");
+		btnInMod.textContent="Insertar";
+		document.getElementById("divClave").style.display="block";
+		document.getElementById("divClave2").style.display="none";
+		$("#formaCamara").dialog({
+				title: "Nueva Cámara",
+                height: 600,
+                width: 500,
+                modal: true,
+                open: function (event, ui) {
+					$( ".datepicker" ).datepicker('setDate', new Date());
+                }
+            });
+	}
+	
+	function limpiarForma(){//Limpia los campos de la ventana modal
+		document.getElementById("txtClave").value           = "";
+		document.getElementById("inpNombre").value          = ""
+		document.getElementById("inpColumnas").value        = "1";
+		document.getElementById("inpFilas").value           = "1";
+		document.getElementById("inpProfundidad").value     = "1";
+		document.getElementById("inpPermiteSalida").value   = "Si";
+		document.getElementById("inpValidaPosicion").value  = "No";
+		document.getElementById("inpValidaProducto").value  = "No";
+		document.getElementById("inpEmbarque").value        = "No";
+		document.getElementById("inpFechaEmbarque").value   = "";
+		document.getElementById("inpActivo").value          = "Si";
+	}
+	
+</script>

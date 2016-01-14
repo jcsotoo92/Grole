@@ -1,0 +1,91 @@
+﻿@model List<grole.src.Entidades.Producto>
+<h2>Cambiar Tara de Producto</h2>
+
+<form id="formaCambiarTara">
+    <label for="inpClaveProd">Producto: </label>
+    <input type="text" id="inpClaveProd" name="Clave" onkeyup="buscarProducto();">
+    <select name="" id="listaProductos" onchange="cambiarOpcionCombo();">
+        @foreach (var item in Model)
+        {
+            <option value="@item.Clave">@item.Descripcion</option>
+        }
+    </select>
+    <input type="submit" value="Información" onclick="obtenerInformacion(event)"/>
+</form>
+<div id="infoTara" style="display:none">
+    <label for="tara">Tara: </label>
+    <label id="tara"></label>
+</div>
+<form id="formTaraNueva" style="display:none">
+    <label for="inpNuevaTara">Nueva tara: </label>
+    <input type="text" value="" id="inpNuevaTara" name="NuevaTara"/>
+    <input type="submit" value="Cambiar Tara" onclick="cambiarTara(event)"/>
+</form>
+<script>
+    $(document).ready(
+        function () {
+            $("#inpNuevaTara").numeric(
+				{
+				});
+            document.getElementById("inpClaveProd").focus();
+        }
+    );
+    function cambiarTara(e) {
+        e.preventDefault();
+
+        var pTara = document.getElementById("inpNuevaTara");
+
+        if (pTara.value.length == 0) {
+            window.alert("Debe introducir tara nueva");
+            pTara.focus();
+            return;
+        }
+
+        if (!window.confirm("¿Cambiar la tara del producto?")) {
+            return;
+        }
+
+        var pUrl  = "/producto/cambiartaraproducto";
+        var pData = "Producto=" + document.getElementById("inpClaveProd").value + "&Tara=" + document.getElementById("inpNuevaTara").value;
+
+        $.post(pUrl, pData, function (Result) {
+            window.alert(Result.Mensaje);
+            $("#infoTara").hide();
+            $("#formTaraNueva").hide();
+        });
+    }
+
+    function obtenerInformacion(e) {
+        e.preventDefault();
+
+        var pProducto = document.getElementById("inpClaveProd");
+
+        if (pProducto.value.length == 0) {
+            window.alert("Debe introducir un producto");
+            pProducto.focus();
+            return;
+        }
+
+        var pUrl  = "/producto/obtenerproducto";
+        var pData = "Clave=" + document.getElementById("inpClaveProd").value;
+
+        $.get(pUrl, pData, function (Result) {
+            document.getElementById("tara").textContent = Number(Result.Pesotara).toFixed(2);
+            document.getElementById("inpNuevaTara").value = "";
+            $("#infoTara").show();
+            $("#formTaraNueva").show();
+            $("#inpNuevaTara").focus();
+        });
+    }
+    function buscarProducto() {//Actualiza el valor de la lista desplegable de productos en base al id introducido en el input
+        $("#infoTara").hide();
+        $("#formTaraNueva").hide();
+        document.getElementById("listaProductos").value = document.getElementById("inpClaveProd").value;
+    }
+
+    function cambiarOpcionCombo() {//Actualiza el valor del input de productos al seleccionar otra opcion en la lista desplegable
+        $("#infoTara").hide();
+        $("#formTaraNueva").hide();
+        document.getElementById("inpClaveProd").value = document.getElementById("listaProductos").value;
+    }
+</script>

@@ -1,0 +1,75 @@
+﻿@model grole.src.Entidades.ValoresRescate
+<style>
+
+    .oculto{
+        display: none;
+    }
+
+    .edit_btn{
+        margin-left: 5px;
+    }
+
+</style>
+<div class="container">
+    <h1>Detalle valor rescate, Folio: <span id="spanFolio">@Model.id</span></h1>
+    <input type="hidden" id="folio" value="@Model.id">
+    <input type="hidden" id="activo" value="Si">
+    <div>
+        <div style="float:left; margin-left: 5px;">
+            <div>Fecha Inicial:</div>
+            <div>
+                <input type="text" id="inpFecha" class="input-small" value="@Model.fecha" autofocus>
+            </div>
+        </div>
+        <div style="float:left; margin-left: 5px;">
+            <div>Fecha Final:</div>
+            <div>
+                <input type="text" id="inpFechaFinal" class="input-small" value="@Model.fechafinal" autofocus>
+            </div>
+        </div>
+        <div style="float:left; margin-left: 20px;">
+            <div>Descripción:</div>
+            <div>
+                <input type="text" id="inpDescripcionM" value="@Model.descripcion">
+            </div>
+        </div>
+        <div style="float:left; margin-left: 20px;">
+            <div>Activo:</div>
+            <div>
+                <select id="inpActivo">
+                    <option>Si</option>
+                    <option>No</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <table id="gridLista" class="table">
+
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Nombre</th>
+                <th>Costo</th>
+                <th></th>
+            </tr>
+            <tr>
+                <th><input type="text" id="inpProducto"></th>
+                <th><input type="text" readonly id="inpDescripcion"></th>
+                <th><input type="text" id="inpCosto"></th>
+                <th><button class="btn" id="btnAgregar" style="margin-bottom: 10px;"><i class="icon-plus"></i></button></th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+
+    </table>
+    <div>
+        <button id="btnAceptar" class="btn">Aceptar</button>&nbsp;<button id="btnCancelar" class="btn">Cancelar</button>
+    </div>
+</div>
+<script type="application/dart" src="~/public/dart/detalle_valor_rescate.dart.js">
+</script>
+<script src="~/public/scripts/dart.js"></script>
+<script>
+  
+    </script>

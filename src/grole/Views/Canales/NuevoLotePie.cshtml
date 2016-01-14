@@ -1,0 +1,196 @@
+﻿<h2>Nuevo Lote Pie, Granja @ViewBag.Nombre</h2>
+<form id="Forma" name="Forma" action="/Canales/InsertarLotePie" method="POST" enctype="application/x-www-form-urlencoded">
+    <input type="hidden" id="Granja" name="Granja" value="@ViewBag.Granja">
+    <div>
+        <div>
+            <div style="float: left;">
+                <div>Fecha:</div>
+                <div><input type="text" id="Fecha" name="Fecha" value="@ViewBag.Fecha"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Lote:</div>
+                <div><input type="text" id="Lote" name="Lote"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Cantidad:</div>
+                <div><input type="text" id="Cantidad" name="Cantidad" style="text-align:right"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Kilos:</div>
+                <div><input type="text" id="Peso" name="Peso" style="text-align:right"></div>
+            </div>
+        </div>
+        <div style="clear:both;">
+            <div style="float: left;">
+                <div style="clear: both;">Tipo:</div>
+                <div>
+                    <select id="Tipo" name="Tipo" value="Selecto" style="width: 205px;" onchange="CambiarValor();">
+                        <option value="Selecto">Selecto</option>
+                        <option value="Retraso">Retraso</option>
+                    </select>
+                </div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Jaula:</div>
+                <div><input type="text" id="Jaula" name="Jaula" style="text-align:right"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Cerdos en Observación:</div>
+                <div><input type="text" id="CerdosObservacion" name="CerdosObservacion" style="text-align:right"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Cerdos Faltantes:</div>
+                <div><input type="text" id="CerdosFaltantes" name="CerdosFaltantes" style="text-align:right"></div>
+            </div>
+        </div>
+        <div style="clear: both;">
+            <div style="float: left;">
+                <div>Vehículo:</div>
+                <div><input type="text" id="Vehiculo" name="Vehiculo" style="text-align:right"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Muertos en Corral:</div>
+                <div><input type="text" id="MuertosEnCorral" name="MuertosEnCorral" style="text-align:right"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Muertos en Trayecto:</div>
+                <div><input type="text" id="MuertosEnTrayecto" name="MuertosEnTrayecto" style="text-align:right"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Costo Bajas:</div>
+                <div><input type="text" id="CostoBajas" name="CostoBajas" style="text-align:right"></div>
+            </div>
+        </div>
+        <div style="clear: both;">
+            <div style="float: left;">
+                <div>Observaciones:</div>
+                <div><input type="text" id="Observaciones" name="Observaciones"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Hora Recepcion:</div>
+                <div><input type="Text" id="HoraRecepcion" name="HoraRecepcion" value="12:00" style="text-align:right" class="hasTimepicker"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Hora Llegada:</div>
+                <div><input type="text" id="HoraLlegada" name="HoraLlegada" value="12:00" style="text-align:right" class="hasTimepicker"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Inicio Descarga:</div>
+                <div><input type="text" id="InicioDescarga" name="InicioDescarga" value="12:00" style="text-align:right" class="hasTimepicker"></div>
+            </div>
+        </div>
+        <div style="clear: both;">
+            <div style="float: left;">
+                <div>Fin Descarga:</div>
+                <div><input type="text" id="FinDescarga" name="FinDescarga" value="12:00" style="text-align:right" class="hasTimepicker"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Tiempo Estancia:</div>
+                <div><input type="text" id="TiempoEstancia" name="TiempoEstancia" style="text-align:right"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Hora Salida:</div>
+                <div><input type="text" id="HoraSalida" name="HoraSalida" value="12:00" style="text-align:right" class="hasTimepicker"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Tiempo Real Descarga:</div>
+                <div><input type="text" id="TiempoRealDescarga" name="TiempoRealDescarga" style="text-align:right"></div>
+            </div>
+        </div>
+        <div style="clear: both;">
+            <div style="float: left;">
+                <div>Canales Retenidos:</div>
+                <div><input type="text" id="CanalesRetenidos" name="CanalesRetenidos" style="text-align:right"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Numero de Corrales: (ej: 6-7-8):</div>
+                <div><input type="text" id="NumeroCorrales" name="NumeroCorrales" style="text-align:right"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Peso Promedio:</div>
+                <div><input type="text" id="PesoPromedio" name="PesoPromedio" style="text-align:right"></div>
+            </div>
+            <div style="float: left; margin-left: 5px;">
+                <div>Observaciones Sacrificio:</div>
+                <div><input type="text" id="ObservacionesSacrificio" name="ObservacionesSacrificio"></div>
+            </div>
+        </div>
+        <div style="clear: both;">
+            <input type="button" id="Aceptar" onClick="inserta_lote_pie();" value="Aceptar" style="width: 100px; height: 35px">&nbsp;<input type="button" id="Cancelar" value="Cancelar" onclick="cancelar();" style="width: 100px; height: 35px">
+        </div>
+    </div>
+</form>
+<script type="text/javascript">
+
+	$(document).ready(function () {
+            document.getElementById('Fecha').disabled = true;
+			$("#HoraRecepcion").timepicker();
+			$("#HoraLlegada").timepicker();
+			$("#InicioDescarga").timepicker();
+			$("#FinDescarga").timepicker();
+			$("#HoraSalida").timepicker();
+            $("#Lote").focus();
+       });
+
+    function inserta_lote_pie()
+    {
+		var pLote = parseInt(document.getElementById("Lote").value);
+		if (pLote.toString() == "NaN")
+		{
+			alert("El lote no es válido");
+			$("#Lote").focus();
+			return false;
+		}
+
+		if (pLote <= 0)
+		{
+			alert("El lote no es válido");
+			$("#Lote").focus();
+			return false;
+		}
+
+		var pCantidad = parseInt(document.getElementById("Cantidad").value);
+		if (pCantidad.toString() == "NaN")
+		{
+			alert("El número de canales no es válido");
+			$("#Cantidad").focus();
+			return false;
+		}
+
+		if (pCantidad <= 0)
+		{
+			alert("El número de canales no es válido");
+			$("#Cantidad").focus();
+			return false;
+		}
+
+		var pPeso = parseFloat(document.getElementById("Peso").value);
+		if (pPeso.toString() == "NaN")
+		{
+			alert("El peso de canales no es válido");
+			$("#Peso").focus();
+			return false;
+		}
+
+		if (pPeso <= 0)
+		{
+			alert("El peso de canales no es válido");
+			$("#Peso").focus();
+			return false;
+		}
+
+    	document.getElementById("Fecha").disabled = false;
+		document.forms["Forma"].submit();
+    }
+
+    function cancelar()
+    {
+    	var pFecha      = document.getElementById('Fecha').value.toString();
+    	var pGranja     = document.getElementById('Granja').value.toString();
+    	window.location = "/Canales/LotesPie?Fecha=" + pFecha + "&Granja=" + pGranja;
+    }
+    function CambiarValor()
+    {
+        document.getElementById.value = document.getElementById("Tipo").value;
+    }
+</script>

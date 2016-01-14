@@ -1,0 +1,63 @@
+<h2>Entrar</h2>
+<h3>Información de la cuenta</h3>
+<form method="post" action="/accounts/login" id="frmLogin">
+	<div>
+		Usuario:
+	</div>
+	<div>
+		<input type="text" name="Usuario" value="" id="Usuario" maxlength="15">
+	</div>
+	<div>
+		Contraseña:
+	</div>
+	<div>
+		<input type="password" name="Password" value="" id="Password" maxlength="10">
+	</div>
+	<div>
+		<input type="submit" value="Entrar" onclick="login(event);">
+	</div>
+</form>
+
+<script>
+	
+	function login(e){
+		
+		e.preventDefault();
+		
+		var pUsuario  = document.getElementById("Usuario").value;
+		var pPassword = document.getElementById("Password").value;
+		
+		if (pUsuario.trim().length === 0){
+			
+			window.alert("Usuario no es válido");
+			document.getElementById("Usuario"). focus();
+			return;
+		}
+		
+		if (pPassword.trim().length === 0){
+			
+			window.alert("Password no puede estar vacío");
+			document.getElementById("Password"). focus();
+			return;
+		}
+		
+		var pUrl   = "/Accounts/Login";
+		var pDatos = $("#frmLogin").serialize();
+		
+		$.post(pUrl, pDatos, function(AResult){
+			
+			console.log(AResult.Resultado);
+			console.log(AResult.Mensaje);
+			
+			if (AResult.Resultado > 0){
+				window.alert(AResult.Mensaje);
+				return;
+			}
+			else{
+				window.location.href = "/menu?Usuario=" + AResult.IdUsuario.toString(); 
+			}
+			
+		});
+	}
+	
+</script>

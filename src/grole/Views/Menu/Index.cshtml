@@ -1,0 +1,37 @@
+@model List<grole.src.Entidades.DerechoUsuario>
+<h2>Índice de opciones</h2>
+<div>
+	<table>
+		<tbody>
+            <tr>
+                @for (int j = 0; j < Model.Count; j++)
+                {
+                    @if (j == 0 || !(Model[j].Clasificacion + "").Equals(Model[j - 1].Clasificacion + ""))
+                    {
+                        <td valign="top">
+                            <h3>@Model[j].Clasificacion</h3>
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                @if (i == 0 && j == 0)
+                                {
+                                    <a href="/@Model[i].Controlador" id="@Model[i].Menu">@Model[i].Menu</a>
+                                    <br />
+                                }
+                                else
+                                if ((Model[i].Clasificacion + "").Equals(Model[j].Clasificacion + ""))
+                                {
+                                    @if ((i != 0) && (Model[i].Menu != Model[i - 1].Menu))
+                                    {
+                                        <a href="/@Model[i].Controlador" id="@Model[i].Menu">@Model[i].Menu</a>
+                                        <br />
+                                    }
+
+                                }
+                            }
+                        </td>
+                    }
+                }
+            </tr>
+		</tbody>		
+	</table>
+</div>

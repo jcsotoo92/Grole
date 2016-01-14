@@ -1,0 +1,56 @@
+﻿<h2>Modificar Producto</h2>
+<p>Seleccione el producto que desee modificar</p>
+<table>
+	<tbody>
+		<tr>
+			<td>Producto</td>
+			<td><input type="text" id="ClaveProducto" style="width: 90px" onkeyup="busca_producto(this.id);" class="form-control" ></td>
+			<td><select id="Producto" style="width: 250px" onchange="combo_change();" class="form-control" ></select></td>
+			<td><input type="button" id="btnModificar" value="Modificar" onclick="modificar_producto();" class="form-control" ></td>
+		</tr>
+	</tbody>
+</table>
+
+<script>
+	var pUrl = "/Producto/ListaProductos";
+			$.post(pUrl, function(Result)
+			{
+				for(var i=0;i<Result.length;i++)
+				{	
+					var o = new Option(Result[i].Descripcion, Result[i].Clave); 
+					o.innerHTML = Result[i].Descripcion; document.getElementById("Producto").appendChild(o);
+				}
+			});
+			document.getElementById("ClaveProducto").value = ""+document.getElementById("Producto").value;
+			
+	
+			
+	function combo_change()
+	{
+		document.getElementById("ClaveProducto").value=""+document.getElementById("Producto").value;
+	}
+	function busca_producto(x)
+	{
+		var y = document.getElementById(x).value
+		document.getElementById("Producto").value = y;
+	}
+	
+	function modificar_producto()
+	{
+	    var AClave = document.getElementById("ClaveProducto").value;
+		var pProducto = document.getElementById("Producto").value.toString();
+		
+		if (pProducto.length == 0 || AClave.length == 0)
+		{
+			alert("Capture producto");
+			$("#ClaveProducto").focus();
+			return;
+		}
+		
+		pUrl = "/Producto/ProductoModificarSeleccion?AClave=" + AClave;
+		window.location = pUrl;
+	}
+
+
+
+</script>

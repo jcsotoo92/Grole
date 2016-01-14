@@ -1,0 +1,886 @@
+﻿@model grole.src.Entidades.MateriaPrimaM
+
+<p>Materia Prima Lote: @Context.Request.Query["Lote"], Fecha: @Context.Request.Query["Fecha"]</p>
+
+<a href="">Excel</a>
+<p id="pFolio"></p>
+<p>Estado: <a href="javascript:capturarCambiarEstado()" id="aEstado">@Model.Estado</a></p>
+<h4>Reporte Materia Prima</h4>
+
+<a href="javascript: capturarAgregarMateriaPrima(111,'MatPrima')">Agregar Materia Prima</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Clave</th>
+            <th>Nombre</th>
+            <th>Cajas</th>
+            <th>Kilos</th>
+            <th>Folio Salida</th>
+            <th>Eliminar</th>
+        </tr>
+    </thead>
+    <tbody id="cuerpoTablaMatPrima">
+    </tbody>
+    <tfoot id="footerTablaMatPrima"></tfoot>
+</table>
+
+
+<h4>Reporte Productos de Moldeo</h4>
+<a href="javascript: capturarAgregarMateriaPrima(112,'Moldeo')">Agregar Moldeo</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Clave</th>
+            <th>Nombre</th>
+            <th>Cajas</th>
+            <th>Kilos</th>
+            <th>Folio Salida</th>
+            <th>Eliminar</th>
+        </tr>
+    </thead>
+    <tbody id="cuerpoTablaMoldeo">
+        
+    </tbody>
+    <tfoot id="footerTablaMoldeo"></tfoot>
+</table>
+<div>
+    <p>Decomiso(kilos): <input type="text" name="" value="@Model.Decomiso_Kilos" /> Merma: @Model.Merma Rendimiento: @Model.Rendimiento</p>
+</div>
+
+<h4>Reporte Producto Terminado</h4>
+<a href="javascript: capturarProduccion(@Context.Request.Query["Lote"], @Model.Id)">Agregar Producción</a>
+<a href="javascript: capturarAgregarMateriaPrima(113,'MatPrima')">Agregar Sobrante</a>
+<table>
+    <thead>
+        <tr>
+            <th>Subtipo</th>
+            <th>Clave</th>
+            <th>Nombre</th>
+            <th>Cajas</th>
+            <th>Kilos</th>
+            <th>Rendimiento</th>
+            <th>Folio Producción</th>
+            <th>Eliminar</th>
+        </tr>
+    </thead>
+    <tbody id="cuerpoTablaPTerminado">
+        
+    </tbody>
+    <tfoot id="footerTablaPTerminado"></tfoot>
+</table>
+<div>
+    <p>Decomiso(kilos): <input type="text" name="" value="@Model.Decomiso_Kilos" /> Merma: @Model.Merma Rendimiento: @Model.Rendimiento</p>
+</div>
+
+<form id="modalSubtipoProduccion" style="display:none">
+    <h3>Subtipo de producción</h3>
+    <input type="hidden" value="" id="inputHiddenId" name="Id"/>
+    <label for="selectSubtipo">Subtipo: </label>
+    <select id="selectSubtipo" name="Subtipo">
+        <option value="Produccion">Producción</option>
+        <option value="Regreso">Regreso</option>
+    </select>
+    <input type="submit" value="Aceptar" onclick="cambiarSubtipoProduccion(event)"/>
+</form>
+
+<div id="modalAgregarMateriaPrima" style="display:none">
+    <form>
+        <label for="inpFechaAgregarMatPrima">Fecha: </label>
+        <input style="height:0px; top:-1000px; position:absolute" type="text" value="">
+        <input type="text" value="" class="datepicker" id="inpFechaAgregarMatPrima" />
+        <input type="submit" value="Consultar" onclick=""  id="btnConsultarModalAgregarMatPrima"/>
+    </form>
+
+    <table id="tablaAgregarMateriaPrima1">
+        <thead>
+            <tr>
+                <th>Agregar</th>
+                <th>Desglosar</th>
+                <th>Folio</th>
+                <th>Concepto</th>
+                <th>Cajas</th>
+                <th>Kilos</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaAgregarMateriaPrima"></tbody>
+    </table>
+    <div id="tablaAgregarMateriaPrima2">
+        <p id="pTabla2"></p>
+        <input type="button" value="Volver" onclick="volver()"/>
+        <table>
+            <thead>
+                <tr>
+                    <th>Agregar</th>
+                    <th>Desglosar</th>
+                    <th>Folio</th>
+                    <th>Cajas</th>
+                    <th>Kilos</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpoTablaAgregarMateriaPrimaDesglosada"></tbody>
+        </table>
+    </div>
+    
+    <div id="tablaAgregarMateriaPrima3">
+        <p id="pTabla3"></p>
+        <input type="button" value="Volver" onclick="volver()" />
+        <table>
+            <thead>
+                <tr>
+                    <th>Agregar</th>
+                    <th>Fecha</th>
+                    <th>Folio</th>
+                    <th>Código Barras</th>
+                    <th>Producto</th>
+                    <th>Descripción</th>
+                    <th>Peso</th>
+                </tr>
+            </thead>
+            <tbody id="cuerpoTablaAgregarMateriaPrimaDesglosadaDesglosada"></tbody>
+        </table>
+    </div>
+</div>
+
+<form id="modalEstado" style="display:none">
+    <input type="hidden" value="@Model.Id" name="Id" />
+    <h3>Estado de reporte de materia prima</h3>
+    <label for="selectEstado">Estado: </label>
+    <select id="selectEstado" name="Estado">
+        <option value="Abierto">Abierto</option>
+        <option value="Cerrado">Cerrado</option>
+    </select>
+    <input type="submit" value="Aceptar" onclick="cambiarEstado(event)"/>
+</form>
+
+<form id="modalAgregarProduccion" style="display:none">
+    <p>Lote: @Context.Request.Query["Lote"]</p>
+    <input style="height:0px; top:-1000px; position:absolute" type="text" value="">
+    <label for="inpFecha">Desglosar Fecha: </label>
+    <input type="text" value="" id="inpFechaAgregarProduccion" class="datepicker"/>
+    <input type="submit" value="Consultar" onclick="consultarProduccion(event,@Context.Request.Query["Lote"], @Model.Id)"/>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Agregar</th>
+                <th>Lote</th>
+                <th>Productos</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaAgregarProduccion"></tbody>
+    </table>
+
+    <table id="produccionDesglosada">
+        <thead>
+            <tr>
+                <th>Agregar</th>
+                <th>Clave</th>
+                <th>Nombre</th>
+                <th>Cajas</th>
+                <th>Kilos</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaProduccionDesglosada"></tbody>
+    </table>
+</form>
+
+<form id="modalEliminarMatPrima" style="display:none">
+    <h3 id="tituloModalEliminarMatPrima"></h3>
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th>Producto</th>
+                <th>Folio Producción</th>
+                <th>Cajas</th>
+                <th>Kilos</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaEliminarMatPrima"></tbody>
+    </table>
+</form>
+
+<script>
+    $(document).ready(function () {
+        document.getElementById("pFolio").textContent = "Folio: " + zeroPad(@Model.Id, 6);
+
+        var pUrl = "/cortes/ObtenerTablaMateriaPrima";
+        var pData = "Id=" + @Model.Id +"&Destino=111";
+        $.get(pUrl, pData, function(Result){
+            refrescaTablaDetalleMateriaPrima(Result, 111);
+        });
+
+        var pData2 = "Id=" + @Model.Id +"&Destino=112";
+        console.log(pData2);
+        $.get(pUrl, pData2, function(Result){
+            refrescaTablaDetalleMateriaPrima(Result, 112);
+        });
+
+
+        var pData3 = "Id=" + @Model.Id +"&Destino=0";
+        console.log(pData3);
+        $.get(pUrl, pData3, function(Result){
+            refrescaTablaDetalleMateriaPrima(Result, 0);
+        });
+
+    });
+
+    function volver(){
+        $("#tablaAgregarMateriaPrima1").show();
+        $("#tablaAgregarMateriaPrima2").hide();
+        $("#tablaAgregarMateriaPrima3").hide();
+    }
+
+    function capturarAgregarMateriaPrima(destino, tipo){
+        $("#modalAgregarMateriaPrima").dialog({
+            title: "Estado materia prima",
+            height: 600,
+            width: 800,
+            modal: true,
+            open: function (event, ui) {
+                $(".datepicker").datepicker('setDate', new Date());
+                document.getElementById("btnConsultarModalAgregarMatPrima").setAttribute("onclick", "javascript: consultarSalidasPorDestino(event," + destino + ",'" + tipo + "')")
+                consultarSalidasPorDestino(null,destino, tipo);
+            }
+        });
+    }
+
+    function capturarProduccion(lote, idMatPrima){
+        
+        
+            $("#modalAgregarProduccion").dialog({
+                title: "Agregar producción",
+                height: 600,
+                width: 800,
+                modal: true,
+                open: function (event, ui) {
+                    $(".datepicker").datepicker('setDate', new Date());
+                    consultarProduccion(null, lote, idMatPrima);
+                }
+            });
+        
+    }
+
+    function consultarProduccion(e, lote, idMatPrima){
+        if(e!=null)
+            e.preventDefault();
+        limpiarTabla("cuerpoTablaAgregarProduccion",null);
+        var pFecha = document.getElementById("inpFechaAgregarProduccion").value;
+        var pUrl = "/cortes/obtenertablaprogramacioncortes";
+        var pData = "Lote=" + lote + "&IdMatPrima=" + idMatPrima + "&Fecha=" + pFecha;
+
+        $.get(pUrl, pData, function(Result){
+            for(var i = 0; i < Result.length; i++){
+                var item = Result[i];
+                
+                var pFila           = document.createElement("tr");
+                var pCeldaAgregar   = document.createElement("td");
+                var pCeldaLote      = document.createElement("td");
+                var pCeldaProductos = document.createElement("td");
+                var pBtnDesglosar   = document.createElement("button");
+                var pEnlaceLote     = document.createElement("a");
+
+                pBtnDesglosar.textContent = "Desglosar";
+                pBtnDesglosar.setAttribute("onclick","desglosarProduccion(event," + item.Id + ",'" + document.getElementById("inpFechaAgregarProduccion").value + "'," + item.Lote + ")");
+
+                pEnlaceLote.textContent = item.Lote;
+                pEnlaceLote.href        = "javascript: agregarProduccion(event," + item.Id + ",'" + document.getElementById("inpFechaAgregarProduccion").value + "'," + item.Lote + ")";
+
+                pCeldaProductos.textContent = item.Productos;
+
+                pCeldaAgregar.appendChild(pBtnDesglosar);
+                pCeldaLote.appendChild(pEnlaceLote);
+                pFila.appendChild(pCeldaAgregar);
+                pFila.appendChild(pCeldaLote);
+                pFila.appendChild(pCeldaProductos);
+
+                document.getElementById("cuerpoTablaAgregarProduccion").appendChild(pFila);
+                
+            }
+        });
+    }
+
+    function desglosarProduccion(e,id, fecha, lote){
+        e.preventDefault();
+        var pUrl = "/cortes/obtenerproduccionlote";
+        var pData = "Id=" + id + "&Fecha=" + fecha + "&Lote=" + lote;
+    
+        $.get(pUrl, pData, function(Result){
+            for(var i = 0; i < Result.length; i++){
+                var item = Result[i];
+
+                var pFila = document.createElement("tr");
+                var pCeldaAgregar = document.createElement("td");
+                var pBtnAgregar   = document.createElement("button");
+                var pCeldaClave   = document.createElement("td");
+                var pCeldaNombre  = document.createElement("td");
+                var pCeldaCajas   = document.createElement("td");
+                var pCeldaKilos   = document.createElement("td");
+
+                pBtnAgregar.textContent = "Agregar";
+                pBtnAgregar.setAttribute("onclick", "");
+
+                pCeldaClave.textContent = item.Producto;
+                pCeldaNombre.textContent = item.Descripcion;
+                pCeldaCajas.textContent = item.Cajas;
+                pCeldaKilos.textContent = item.Kilos;
+
+                pCeldaAgregar.appendChild(pBtnAgregar);
+                
+                pFila.appendChild(pCeldaAgregar);
+                pFila.appendChild(pCeldaClave);
+                pFila.appendChild(pCeldaNombre);
+                pFila.appendChild(pCeldaCajas);
+                pFila.appendChild(pCeldaKilos);
+
+                document.getElementById("cuerpoTablaProduccionDesglosada").appendChild(pFila);
+            
+            }
+        });
+    }
+
+    function agregarProduccion(e, idProduccion, Fecha, Lote){
+        if(e!=null)
+            e.preventDefault();
+        if (confirm('¿Agregar producción?')){
+    
+            var pUrl = "/cortes/agregarproduccion";
+            var pData = "Id=" + @Model.Id + "&IdProduccion=" + idProduccion + "&Fecha=" + Fecha + "&Lote=" + Lote;
+            $.post(pUrl, pData, function(data){
+                if (data != null){
+                    alert(data);				
+                    return;
+                }
+                else{
+                    var pUrl = "/cortes/ObtenerTablaMateriaPrima";
+                    var pData = "Id=" + @Model.Id +"&Destino=0";
+                    $.get(pUrl, pData, function(Result){
+                        refrescaTablaDetalleMateriaPrima(Result, 0);
+                    });
+                }
+				
+                alert("Se agregó producción con éxito");
+            });
+        }
+    }
+
+    function consultarSalidasPorDestino(e, destino, tipo){
+        if(e!=null)
+            e.preventDefault();
+        limpiarTabla("cuerpoTablaAgregarMateriaPrima",null);
+        var pUrl = "/embarques/salidaspordestino";
+        var pData = "Fecha=" + document.getElementById("inpFechaAgregarMatPrima").value + "&Destino=" + destino + "&Tipo=" + tipo + "&Id=" + @Model.Id;
+        $.get(pUrl, pData, function(Result){
+            for(var i = 0; i < Result.length; i++){
+                var item = Result[i];
+
+                var pFila           = document.createElement("tr");
+                var pCeldaAgregar   = document.createElement("td");
+                var pCeldaDesglosar = document.createElement("td");
+                var pCeldaFolio     = document.createElement("td");
+                var pCeldaConcepto  = document.createElement("td");
+                var pCeldaCajas     = document.createElement("td");
+                var pCeldaKilos     = document.createElement("td");
+                var pEnlaceAgregar  = document.createElement("a");
+                var pBtnDesglosar   = document.createElement("button");
+
+                pEnlaceAgregar.href = "javascript:agregarSalida(" + @Model.Id + ",'" + tipo + "'," + item.Id + ")";
+                pEnlaceAgregar.text = "Agregar";
+
+                pBtnDesglosar.textContent = "Desglosar";
+                pBtnDesglosar.setAttribute("onclick","javascript:consultarTarimasDeSalida(" + item.Id + ",'" + tipo + "')");
+
+                pCeldaFolio.textContent    = item.Id;
+                pCeldaConcepto.textContent = item.Concepto;
+                pCeldaCajas.textContent    = item.Cajas;
+                pCeldaKilos.textContent    = Number(item.Kilos).toFixed(2);
+
+                pCeldaAgregar.appendChild(pEnlaceAgregar);
+                pCeldaDesglosar.appendChild(pBtnDesglosar);
+
+                pFila.appendChild(pCeldaAgregar);
+                pFila.appendChild(pCeldaDesglosar);
+                pFila.appendChild(pCeldaFolio);
+                pFila.appendChild(pCeldaConcepto);
+                pFila.appendChild(pCeldaCajas);
+                pFila.appendChild(pCeldaKilos);
+
+                document.getElementById("cuerpoTablaAgregarMateriaPrima").appendChild(pFila);
+            }
+            $("#tablaAgregarMateriaPrima3").hide();
+            $("#tablaAgregarMateriaPrima2").hide();
+            $("#tablaAgregarMateriaPrima1").show();
+        });
+    }
+
+    function consultarTarimasDeSalida(idSalida, tipo){
+        limpiarTabla("cuerpoTablaAgregarMateriaPrimaDesglosada",null);
+        var pUrl = "/embarques/tarimasdesalida";
+        var pData = "IdSalida=" + idSalida + "&Destino=111&FechaSalida=" + document.getElementById("inpFechaAgregarMatPrima").value + "&Tipo=" + tipo +"&Id=" + @Model.Id;
+        $.get(pUrl, pData, function(Result){
+            document.getElementById("pTabla2").innerText = "Desglose tarimas salida " + idSalida;
+            for(var i = 0; i < Result.length; i++){
+                var item = Result[i];
+
+                var pFila           = document.createElement("tr");
+                var pCeldaAgregar   = document.createElement("td");
+                var pCeldaDesglosar = document.createElement("td");
+                var pCeldaFolio     = document.createElement("td");
+                var pCeldaCajas     = document.createElement("td");
+                var pCeldaKilos     = document.createElement("td");
+                var pBtnAgregar     = document.createElement("button");
+                var pBtnDesglosar   = document.createElement("button");
+
+                pBtnAgregar.setAttribute("onclick","javascript:agregarTarima(" + @Model.Id + ",'" + tipo + "'," + idSalida + "," + item.Folio + ")");
+                pBtnAgregar.textContent = "Agregar";
+
+                pBtnDesglosar.textContent = "Desglosar";
+                pBtnDesglosar.setAttribute("onclick","javascript:consultarCajasDeTarima(" + item.Folio + ",'" + tipo + "')");
+
+                pCeldaFolio.textContent    = item.Folio;
+                pCeldaCajas.textContent    = item.Cajas;
+                pCeldaKilos.textContent    = Number(item.Kilos).toFixed(2);
+
+                pCeldaAgregar.appendChild(pBtnAgregar);
+                pCeldaDesglosar.appendChild(pBtnDesglosar);
+
+                pFila.appendChild(pCeldaAgregar);
+                pFila.appendChild(pCeldaDesglosar);
+                pFila.appendChild(pCeldaFolio);
+                pFila.appendChild(pCeldaCajas);
+                pFila.appendChild(pCeldaKilos);
+
+                document.getElementById("cuerpoTablaAgregarMateriaPrimaDesglosada").appendChild(pFila);
+            }
+            $("#tablaAgregarMateriaPrima1").hide();
+            $("#tablaAgregarMateriaPrima3").hide();
+            $("#tablaAgregarMateriaPrima2").show();
+        });
+    }
+
+    function consultarCajasDeTarima(folioTarima, tipo){
+        limpiarTabla("cuerpoTablaAgregarMateriaPrimaDesglosadaDesglosada",null);
+        var pUrl = "/embarques/cajastarima";
+        var pData = "Fecha=" + document.getElementById("inpFechaAgregarMatPrima").value + "&Destino=111&FolioTarima=" + folioTarima + "&Tipo=" + tipo + "&Id=" + @Model.Id;
+        $.get(pUrl, pData, function(Result){
+            document.getElementById("pTabla3").innerText = "Cajas de tarima " + folioTarima;
+            for(var i = 0; i < Result.length; i++){
+                var item = Result[i];
+
+                var pFila              = document.createElement("tr");
+                var pCeldaAgregar      = document.createElement("td");
+                var pCeldaFecha        = document.createElement("td");
+                var pCeldaFolio        = document.createElement("td");
+                var pCeldaCajas        = document.createElement("td");
+                var pCeldaCodigoBarras = document.createElement("td");
+                var pCeldaProducto     = document.createElement("td");
+                var pCeldaDescripcion  = document.createElement("td");
+                var pCeldaPeso         = document.createElement("td");
+                var pBtnAgregar        = document.createElement("button");
+
+                pBtnAgregar.setAttribute("onclick","javascript:agregarCaja(" + @Model.Id + ",'" + item.CodigoBarras + "'," + item.Peso + "," + item.Producto + ",'" + tipo + "'," + item.Folio + "," + folioTarima + ")");
+                pBtnAgregar.textContent = "Agregar";
+
+                var date1 = new Date(item.Fecha);
+                date1.setDate(date1.getDate() + 1);
+
+                pCeldaFecha.textContent = $.datepicker.formatDate('dd/mm/yy', date1);
+                pCeldaFolio.textContent        = item.Folio;
+                pCeldaCodigoBarras.textContent = item.CodigoBarras;
+                pCeldaProducto.textContent     = item.Producto;
+                pCeldaDescripcion.textContent  = item.Descripcion;
+                pCeldaPeso.textContent         = Number(item.Peso).toFixed(2);
+
+                pCeldaAgregar.appendChild(pBtnAgregar);
+
+                pFila.appendChild(pCeldaAgregar);
+                pFila.appendChild(pCeldaFecha);
+                pFila.appendChild(pCeldaFolio);
+                pFila.appendChild(pCeldaCodigoBarras);
+                pFila.appendChild(pCeldaProducto);
+                pFila.appendChild(pCeldaDescripcion);
+                pFila.appendChild(pCeldaPeso);
+
+                document.getElementById("cuerpoTablaAgregarMateriaPrimaDesglosadaDesglosada").appendChild(pFila);
+            }
+            $("#tablaAgregarMateriaPrima1").hide();
+            $("#tablaAgregarMateriaPrima2").hide();
+            $("#tablaAgregarMateriaPrima3").show();
+        });
+    }
+
+    function agregarSalida(id, tipo, idSalida){
+        var pData = "Id=" + id + "&Tipo=" + tipo + "&Id_Salida=" + idSalida;
+
+        $.post("/embarques/insertardetallesalidamatprima", pData, function(data) {
+            if (data.codigo == 0){
+
+                alert(data.mensaje);
+
+                if (tipo == "MatPrima"){
+                    var pUrl = "/cortes/ObtenerTablaMateriaPrima";
+                    var pData = "Id=" + @Model.Id +"&Destino=111";
+                    $.get(pUrl, pData, function(Result){
+                        refrescaTablaDetalleMateriaPrima(Result, 111);
+                    });
+                }
+                else{
+                    var pUrl = "/cortes/ObtenerTablaMateriaPrima";
+                    var pData = "Id=" + @Model.Id +"&Destino=112";
+                    $.get(pUrl, pData, function(Result){
+                        refrescaTablaDetalleMateriaPrima(Result, 112);
+                    });
+                }
+            }
+            else{
+                alert(data.mensaje);
+            }
+        });
+    }
+
+    function agregarTarima(id, tipo, idSalida, idTarima){
+        pData = "Id=" + id + "&Tipo=" + tipo + "&Id_Salida=" + idSalida + "&Id_Tarima=" + idTarima;
+        console.log(pData);
+
+        $.post("/embarques/insertardetalletarimamatprima", pData, function(data) {
+            if (data.codigo == 0){
+
+                alert(data.mensaje);
+
+                if (tipo == "MatPrima"){
+                    var pUrl = "/cortes/ObtenerTablaMateriaPrima";
+                    var pData = "Id=" + @Model.Id +"&Destino=111";
+                    $.get(pUrl, pData, function(Result){
+                        refrescaTablaDetalleMateriaPrima(Result, 111);
+                    });
+                }
+                else{
+                    var pUrl = "/cortes/ObtenerTablaMateriaPrima";
+                    var pData = "Id=" + @Model.Id +"&Destino=112";
+                    $.get(pUrl, pData, function(Result){
+                        refrescaTablaDetalleMateriaPrima(Result, 112);
+                    });
+                }
+            }
+            else{
+                alert(data.mensaje);
+            }
+        });
+    }
+
+    function agregarCaja(id, codigo, peso, producto, tipo, id_Salida, id_Tarima){
+        pData = "Id=" + id + "&CodigoBarras=" + codigo + "&Peso=" + peso + "&Producto=" + producto + "&Tipo=" + tipo + "&Id_Salida=" + id_Salida + "&Id_Tarima=" + id_Tarima;
+        console.log(pData);
+
+        $.post("/embarques/InsertarDetalleCajaMatPrima", pData, function(data) {
+            if (data.codigo == 0){
+
+                console.log("tipo: " + tipo);
+
+                alert(data.mensaje);
+
+                if (tipo == "MatPrima"){
+                    var pUrl = "/cortes/ObtenerTablaMateriaPrima";
+                    var pData = "Id=" + @Model.Id +"&Destino=111";
+                    $.get(pUrl, pData, function(Result){
+                        refrescaTablaDetalleMateriaPrima(Result, 111);
+                    });
+                }
+                else{
+                    var pUrl = "/cortes/ObtenerTablaMateriaPrima";
+                    var pData = "Id=" + @Model.Id +"&Destino=112";
+                    $.get(pUrl, pData, function(Result){
+                        refrescaTablaDetalleMateriaPrima(Result, 112);
+                    });
+                }
+            }
+            else{
+                alert(data.mensaje);
+            }
+        });
+
+    }
+
+    function capturarCambiarEstado(){
+        $("#modalEstado").dialog({
+            title: "Estado materia prima",
+            height: 400,
+            width: 400,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("selectEstado").value = document.getElementById("aEstado").textContent;
+            }
+        });
+    }
+
+    function cambiarEstado(e){
+        e.preventDefault();
+
+        var pData = $("#modalEstado").serialize();
+        $.post('/cortes/actualizarEstado', pData, function(Result) {
+
+            if (Result != null){
+                document.getElementById("aEstado").innerText = Result;
+                cerrarCaptura();
+            }
+            else{
+                alert("Hubo un problema al actualizar, repórtelo al dpto. de sistemas");
+            }
+        });
+    }
+
+    function refrescaTablaDetalleMateriaPrima(result, destino) {
+        if(destino == 0){
+            refrescaTablaDetalleMateriaPrimapTerminado(result,destino);
+            return;
+        }
+
+        var pTotalCajas = 0;
+        var pTotalKilos = 0;
+
+        if(destino == 111){
+            limpiarTabla("cuerpoTablaMatPrima","footerTablaMatPrima");
+        }else if(destino == 112){
+            limpiarTabla("cuerpoTablaMoldeo","footerTablaMoldeo");
+        }
+
+        for (var i = 0; i < result.DetalleMateriaPrima.length; i++) {
+            var item = result.DetalleMateriaPrima[i];
+
+            var pFila             = document.createElement("tr");
+            var pCeldaClave       = document.createElement("td");
+            var pCeldaNombre      = document.createElement("td");
+            var pCeldaCajas       = document.createElement("td");
+            var pCeldaKilos       = document.createElement("td")
+            var pCeldaFolioSalida = document.createElement("td");
+            var pCeldaEliminar    = document.createElement("td");
+            var pEnlaceEliminar   = document.createElement("a");
+
+            pCeldaClave.textContent       =  item.Producto;
+            pCeldaNombre.textContent      =  item.Descripcion;
+            pCeldaCajas.textContent       =  item.Cajas;
+            pCeldaKilos.textContent       =  Number(item.Kilos).toFixed(2);
+            pCeldaFolioSalida.textContent =  item.Id_Salida;
+            pEnlaceEliminar.textContent   =  "Eliminar";
+
+            pEnlaceEliminar.href = "javascript:capturarEliminar(" + @Model.Id  + ",'" + item.Producto + "'," + destino + ")";
+            pCeldaEliminar.appendChild(pEnlaceEliminar);
+
+            pTotalCajas += item.Cajas;
+            pTotalKilos += item.Kilos;
+
+            pFila.appendChild(pCeldaClave);
+            pFila.appendChild(pCeldaNombre);
+            pFila.appendChild(pCeldaCajas);
+            pFila.appendChild(pCeldaKilos);
+            pFila.appendChild(pCeldaFolioSalida);
+            pFila.appendChild(pCeldaEliminar);
+
+            if(destino == 111){
+                document.getElementById("cuerpoTablaMatPrima").appendChild(pFila);
+            }else if(destino == 112){
+                document.getElementById("cuerpoTablaMoldeo").appendChild(pFila);
+            }
+        }
+        var pFilaTotales     = document.createElement("tr");
+        var pCeldaTotal      = document.createElement("th");
+        var pCeldaTotalCajas = document.createElement("th");
+        var pCeldaTotalKilos = document.createElement("th");
+
+        pCeldaTotal.textContent      = "Total";
+        pCeldaTotalCajas.textContent = pTotalCajas;
+        pCeldaTotalKilos.textContent = Number(pTotalKilos).toFixed(2);
+
+        pFilaTotales.appendChild(pCeldaTotal);
+        pFilaTotales.appendChild(document.createElement("th"));
+        pFilaTotales.appendChild(pCeldaTotalCajas);
+        pFilaTotales.appendChild(pCeldaTotalKilos);
+        pFilaTotales.appendChild(document.createElement("th"));
+        pFilaTotales.appendChild(document.createElement("th"));
+
+        if(destino == 111){
+            document.getElementById("footerTablaMatPrima").appendChild(pFilaTotales);
+        }else if(destino == 112){
+            document.getElementById("footerTablaMoldeo").appendChild(pFilaTotales);
+        }
+
+    }
+    function refrescaTablaDetalleMateriaPrimapTerminado(result,destino) {
+        var pTotalCajas       = 0;
+        var pTotalKilos       = 0;
+        var pTotalRendimiento = 0;
+        
+        limpiarTabla("cuerpoTablaPTerminado","footerTablaPTerminado");
+        
+        for (var i = 0; i < result.DetalleMateriaPrima.length; i++) {
+            var item = result.DetalleMateriaPrima[i];
+
+            var pFila                 = document.createElement("tr");
+            var pCeldaSubtipo         = document.createElement("td");
+            var pCeldaClave           = document.createElement("td");
+            var pCeldaNombre          = document.createElement("td");
+            var pCeldaCajas           = document.createElement("td");
+            var pCeldaKilos           = document.createElement("td")
+            var pCeldaRendimiento     = document.createElement("td");
+            var pCeldaFolioProduccion = document.createElement("td");
+            var pCeldaEliminar        = document.createElement("td");
+            var pEnlaceSubtipo        = document.createElement("a");
+            var pEnlaceEliminar       = document.createElement("a");
+
+            pEnlaceSubtipo.textContent        =  item.Subtipo;
+            pCeldaClave.textContent           =  item.Producto;
+            pCeldaNombre.textContent          =  item.Descripcion;
+            pCeldaCajas.textContent           =  Number(item.Cajas).toFixed(1);
+            pCeldaKilos.textContent           =  Number(item.Kilos).toFixed(2);
+            pCeldaRendimiento.textContent     =  Number(item.Rendimiento).toFixed(2);
+            pCeldaFolioProduccion.textContent =  item.Id_Salida;
+            pEnlaceEliminar.textContent       =  "Eliminar";
+
+            pEnlaceSubtipo.id = "subtipo" + item.Id;
+
+            pEnlaceSubtipo.href  = "javascript:capturarCambiarSubtipoProduccion('" + item.Id + "')";
+            pEnlaceEliminar.href = "javascript:capturarEliminar(" + @Model.Id  + ",'" + item.Producto + "'," + destino + ")";
+
+            pCeldaSubtipo.appendChild(pEnlaceSubtipo);
+            pCeldaEliminar.appendChild(pEnlaceEliminar);
+
+            pTotalCajas       += item.Cajas;
+            pTotalKilos       += item.Kilos;
+            pTotalRendimiento += item.Rendimiento;
+
+            pFila.appendChild(pCeldaSubtipo);
+            pFila.appendChild(pCeldaClave);
+            pFila.appendChild(pCeldaNombre);
+            pFila.appendChild(pCeldaCajas);
+            pFila.appendChild(pCeldaKilos);
+            pFila.appendChild(pCeldaRendimiento);
+            pFila.appendChild(pCeldaFolioProduccion);
+            pFila.appendChild(pCeldaEliminar);
+
+            document.getElementById("cuerpoTablaPTerminado").appendChild(pFila);
+        }
+
+        var pFilaTotales      = document.createElement("tr");
+        var pCeldaTotal       = document.createElement("th");
+        var pCeldaTotalCajas  = document.createElement("th");
+        var pCeldaTotalKilos  = document.createElement("th");
+        var pCeldaRendimiento = document.createElement("th");
+
+        pCeldaTotal.textContent       = "Total";
+        pCeldaTotalCajas.textContent  = Number(pTotalCajas).toFixed(1);
+        pCeldaTotalKilos.textContent  = Number(pTotalKilos).toFixed(2);
+        pCeldaRendimiento.textContent = Number(pTotalRendimiento).toFixed(2);
+
+        pFilaTotales.appendChild(pCeldaTotal);
+        pFilaTotales.appendChild(document.createElement("th"));
+        pFilaTotales.appendChild(document.createElement("th"));
+        pFilaTotales.appendChild(pCeldaTotalCajas);
+        pFilaTotales.appendChild(pCeldaTotalKilos);
+        pFilaTotales.appendChild(pCeldaRendimiento);
+        pFilaTotales.appendChild(document.createElement("th"));
+        pFilaTotales.appendChild(document.createElement("th"));
+
+        document.getElementById("footerTablaPTerminado").appendChild(pFilaTotales);
+    }
+
+    function capturarCambiarSubtipoProduccion(id){
+        $("#modalSubtipoProduccion").dialog({
+            title: "Estado materia prima",
+            height: 400,
+            width: 400,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("selectSubtipo").value = document.getElementById("subtipo" + id).textContent;
+                document.getElementById("inputHiddenId").value = id;
+            }
+        });
+    }
+
+    function cambiarSubtipoProduccion(e){
+        e.preventDefault();
+
+        var pData = $("#modalSubtipoProduccion").serialize();
+        $.post('/cortes/actualizarsubtipo', pData, function(Result) {
+
+            if (Result != null){
+                document.getElementById("subtipo" + document.getElementById("inputHiddenId").value).innerText = Result;
+                cerrarCaptura();
+            }
+            else{
+                alert("Hubo un problema al actualizar, repórtelo al dpto. de sistemas");
+            }
+        });
+    }
+
+    function capturarEliminar(id,producto,destino){
+        $("#modalEliminarMatPrima").dialog({
+            title: "Estado materia prima",
+            height: 400,
+            width: 400,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("tituloModalEliminarMatPrima").innerText = "Desglose de materia prima producto " + producto;
+                var pUrl = "/cortes/obtenerdesglosemateriaprima";
+                var pData = "IdMatPrima=" + id + "&Producto=" + producto;
+
+                limpiarTabla("cuerpoTablaEliminarMatPrima",null);
+
+                $.get(pUrl, pData, function(Result){
+                    for(var i = 0; i < Result.length; i++){
+                        var item = Result[i];
+
+                        var pFila                 = document.createElement("tr");
+                        var pCeldaEliminar        = document.createElement("td");
+                        var pCeldaProducto        = document.createElement("td");
+                        var pCeldaFolioProduccion = document.createElement("td");
+                        var pCeldaCajas           = document.createElement("td");
+                        var pCeldaKilos           = document.createElement("td");
+                        var pInputEliminar        = document.createElement("input");
+
+                        pFila.id = "trEliminar" + i;
+
+                        pInputEliminar.type    = "button";
+                        pInputEliminar.value   = "Eliminar";
+                        pInputEliminar.setAttribute("onclick","javascript: eliminarProduccion("+ item.Id_Salida +","+ i +",'" + producto + "'," + destino + ")");
+
+                        pCeldaProducto.textContent        = item.Producto;
+                        pCeldaFolioProduccion.textContent = item.Id_Salida;
+                        pCeldaCajas.textContent           = item.Cajas;
+                        pCeldaKilos.textContent           = item.Kilos;
+
+                        pCeldaEliminar.appendChild(pInputEliminar);
+                        pFila.appendChild(pCeldaEliminar);
+                        pFila.appendChild(pCeldaProducto);
+                        pFila.appendChild(pCeldaFolioProduccion);
+                        pFila.appendChild(pCeldaCajas);
+                        pFila.appendChild(pCeldaKilos);
+
+                        document.getElementById("cuerpoTablaEliminarMatPrima").appendChild(pFila);
+                    }
+                });
+            }
+        });
+    }
+
+    function eliminarProduccion(id, idFila, producto, destino){
+        if (confirm('¿Eliminar producción?')){
+            var pUrl = "/cortes/eliminarproductoproduccion";
+            var pData = "Id_Salida=" + id + "&Producto=" + producto;
+
+            $.post(pUrl, pData, function(data){
+                if(!data.Result)
+                    alert(data.Mensaje);
+                else{
+                    $("#trEliminar" + idFila).remove();
+                    var pUrl2 = "/cortes/ObtenerTablaMateriaPrima";
+                    var pData2 = "Id=" + @Model.Id +"&Destino=" + destino;
+                    $.get(pUrl2, pData2, function(Result){
+                        refrescaTablaDetalleMateriaPrima(Result, destino);
+                    });
+                }
+            });
+        }
+    }
+</script>

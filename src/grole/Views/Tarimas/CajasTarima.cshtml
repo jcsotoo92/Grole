@@ -1,0 +1,54 @@
+﻿@model List<grole.src.Entidades.CajaTarima>
+<h2>Cajas de Tarima, Folio @Context.Request.Query["foliotarima"]</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Folio</th>
+            <th>Código Barras</th>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Peso</th>
+            <th>Tara</th>
+            <th>Ubicación</th>  
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td class="celdaFecha">@item.Fecha.ToShortDateString()</td>
+                <td class="celdaFolio">@item.Folio</td>
+                <td>@item.CodigoBarras</td>
+                <td>@item.Producto</td>
+                <td>@item.Descripcion</td>
+                <td>@item.Peso</td>
+                <td>@item.Tara</td>
+                <td>@item.Ubicacion</td>
+            </tr>
+        }
+    </tbody>
+</table>
+Son @Model.Count registros
+
+<script>
+    $(document).ready(
+        function () {
+            
+            var folios = document.getElementsByClassName("celdaFolio");
+
+            for(var j=0 ;j<folios.length;j++){
+                folios[j].textContent = zeroPad(folios[j].textContent,5);
+            }
+
+            var fechas = document.getElementsByClassName("celdaFecha");
+            for (var i = 0 ; i < fechas.length; i++) {
+                var fech = fechas[i].textContent;
+                //fechas[i].textContent = $.datepicker.formatDate('dd/mm/yy', new Date(fech));
+            }
+        
+            
+        }
+        );
+</script>

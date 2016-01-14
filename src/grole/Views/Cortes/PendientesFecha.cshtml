@@ -1,0 +1,46 @@
+﻿@model List<grole.src.Entidades.DetallePendienteCorte>
+
+<h2>Detalle de pendientes de corte</h2>
+
+<div>
+    Fecha: @Context.Request.Query["Fecha"]
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Folio</th>
+            <th>Lote</th>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Código Barras</th>
+            <th>Peso</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{decimal peso = 0;
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Folio</td>
+                    <td>@item.Lote</td>
+                    <td>@item.Producto</td>
+                    <td>@item.Descripcion</td>
+                    <td>@item.CodigoBarras</td>
+                    <td>@item.Peso</td>
+                </tr>
+                peso += @item.Peso;
+            }
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>Total:</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th>@peso</th>
+        </tr>
+    </tfoot>
+</table>

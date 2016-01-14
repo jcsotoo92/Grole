@@ -1,0 +1,90 @@
+﻿@model grole.src.Entidades.AreaCortes
+﻿<h2>Cambiar Fecha de Producción</h2>
+    <table>
+        <tr>
+            <td>
+                <b>Id:</b>
+            </td>
+            <td id="id">@Model.Id</td>
+        </tr>
+        <tr>
+            <td>
+                <b>Fecha:</b>
+            </td>
+            <td>@Model.Fecha</td>
+        </tr>
+        <tr>
+            <td>
+                <b>Lote:</b>
+            </td>
+            <td>@Model.Lote</td>
+        </tr>
+        <tr>
+            <td>
+                <b>Producto:</b>
+            </td>
+            <td>@Model.Producto</td>
+        </tr>
+        <tr>
+            <td>
+                <b>Nombre:</b>
+            </td>
+            <td>@Model.Descripcion</td>
+        </tr>
+        <tr>
+            <td>
+                <b>Cantidad:</b>
+            </td>
+            <td>@Model.Cantidad</td>
+        </tr>
+        <tr>
+            <td>
+                <b>Peso:</b>
+            </td>
+            <td id="peso"></td>
+        </tr>
+        <tr>
+            <td>
+                <b>Nueva Fecha:</b>
+            </td>
+            <td>
+                <input type="text" id="FechaNueva" value="" />
+            </td>
+        </tr>
+    </table>
+    <input type="button" value="Cambiar Fecha" onclick="cambiar_fecha();" />
+    <script type="text/javascript">
+
+	$(document).ready(function () {
+            $.datepicker.setDefaults($.datepicker.regional['es']);
+            $("#FechaNueva").datepicker({ changeMonth: true, changeYear: true });
+            var d      = new Date();
+            var month  = d.getMonth() + 1;
+            var day    = d.getDate();
+            var output = (('' + day).length < 2 ? '0' : '') + day + '/' +
+                (('' + month).length < 2 ? '0' : '') + month + '/' +
+                d.getFullYear();
+            document.getElementById("FechaNueva").value = output;
+            var peso   = @Model.Peso;
+            document.getElementById("peso").innerText = peso.toFixed(2);
+        });
+
+	function cambiar_fecha()
+	{
+		if (confirm("¿Cambiar la fecha de producción?"))
+		{
+
+			var pFecha    = document.getElementById("FechaNueva").value;
+			var pFechaAnt = '@(Model.Fecha)';
+			var pId       = @Model.Id;
+		    var pUrl      = "/Cortes/CambiaFechaProduccion";
+		    var pData     = "fecha="+ pFecha + "&id=" + pId + "&fecha_ant=" + pFechaAnt;
+		    $.get(pUrl, pData, function (Result) {
+		        alert(Result);
+		        window.location = "ResumenCortes";
+		    });
+			
+		}
+	}
+
+    </script>

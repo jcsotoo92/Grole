@@ -1,0 +1,183 @@
+﻿<h2>Empaque Producto</h2>
+
+<form action="/empaques/insertarempaquesproducto" method="post" id="formaEmpaquesProducto">
+    <h5>Seleccione el producto que desee modificar</h5>
+    <label for="inpClaveProd">Producto</label>
+    <input type="text" value="" name="IdProducto" id="inpClaveProd" onkeyup="buscarProducto()"/>
+    <select id="listaProductos" onchange="cambiarOpcionCombo()"></select>
+    <input type="button" value="Modificar" onclick="desplegarListaEmpaques(event)" />
+
+    <table id="tabla" style="display:none">
+        <thead>
+            <tr>
+                <th>Activo</th>
+                <th>Empaque</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla">
+
+        </tbody>
+    </table>
+
+    <input type="submit" value="Aceptar" onclick="guardarEmpaquesProductos(event)" />
+</form>
+
+<script>
+    
+
+    $(document).ready(
+        function () {
+            $("#inpClaveProd").numeric(//Valida que solo se pueda introducir numeros en el input de producto
+				{
+				    negative: false,
+                    decimal: false
+				});
+            
+            
+            var selectProd = document.getElementById("listaProductos");
+            if (!selectProd.hasChildNodes()) {//Llena la lista desplegable de productos(verifica si ya se ha llenado antes para no volver a llenarla)
+                $.get("/empaques/obtenerproductos", function (Result) {
+                    document.getElementById("inpClaveProd").value = Result[0].Clave;
+
+                    for (var i = 0; i < Result.length; i++) {
+                        var optionProd         = document.createElement("option");
+                        optionProd.id          = Result[i].Clave;
+                        optionProd.value       = Result[i].Clave;
+                        optionProd.textContent = "(" + Result[i].Clave + ") " + Result[i].Descripcion;
+
+                        if (i == 0)
+                            document.getElementById("listaProductos").value = Result[i];
+                        selectProd.appendChild(optionProd);
+                    }
+                });
+            }
+
+        }
+    );
+
+    function guardarEmpaquesProductos(e) {//Hace el post para insertar un empaque de producto
+        e.preventDefault();
+        
+        if (validarInputsVacios()) {
+            var pUrl  = "/empaques/insertarempaquesproducto";
+            var pData = $("#formaEmpaquesProducto").serialize();
+            $.post(pUrl, pData, function (Result) {
+                document.getElementById("tabla").style.display = "none";
+            });
+        }
+    }
+
+    function desplegarListaEmpaques(event) {//Despliega la lista de todos los empaques separados por clasificación
+        event.preventDefault();
+
+        var pTabla = document.getElementById("cuerpoTabla");
+
+        while (pTabla.firstChild) {//Limpia la tabla evitando duplicidades
+            pTabla.removeChild(pTabla.firstChild);
+        }
+
+        var pUrl0  = "/empaques/obtenerempaquesproducto";
+        var pData0 = "Clave=" + document.getElementById("inpClaveProd").value;
+        $.get(pUrl0, pData0, function (empaquesProd) {
+            var pUrl = "/empaques/obtenerlistatiposempaques";
+            $.get(pUrl, function (pTipoEmpaque) {//Obtiene lista de los tipos de empaques que hay
+                var pUrl2 = "/empaques/obtenerempaques";
+                $.get(pUrl2, function (Result) {
+                    for (var i = 0; i < Result.length; i++) {
+                        var pFila   = document.createElement("tr");
+                        var pCelda1 = document.createElement("td");
+                        var pCelda2 = document.createElement("td");
+                        var pCelda3 = document.createElement("td");
+
+                        pFila.appendChild(pCelda1);
+                        pFila.appendChild(pCelda2);
+                        pFila.appendChild(pCelda3);
+
+                        if (i == 0 || Result[i].IdTipoEmpaque != Result[i - 1].IdTipoEmpaque) {
+                            var pFilaTipo   = document.createElement("tr");
+                            var pCeldaTipo1 = document.createElement("th");
+                            var pCeldaTipo2 = document.createElement("th");
+                            var pCeldaTipo3 = document.createElement("th");
+
+                            for (var j = 0; j < pTipoEmpaque.length; j++) {
+                                if (pTipoEmpaque[j].Id == Result[i].IdTipoEmpaque) {
+                                    pCeldaTipo2.textContent = pTipoEmpaque[j].Nombre;
+                                    pFilaTipo.appendChild(pCeldaTipo1);
+                                    pFilaTipo.appendChild(pCeldaTipo2);
+                                    pFilaTipo.appendChild(pCeldaTipo3);
+                                    document.getElementById("cuerpoTabla").appendChild(pFilaTipo);
+                                    break;
+                                }
+
+                            }
+                        }
+
+                        var pCheckBox = document.createElement("input");
+                        var pInput = document.createElement("input");
+
+                        pCheckBox.id    = "chk";
+                        pCheckBox.type  = "checkbox";
+                        pCheckBox.name  = "chk";
+                        pCheckBox.value = Result[i].Clave;
+                        pCheckBox.setAttribute("onclick", "cambiarEstadoInput(this," + Result[i].Clave + ")");
+
+                        pCelda2.textContent = Result[i].Nombre;
+                        pInput.id           = "inp" + Result[i].Clave;
+                        pInput.setAttribute("class","inputsCantidad");
+                        pInput.disabled     = "disabled";
+                        pInput.name         = "inp";
+                        
+                        if(i == Result.length-1){
+                            $(".inputsCantidad").numeric(//Valida que solo se pueda introducir numeros en el input 
+                            {
+                                negative: false
+                            });
+                        }
+                          
+                        for (var k = 0; k < empaquesProd.length; k++) {//Activa los checkbox de los empaques ya agregados a ese producto asi como su cantidad.
+                            if (empaquesProd[k].IdEmpaque == Result[i].Clave) {
+                                pCheckBox.checked = true;
+                                pInput.removeAttribute("disabled");
+                                pInput.value = empaquesProd[k].Cantidad;
+                                break;
+                            }
+                        }
+
+                        pCelda1.appendChild(pCheckBox);
+                        pCelda3.appendChild(pInput);
+
+                        document.getElementById("cuerpoTabla").appendChild(pFila);
+
+                    }
+                });
+            });
+            
+        });
+        document.getElementById("tabla").style.display = "block";
+    }
+    
+    function validarInputsVacios() {//Valida que los campos no esten vacíos antes de insertar o modificar.
+        var pInputs = document.getElementsByTagName("input");
+        for (var i = 0; i < pInputs.length; i++) {
+            var pInput = pInputs[i];
+            if (pInput.value.length == 0 && pInput.disabled == false) {
+                alert("Capture la cantidad");
+                pInput.focus();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function buscarProducto() {//Actualiza el valor de la lista desplegable de productos en base al id introducido en el input
+        document.getElementById("tabla").style.display  = "none";
+        document.getElementById("listaProductos").value = document.getElementById("inpClaveProd").value;
+    }
+
+    function cambiarOpcionCombo() {//Actualiza el valor del input de productos al seleccionar otra opcion en la lista desplegable
+        document.getElementById("tabla").style.display = "none";
+        document.getElementById("inpClaveProd").value  = document.getElementById("listaProductos").value;
+    }
+    
+</script>

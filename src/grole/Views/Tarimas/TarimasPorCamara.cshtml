@@ -1,0 +1,145 @@
+﻿@model List<grole.src.Entidades.Camara>
+
+<h2>Consulta de Tarimas por Cámara</h2>
+<form action="/tarimas/obtenertarimascamara" id="formaConsultaTarimas" method="post">
+    <table>
+        <thead>
+            <tr>
+                <th>Cámaras</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int count = 0;
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="CamarasChk" id="inpCamara@(item.Clave)" value="@(item.Clave)"/>
+                            <label for="inpCamara@(item.Clave)" style="display:inline">@item.Descripcion</label>
+                        </td>
+                        @if (count == Math.Round((decimal)Model.Count / 2))
+                        {
+                            <td><input type="submit" value="Consultar" onclick="consultar(event)" /></td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                    </tr>
+                    count++;
+                }
+            }
+        </tbody>
+    </table>
+</form>
+
+<div>
+    <a href="#">Excel</a>
+</div>
+<div id="cargando"></div>
+<div class="dataTables_scroll" id="tablaConsultaTarimas" style="display:none">
+    <table>
+        <thead>
+            <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Cajas</th>
+                <th>Kilos</th>
+                <th>Lote</th>
+                <th>Ubicación</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoConsultaTarimas"></tbody>
+        <tfoot id="footerConsultaTarimas"></tfoot>
+    </table>
+    <div class="dataTables_info" id="tablaTarimas_info"></div>
+</div>
+
+
+<script>
+    function consultar(e) {
+        e.preventDefault();
+
+        limpiarTabla("cuerpoConsultaTarimas", "footerConsultaTarimas");
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        var pUrl = "/tarimas/obtenertarimascamara";
+        var pData = $("#formaConsultaTarimas").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            var pInfo = document.getElementById("tablaTarimas_info");
+            var pSumaKilos = 0, pSumaCajas = 0;
+            for (var i = 0; i < Result.length; i++) {
+                var pTarima = Result[i];
+
+                var pFila           = document.createElement("tr");
+                var pCeldaFolio     = document.createElement("td");
+                var pCeldaFecha     = document.createElement("td");
+                var pCeldaCajas     = document.createElement("td");
+                var pCeldaKilos     = document.createElement("td");
+                var pCeldaLote      = document.createElement("td");
+                var pCeldaUbicacion = document.createElement("td");
+                var pEnlaceCajas    = document.createElement("a");
+
+                pEnlaceCajas.href = "/tarimas/cajastarima?foliotarima=" + zeroPad(pTarima.Folio, 6) + "&Camara=" + pTarima.Contenedor;
+
+                pCeldaFolio.textContent     = zeroPad(pTarima.Folio,6);
+                pCeldaFecha.textContent     = $.datepicker.formatDate('dd/mm/yy', new Date(pTarima.Fecha));
+                pEnlaceCajas.textContent    = pTarima.Cajas;
+                pCeldaKilos.textContent     = Number(pTarima.Kilos).toFixed(2);
+                pCeldaLote.textContent      = zeroPad(pTarima.Lote,3);
+                pCeldaUbicacion.textContent = pTarima.Ubicacion;
+
+                pCeldaCajas.appendChild(pEnlaceCajas);
+                pFila.appendChild(pCeldaFolio);
+                pFila.appendChild(pCeldaFecha);
+                pFila.appendChild(pCeldaCajas);
+                pFila.appendChild(pCeldaKilos);
+                pFila.appendChild(pCeldaLote);
+                pFila.appendChild(pCeldaUbicacion);
+                
+                pSumaCajas += pTarima.Cajas;
+                pSumaKilos += pTarima.Kilos;
+
+                document.getElementById("cuerpoConsultaTarimas").appendChild(pFila);
+
+                if (i == (Result.length - 1)) {
+                    var pFilaTotales           = document.createElement("tr");
+                    var pCeldaFolioTotales     = document.createElement("td");
+                    var pCeldaFechaTotales     = document.createElement("td");
+                    var pCeldaCajasTotales     = document.createElement("td");
+                    var pCeldaKilosTotales     = document.createElement("td");
+                    var pCeldaLoteTotales      = document.createElement("td");
+                    var pCeldaUbicacionTotales = document.createElement("td");
+                    var pEnlaceCajasTotales    = document.createElement("a");
+
+                    pCeldaFolioTotales.textContent     = "Total";
+                    pCeldaFechaTotales.textContent     = "";
+                    pCeldaCajasTotales.textContent     = pSumaCajas;
+                    pCeldaKilosTotales.textContent     = Number(pSumaKilos).toFixed(2);
+                    pCeldaLoteTotales.textContent      = "";
+                    pCeldaUbicacionTotales.textContent = "";
+                    pEnlaceCajasTotales.textContent    = "";
+
+                    pFilaTotales.appendChild(pCeldaFolioTotales);
+                    pFilaTotales.appendChild(pCeldaFechaTotales);
+                    pFilaTotales.appendChild(pCeldaCajasTotales);
+                    pFilaTotales.appendChild(pCeldaKilosTotales);
+                    pFilaTotales.appendChild(pCeldaLoteTotales);
+                    pFilaTotales.appendChild(pCeldaUbicacionTotales);
+
+                    document.getElementById("footerConsultaTarimas").appendChild(pFilaTotales);
+                }
+                
+            }
+            $cargando.html("");
+            pInfo.textContent = "Son " + Result.length + " registros";
+            document.getElementById("tablaConsultaTarimas").style.display = "block";
+        });
+        
+    }
+
+</script>

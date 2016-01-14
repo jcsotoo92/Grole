@@ -1,0 +1,227 @@
+﻿@model List<grole.src.Entidades.Categoria>
+
+<h2>Categorias</h2>
+<div>
+    <a href="javascript:capturarCategoria();">Nueva categoría</a>
+</div>
+<table id="tableCategorias">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Categoría</th>
+            <th>Activo</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="bodyCategorias">
+        @foreach (var item in Model)
+        {
+            <tr id="tr@(item.Id)">
+                <td>@item.Id</td>
+                <td id="cat@(item.Id)">@item.Cat</td>
+                <td id="activo@(item.Id)">@item.Activo</td>
+                <td><a href="javascript:capturarCategoriaModificar(@(item.Id));">Modificar</a></td>
+                <td><a href="javascript:eliminarCategoria(@(item.Id));">Eliminar</a></td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+<form action="/categorias/insertar" method="post" id="FormaCategoria" style="display:none;">
+    <div id="divId" style="display:none">
+        <div>
+            Id:
+        </div>
+        <input type="text" id="txtId" name="Id" disabled="disabled">
+    </div>
+    <div>
+        Categoría:
+    </div>
+    <div>
+        <input type="text" name="Cat" id="inpCategoria" value="" maxlength="30">
+    </div>
+    <div>
+        Activo:
+    </div>
+    <div>
+        <select id="inpActivo" name="Activo" >
+            <option value="Si">Si</option>
+            <option value="No" selected="selected">No</option>
+        </select>
+    </div>
+    <div>
+        <button id="btnModificar" onclick="modificarCategoria(event);" style="display:none">Modificar</button>
+        <button id="btnGuardar" onclick="insertarCategoria(event);">Insertar</button>&nbsp;&nbsp;<button id="btnCancelar" onclick="cancelarCaptura(event);">Cancelar</button>
+    </div>
+
+</form>
+
+<script>
+
+    function capturarCategoria() {//Abre la ventana modal para insertar una categoría
+
+        document.getElementById("btnModificar").style.display   = "none";
+        document.getElementById("btnGuardar").style.display     = "inline-block";
+        document.getElementById("divId").style.display          = "none";
+
+        $("#FormaCategoria").dialog({
+            title: "Nueva Categoría",
+            height: 600,
+            width: 500,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpCategoria").focus();
+                document.getElementById("inpCategoria").value = "";
+                document.getElementById("inpActivo").value    = "No";
+                document.getElementById("txtId").value        = "";
+            }
+        });
+    }
+
+    function capturarCategoriaModificar(Id) {//Abre la ventana modal para modificar una categoría
+        document.getElementById("btnModificar").style.display = "inline-block";
+        document.getElementById("btnGuardar").style.display   = "none";
+        document.getElementById("divId").style.display        = "block";
+        $("#dialog:ui-dialog").dialog("destroy");
+        $("#FormaCategoria").dialog({
+            title: "Modificar Categoría",
+            height: 600,
+            width: 500,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpCategoria").focus();
+                document.getElementById("inpCategoria").value = "";
+                document.getElementById("inpActivo").value    = "";
+                document.getElementById("txtId").value        = Id;
+                document.getElementById("inpCategoria").value = document.getElementById("cat" + Id).textContent;
+                document.getElementById("inpActivo").value    = document.getElementById("activo" + Id).textContent;
+            }
+        });
+    }
+
+    function cancelarCaptura(e) {//Cierra la ventana modal
+        e.preventDefault();
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+
+    function modificarCategoria(e) {//Hace el post para modificar una categoría en la base de datos
+        e.preventDefault();
+
+        if (hayVacios())
+            return;
+
+        var pUrl  = "/categorias/modificar";
+        var pData = $("#FormaCategoria").serialize() + "&Id="+document.getElementById("txtId").value;
+        $.post(pUrl, pData, function (Result) {
+            if (Result != null) {
+                insertarCategoriaEnTabla(Result, true);
+                $(".ui-dialog-titlebar-close").trigger('click');
+            } else {
+                window.alert("Ya existe una categoría con el mismo nombre");
+                document.getElementById("inpCategoria").focus();
+            }
+        });
+    }
+
+    function hayVacios() {//Valida que los campos en el formulario no esten vacíos.
+        var pCategoria = document.getElementById("inpCategoria").value;
+        var pActivo    = document.getElementById("inpActivo").value;
+
+        if (pCategoria.trim().length == 0) {
+            window.alert("La categoría no puede estar en blanco");
+            document.getElementById("inpCategoria").focus();
+            return true;
+        }
+
+        if (pActivo.trim().length == 0) {
+            window.alert("Activo no puede estar en blanco");
+            document.getElementById("inpActivo").focus();
+            return true;
+        }
+    }
+
+    function insertarCategoria(e) {//Hace el post para insertar una categoría en la base de datos.
+        e.preventDefault();
+
+        if (hayVacios())
+            return;
+
+        var pData = $("#FormaCategoria").serialize();
+        var pUrl  = "/categorias/insertar";
+
+        $.post(pUrl, pData, function (Result) {
+            if (Result != null) {
+                insertarCategoriaEnTabla(Result, false);
+                $(".ui-dialog-titlebar-close").trigger('click');
+            } else {
+                window.alert("Ya existe una categoría con el mismo nombre");
+                document.getElementById("inpCategoria").focus();
+            }
+            
+            
+        });
+    }
+
+    function insertarCategoriaEnTabla(ACategoria, modificar) {//Inserta o actualiza los datos en la tabla dependiendo si es una inserción o modificación
+        if (!modificar) {//Si no es modificacíon se agrega una nueva fila en la tabla
+            var pFila            = document.createElement("tr");
+            var pCeldaId         = document.createElement("td");
+            var pCeldaCategoria  = document.createElement("td");
+            var pCeldaActivo     = document.createElement("td");
+            var pCeldaEliminar   = document.createElement("td");
+            var pAnchorEliminar  = document.createElement("a");
+            var pCeldaModificar  = document.createElement("td");
+            var pAnchorModificar = document.createElement("a");
+
+            pFila.id           = "tr" + ACategoria.Id.toString();
+            pCeldaCategoria.id = "cat" + ACategoria.Id.toString()
+            pCeldaActivo.id    = "activo" + ACategoria.Id.toString()
+
+            pCeldaId.textContent         = ACategoria.Id;
+            pCeldaCategoria.textContent  = ACategoria.Cat;
+            pCeldaActivo.textContent     = ACategoria.Activo;
+            pAnchorEliminar.textContent  = "Eliminar";
+            pAnchorModificar.textContent = "Modificar";
+
+            pAnchorEliminar.href  = "javascript:eliminarCategoria(" + ACategoria.Id.toString() + ");";
+            pAnchorModificar.href = "javascript:capturarCategoriaModificar(" + ACategoria.Id.toString() + ");";
+
+            pCeldaEliminar.appendChild(pAnchorEliminar);
+            pCeldaModificar.appendChild(pAnchorModificar);
+            pFila.appendChild(pCeldaId);
+            pFila.appendChild(pCeldaCategoria);
+            pFila.appendChild(pCeldaActivo);
+            pFila.appendChild(pCeldaModificar);
+            pFila.appendChild(pCeldaEliminar);
+
+            document.getElementById("bodyCategorias").insertBefore(pFila, document.getElementById("bodyCategorias").firstChild);
+
+        } else {//Si es modificación se actualizan los valores
+            document.getElementById("cat" + ACategoria.Id).textContent    = ACategoria.Cat;
+            document.getElementById("activo" + ACategoria.Id).textContent = ACategoria.Activo
+        }
+    }
+
+    function eliminarCategoria(AId) {//Hace el post para eliminar una categoría.
+
+            if (!window.confirm("¿Eliminar categoría?")) {
+                return;
+            }
+
+            var pUrl  = "/categorias/eliminar";
+            var pData = "Id=" + AId.toString();
+
+            $.post(pUrl, pData, function (Result) {
+                if (Result.Result == true) {
+                    window.alert("Categoría eliminada con éxito");
+                    document.getElementById("tr" + AId.toString()).remove();
+                }
+                else {
+                    window.alert(Result.Mensaje);
+                }
+            });
+        }
+
+</script>

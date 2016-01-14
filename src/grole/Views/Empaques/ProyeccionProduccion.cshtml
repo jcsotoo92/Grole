@@ -1,0 +1,241 @@
+﻿<h2>Consulta proyección de producción</h2>
+<form id="formaProyeccionProduccion">
+    <label for="inpFechaIni">Fecha Inicial</label>
+    <input type="text" value="" id="inpFechaIni" name="FechaIni" class="datepicker"/>
+    <label for="inpFechaFin">Fecha Final</label>
+    <input type="text" value="" id="inpFechaFin" name="FechaFin" class="datepicker"/>
+    <select name="Tipo">
+        <option value="0">Todos</option>
+        <option value="Nacional">Nacional</option>
+        <option value="Exportacion">Exportacion</option>
+    </select>
+    <input type="submit" value="Consultar" onclick="consultar(event)"/>
+</form>
+<div id="cargando"></div>
+<div style="overflow-x: scroll; display:none" id="divTabla">
+    <table style="width:2000px;">
+        <thead id="headerTabla">
+
+        </thead>
+        <tbody id="bodyTabla"></tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(".datepicker").datepicker('setDate', new Date());
+    });
+
+    function consultar(e) {
+        e.preventDefault();
+      
+        //Validaciones de vacíos
+        var pFechaIni = document.getElementById("inpFechaIni");
+        var pFechaFin = document.getElementById("inpFechaFin");
+
+        if (pFechaIni.value.length == 0) {
+            window.alert("Debe introducir la fecha inicial");
+            pFechaIni.focus();
+            return;
+        }
+        if (pFechaFin.value.length == 0) {
+            window.alert("Debe introducir la fecha final");
+            pFechaFin.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaIni.value)) {
+            window.alert("Fecha inicial no válida");
+            pFechaIni.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaFin.value)) {
+            window.alert("Fecha final no válida");
+            pFechaFin.focus();
+            return;
+        }
+
+        document.getElementById("formaProyeccionProduccion").style.display = "none";
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        var pUrl  = "/empaques/ObtenerTablaProyeccionProduccion";
+        var pData = $("#formaProyeccionProduccion").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            var fechas       = Result.Fechas;
+            var lista        = Result.Lista;
+            var listadetalle = Result.ListaDetalle;
+            var pFilaHeader1 = document.createElement("tr");
+
+            pFilaHeader1.appendChild(document.createElement("th"));
+            pFilaHeader1.appendChild(document.createElement("th"));
+            pFilaHeader1.appendChild(document.createElement("th"));
+
+            var fechaTmp = "";
+            var pContadorTmp = 1;
+            var pTotal = {};
+
+            for(var i = 0 ; i <fechas.length;i++){
+                var item = fechas[i];
+                if (i % 2 === 0) {
+                    var pCelda                   = document.createElement("th");
+                    pCelda.colSpan               = item.Count;
+                    pCelda.style.textAlign       = "center";
+                    pCelda.style.backgroundColor = "rgb(218, 236, 219)";
+
+                    var date1 = new Date(item.Fecha);
+                    date1.setDate(date1.getDate() + 1);
+
+                    pCelda.textContent = $.datepicker.formatDate('dd/mm/yy', date1);
+
+                    var pCelda2 = document.createElement("th");
+                    pCelda2.style.textAlign       = "center";
+                    pCelda2.style.backgroundColor = "rgb(218, 236, 219)";
+
+                    pFilaHeader1.appendChild(pCelda);
+                    pFilaHeader1.appendChild(pCelda2);
+                } else {
+                    var pCelda             = document.createElement("th");
+                    pCelda.colSpan         = item.Count;
+                    pCelda.style.textAlign = "center";
+
+                    var date1 = new Date(item.Fecha);
+                    date1.setDate(date1.getDate() + 1);
+
+                    pCelda.textContent = $.datepicker.formatDate('dd/mm/yy', date1);
+
+                    pFilaHeader1.appendChild(pCelda);
+                    pFilaHeader1.appendChild(document.createElement("th"));
+                }
+            }
+
+            var pFilaHeader2     = document.createElement("tr");
+            var pCeldaProducto   = document.createElement("th");
+            var pCeldaNombre     = document.createElement("th");
+            var pCeldaInventario = document.createElement("th");
+
+            pCeldaProducto.textContent       = "Producto";
+            pCeldaNombre.textContent         = "Nombre";
+            pCeldaInventario.textContent     = "Inventario";
+            pCeldaInventario.style.textAlign = "right";
+
+            pFilaHeader2.appendChild(pCeldaProducto);
+            pFilaHeader2.appendChild(pCeldaNombre);
+            pFilaHeader2.appendChild(pCeldaInventario);
+
+            for (var i = 0 ; i < fechas.length; i++) {
+                var item = fechas[i];
+                pContadorTmp = 1;
+                
+                for (var j = 0 ; j < item.PIds.length; j++) {
+                    var itemPids = item.PIds[j];
+                    if (i % 2 === 0) {
+                        var pCelda                   = document.createElement("th");
+                        pCelda.style.textAlign       = "right";
+                        pCelda.style.backgroundColor = "rgb(218, 236, 219)";
+                        pCelda.textContent           = itemPids.Descripcion + "(" + itemPids.Id + ")";
+                        pFilaHeader2.appendChild(pCelda);
+                    } else {
+                        var pCelda             = document.createElement("th");
+                        pCelda.style.textAlign = "right";
+                        pCelda.textContent     = itemPids.Descripcion + "(" + itemPids.Id + ")";
+                        pFilaHeader2.appendChild(pCelda);
+                    }
+
+                    if (item.Count == pContadorTmp) {
+                        if (i % 2 === 0) {
+                            var pCelda = document.createElement("th");
+                            pCelda.style.textAlign       = "right";
+                            pCelda.style.backgroundColor = "rgb(218, 236, 219)";
+                            pCelda.textContent           = "Total";
+                            pFilaHeader2.appendChild(pCelda);
+                        } else {
+                            var pCelda = document.createElement("th");
+                            pCelda.style.textAlign = "right";
+                            pCelda.textContent     = "Total";
+                            pFilaHeader2.appendChild(pCelda);
+                        }
+                    }
+                    pContadorTmp++;
+                }
+            }
+            
+            document.getElementById("headerTabla").appendChild(pFilaHeader1);
+            document.getElementById("headerTabla").appendChild(pFilaHeader2);
+			
+            for (var i = 0; i < lista.length; i++) {
+                var item = lista[i];
+
+                pTotal.codigosap = item.Inventario;
+
+                var pFila             = document.createElement("tr");
+                var pCeldaProducto    = document.createElement("td");
+                var pCeldaDescripcion = document.createElement("td");
+                var pCelda3           = document.createElement("td");
+
+                pCeldaProducto.textContent    = item.Producto;
+                pCeldaDescripcion.textContent = item.Descripcion;
+                pCelda3.style.textAlign       = "right";
+
+                var pEnlaceCelda3  = document.createElement("a");
+                pEnlaceCelda3.href = "javascript:window.open('/cortes/desgloseproductoporcamara/?producto=" + item.Producto +"')";
+                pEnlaceCelda3.text = item.Inventario;
+
+                pCelda3.appendChild(pEnlaceCelda3);
+                pFila.appendChild(pCeldaProducto);
+                pFila.appendChild(pCeldaDescripcion);
+                pFila.appendChild(pCelda3);
+
+                for (var j = 0; j < fechas.length; j++) {
+                    var itemFecha = fechas[j];
+
+                    pContadorTmp = 1;
+
+                    for (var k = 0; k < itemFecha.PIds.length; k++) {
+                        var itemTmp = itemFecha.PIds[k];
+                        
+                        var pTotalTmp = ObtenerCajasPedidoProduccion(itemTmp.Id, listadetalle, item.Producto);
+                            pTotal.codigosap -= pTotalTmp;
+
+                            if (pTotalTmp == 0) {
+                                var pCelda             = document.createElement("td");
+                                pCelda.style.textAlign = "right";
+                                pCelda.style.color     = "rgb(213, 213, 213)";
+                                pCelda.textContent     = Number(pTotalTmp).toFixed(2); //dos decimales
+                                pFila.appendChild(pCelda);
+                            } else {
+                                var pCelda             = document.createElement("td");
+                                pCelda.style.textAlign = "right";
+                                pCelda.textContent     = Number(pTotalTmp).toFixed(2); //dos decimales
+                                pFila.appendChild(pCelda);
+                            }
+
+                            if (itemFecha.Count == pContadorTmp) {
+                                var pCelda             = document.createElement("td");
+                                pCelda.style.textAlign = "right";
+                                pCelda.textContent     = Number(pTotal.codigosap).toFixed(2); //dos decimales
+                                pFila.appendChild(pCelda);
+                            }
+                    }
+                }
+                document.getElementById("bodyTabla").appendChild(pFila);
+            }
+            $cargando.html("");
+            document.getElementById("divTabla").style.display = "block";
+         });
+    }
+
+    function ObtenerCajasPedidoProduccion(id, listaDetalle, producto) {
+        var pResult = 0;
+
+        for (var i = 0; i < listaDetalle.length; i++) {
+            var item = listaDetalle[i];
+            if (item.Id == id) {
+                if (item.Producto == producto) {
+                    pResult += item.Cajas;
+                }
+            }
+        }
+        return pResult;
+    }
+
+</script>

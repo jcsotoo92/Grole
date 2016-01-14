@@ -1,0 +1,280 @@
+﻿@model List<grole.src.Entidades.Empaque>
+
+<h2>Empaques</h2>
+<div>
+    <a href="javascript:capturarEmpaque();">Agregar Empaque</a>
+</div>
+    <div>
+        <a href="@ViewBag.RutaExcel">Excel</a>
+        <a href="">Actualizar Precios</a>
+    </div>
+<table>
+    <thead>
+        <tr>
+            <th>Código SAP</th>
+            <th>Nombre</th>
+            <th>Costo</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="bodyEmpaques">
+        @foreach (var item in Model)
+        {
+            <tr id="tr@(item.Clave)">
+                <td id="codSAP@(item.Clave)">@item.CodigoSAP</td>
+                <td id="nom@(item.Clave)">@item.Nombre</td>
+                <td id="cos@(item.Clave)">@item.Costo</td>
+                <td id="tip@(item.Clave)" style="display:none">@item.IdTipoEmpaque</td>
+                <td><a href="javascript:capturarEmpaqueModificar(@(item.Clave));">Modificar</a></td>
+                <td><a href="javascript:eliminarEmpaque(@(item.Clave));">Eliminar</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<form action="/empaques/insertar" id="FormaEmpaques" style="display:none" method="post">
+    <div>
+        Nombre:
+    </div>
+        <input type="text" id="txtClave" name="Clave" style="display:none">
+    <div>
+        <input id="inpNombre" name="Nombre" value="" maxlength="120" >
+    </div>
+    <div>
+        Tipo:
+    </div>
+    <div>
+        <select id="inpTipo" name="IdTipoEmpaque" value=""></select>
+    </div>
+    <div>
+        Codigo SAP:
+    </div>
+    <div>
+        <input type="text" id="inpCodigoSAP" name="CodigoSAP" value="" maxlength="10"/>
+    </div>
+    <div>
+        Costo:
+    </div>
+    <div>
+        <input type="text" id="inpCosto" name="Costo" value=""/>
+    </div>
+    <div>
+        <input type="submit" id="btnModificar" value="Modificar" onclick="modificarEmpaque(event)" style="display:none" />
+        <input type="submit" id="btnGuardar" value="Insertar" onclick="insertarEmpaque(event)" />
+        <input type="button" value="Cancelar" onclick="cancelar(event)" />
+    </div>
+</form>
+
+   
+
+<script>
+    $(document).ready(
+		function () {//Valida que el campo de costo solo contenga numeros.
+		    $("#inpCosto").numeric(
+				{
+				    negative: false
+				});
+		}
+	);
+
+    function capturarEmpaque() {//Abre la ventana modal para insertar un empaque.
+        
+        document.getElementById("btnModificar").style.display = "none";
+        document.getElementById("btnGuardar").style.display = "inline-block";
+        
+        var selectProd=document.getElementById("inpTipo");
+        if(!selectProd.hasChildNodes()){
+            $.get("/empaques/obtenerlistatiposempaques", function (Result) {
+                
+                for (var i = 0; i < Result.length; i++) {
+                    var optionProd = document.createElement("option");
+                    optionProd.id = Result[i].Id;
+                    optionProd.value = Result[i].Id;
+                    optionProd.textContent = Result[i].Nombre;
+
+                    selectProd.appendChild(optionProd);
+                }
+            });
+        }
+        $("#FormaEmpaques").dialog({
+            title: "Agregar Empaque",
+            height: 600,
+            width: 500,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpNombre").focus();
+                document.getElementById("inpNombre").value    = "";
+                document.getElementById("inpCodigoSAP").value = "";
+                document.getElementById("inpCosto").value     = "";
+                document.getElementById("txtClave").value     = "";
+                $('select option:first-child').attr("selected", "selected");
+
+
+            }
+        });
+    }
+
+    function capturarEmpaqueModificar(clave) {//Abre la ventana modal para modificar un empaque
+        document.getElementById("btnModificar").style.display = "inline-block";
+        document.getElementById("btnGuardar").style.display   = "none";
+
+        var selectProd = document.getElementById("inpTipo");
+        if (!selectProd.hasChildNodes()) {
+            $.get("/empaques/obtenerlistatiposempaques", function (Result) {
+
+                for (var i = 0; i < Result.length; i++) {
+                    var optionProd = document.createElement("option");
+                    optionProd.id = Result[i].Id;
+                    optionProd.value = Result[i].Id;
+                    optionProd.textContent = Result[i].Nombre;
+
+                    selectProd.appendChild(optionProd);
+                }
+            });
+        }
+        $("#FormaEmpaques").dialog({
+            title: "Modificar Empaque",
+            height: 600,
+            width: 500,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpNombre").focus();
+                document.getElementById("txtClave").value       = clave;
+                document.getElementById("inpNombre").value      = document.getElementById("nom" + clave).textContent;
+                document.getElementById("inpTipo").value        = document.getElementById("tip" + clave).textContent;
+                document.getElementById("inpCodigoSAP").value   = document.getElementById("codSAP" + clave).textContent;
+                document.getElementById("inpCosto").value       = document.getElementById("cos" + clave).textContent;
+            }
+        });
+    }
+
+    function cancelarCaptura() {//Cierra ventana modal
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+    function cancelar(e) {//Cierra ventana modal
+        e.preventDefault();
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+
+    function modificarEmpaque(e) {//Hace el post para modificar un empaque en la base de datos
+        e.preventDefault();
+        var pClave      = document.getElementById("txtClave").value;
+        var pNombre     = document.getElementById("inpNombre").value;
+        var pCodigoSAP  = document.getElementById("inpCodigoSAP").value
+        var pCosto      = document.getElementById("inpCosto").value;
+
+        if (pNombre.trim().length == 0) {
+            window.alert("El nombre no puede estar en blanco");
+            document.getElementById("inpNombre").focus();
+            return;
+        }
+
+        var pData = $("#FormaEmpaques").serialize();
+        var pUrl = "/empaques/modificar";
+
+        $.post(pUrl, pData, function (Result) {
+            if (Result != null) {
+                $(".ui-dialog-titlebar-close").trigger('click');
+                insertarEmpaqueEnTabla(Result, true);
+            } else {
+                window.alert("Ya existe un empaque con el mismo nombre");
+                document.getElementById("inpNombre").focus();
+            }
+           
+        });
+    }
+
+    function insertarEmpaque(e) {//Hace el post para insertar un empaque en la base de datos
+        e.preventDefault();
+        var pNombre    = document.getElementById("inpNombre").value;
+        var pCodigoSAP = document.getElementById("inpCodigoSAP").value
+        var pCosto     = document.getElementById("inpCosto").value
+        var pTipo      = document.getElementById("inpTipo").value
+
+        if (pNombre.trim().length == 0) {
+            window.alert("El nombre no puede estar en blanco");
+            document.getElementById("inpNombre").focus();
+            return;
+        }
+       
+
+        var pData = $("#FormaEmpaques").serialize();
+        var pUrl = "/empaques/insertar";
+
+        $.post(pUrl, pData, function (Result) {
+            if (Result != null) {
+                $(".ui-dialog-titlebar-close").trigger('click');
+                insertarEmpaqueEnTabla(Result, false);
+            } else {
+                window.alert("Ya existe un empaque con el mismo nombre");
+                document.getElementById("inpNombre").focus();
+            }
+        });
+    }
+
+    function insertarEmpaqueEnTabla(AEmpaque, modificar) {//Inserta o actualiza un empaque en la tabla.
+        if (!modificar) {
+            var fila           = document.createElement("tr");
+            var celdaCodigoSAP = document.createElement("td");
+            var celdaNombre    = document.createElement("td");
+            var celdaCosto     = document.createElement("td");
+            var celdaTipo      = document.createElement("td");
+            var celdaModificar = document.createElement("td");
+            var celdaEliminar  = document.createElement("td");
+            var aModificar     = document.createElement("a");
+            var aEliminar      = document.createElement("a");
+
+            fila.id           = "tr" + AEmpaque.Clave;
+            celdaCodigoSAP.id = "codSAP" + AEmpaque.Clave;
+            celdaNombre.id    = "nom" + AEmpaque.Clave;
+            celdaCosto.id     = "cos" + AEmpaque.Clave;
+            celdaTipo.id      = "tip" + AEmpaque.Clave;
+            aModificar.href   = "javascript:capturarEmpaqueModificar(" + AEmpaque.Clave + ")";
+            aEliminar.href    = "javascript:eliminarEmpaque(" + AEmpaque.Clave + ")";
+            celdaTipo.style.display = "none";
+
+            celdaCodigoSAP.textContent = AEmpaque.CodigoSAP;
+            celdaNombre.textContent    = AEmpaque.Nombre;
+            celdaCosto.textContent     = AEmpaque.Costo;
+            celdaTipo.textContent      = AEmpaque.IdTipoEmpaque;
+            aEliminar.textContent      = "Eliminar";
+            aModificar.textContent     = "Modificar";
+
+            celdaModificar.appendChild(aModificar);
+            celdaEliminar.appendChild(aEliminar);
+            fila.appendChild(celdaCodigoSAP);
+            fila.appendChild(celdaNombre);
+            fila.appendChild(celdaCosto);
+            fila.appendChild(celdaTipo);
+            fila.appendChild(celdaModificar);
+            fila.appendChild(celdaEliminar);
+
+            document.getElementById("bodyEmpaques").insertBefore(fila, document.getElementById("bodyEmpaques").firstChild);
+        } else {
+            document.getElementById("codSAP" + AEmpaque.Clave).textContent = AEmpaque.CodigoSAP;
+            document.getElementById("nom" + AEmpaque.Clave).textContent = AEmpaque.Nombre;
+            document.getElementById("cos" + AEmpaque.Clave).textContent = AEmpaque.Costo;
+            document.getElementById("tip" + AEmpaque.Clave).textContent = AEmpaque.IdTipoEmpaque;
+        }
+    }
+
+    function eliminarEmpaque(AClave) {//Hace el post para eliminar un empaque de la base de datos
+        if (!window.confirm("¿Eliminar empaque?")) {
+            return;
+        }
+
+        var pUrl = "/empaques/eliminar";
+        var pData = "Clave=" + AClave.toString();
+
+        $.post(pUrl, pData, function (Result) {
+            if (Result.Result == true) {
+                window.alert("Empaque eliminado con éxito");
+                document.getElementById("tr" + AClave.toString()).remove();
+            }
+            else {
+                window.alert(Result.Mensaje);
+            }
+        });
+    }
+</script>

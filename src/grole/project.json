@@ -1,0 +1,43 @@
+{
+  "compilationOptions": {
+    "emitEntryPoint": true
+  },
+
+  "version": "1.0.0",
+
+  "webroot": "wwwroot",
+
+  "sources": [ "src" ],
+
+  "frameworks": {
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.Data": "",
+        "System.Collections": "",
+        "System.Drawing": "4.0.0.0"
+      }
+    }
+  },
+
+  "dependencies": {
+    "Microsoft.AspNet.Server.IIS": "1.0.0-*",
+    "Microsoft.AspNet.Hosting": "1.0.0-*",
+    "Microsoft.AspNet.Server.WebListener": "1.0.0-*",
+    "Microsoft.AspNet.Diagnostics": "1.0.0-*",
+    "Microsoft.AspNet.StaticFiles": "1.0.0-*",
+    "Microsoft.AspNet.Mvc": "6.0.0-*",
+    "FirebirdSql.Data.FirebirdClient": "4.7.0.0",
+    "Microsoft.Framework.Configuration.Json": "1.0.0-*",
+    "Microsoft.AspNet.Session": "1.0.0-*",
+    "Microsoft.AspNet.Authentication": "1.0.0-*",
+    "Microsoft.AspNet.Authentication.Cookies": "1.0.0-*",
+    "Microsoft.AspNet.Server.Kestrel": "1.0.0-*",
+    "Microsoft.AspNet.IISPlatformHandler": "1.0.0-*",
+    "jQuery.Validation": "1.14.0",
+    "Aspose.Cells.dll": "1.0.1"
+  },
+
+  "commands": {
+    "web": "grole"
+  }
+}

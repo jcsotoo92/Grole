@@ -1,0 +1,303 @@
+@model List<grole.src.Entidades.Clase>
+
+	<h3>Clases</h3>
+	<div>
+		<a href="javascript:NuevaClase();">Nueva</a>
+		<br>
+		<br>
+	</div>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th scope="col">Clave</th>
+				<th scope="col">Descripcion</th>
+				<th scope="col">Maneja Extra</th>
+				<th scope="col">Tipo</th>
+				<th scope="col">Activo</th>
+				<th scope="col">Modificar</th>
+				<th scope="col">Eliminar</th>
+			</tr>
+		</thead>
+	
+		<tbody id="bodyClases">
+			@foreach (var item in Model)
+			{
+				<tr id="tr@(item.Clave)">
+					<td>@item.Clave</td>
+					<td>@item.Descripcion</td>
+					<td>@item.Manejaextra</td>
+					<td>@item.Tipo</td>
+					<td>@item.Activo</td>
+					<td><a href="javascript:modificarClase('@(item.Clave)','@(item.Descripcion)', '@(item.Manejaextra)', '@(item.Tipo)', '@(item.Activo)');">Editar</a></td>
+					<td><a href="javascript:eliminarClase(@(item.Clave));">Eliminar</a></td>
+				</tr>
+			}
+		<tbody>
+	</table>
+	
+	<div id= "NuevaClase" style="display:none;">
+		<table id="Nueva">
+			<tbody>	
+				<tr>
+					<td>Descripcion:</td>
+					<td><input type="text" id="inpDescripcion" name="Descripcion" value="Camaron"></td>
+				</tr>
+				<tr>
+					<td>Maneja Extra:</td>
+					<td><input type="text" id="inpManejaextra" name="Manejaextra" value="Si"></td>
+				</tr>
+				<tr>
+					<td>Tipo</td>
+					<td><input type="text" id="inpTipo" name="Tipo" value="Pieza"></td>
+				</tr>
+				<tr>
+					<td>Activo:</td>
+					<td><input type="text" id="inpActivo" name="Activo" value="1"></td>
+				</tr>
+				<tr>
+					<td><input type="button" value="Guardar" onclick="guarda_clase();" style="width: 100px; height: 35px"></td>
+					<td><input type="button" value="Cancelar" onclick="cancelarCaptura();" style="width: 100px; height: 35px"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+<div id= "ModificarClase" style="display:none;">
+		<table>
+			<tbody>
+				<tr>
+					<td>Clave:</td>
+					<td><input type="text" id="mopClave" name="Clave" value="" disabled=""></td>
+				</tr>	
+				<tr>
+					<td>Descripcion:</td>
+					<td><input type="text" id="mopDescripcion" name="Descripcion" value=""></td>
+				</tr>
+				<tr>
+					<td>Maneja Extra:</td>
+					<td><input type="text" id="mopManejaextra" name="Manejaextra" value=""></td>
+				</tr>
+				<tr>
+					<td>Tipo</td>
+					<td><input type="text" id="mopTipo" name="Tipo" value=""></td>
+				</tr>
+				<tr>
+					<td>Activo:</td>
+					<td><input type="text" id="mopActivo" name="Activo" value=""></td>
+				</tr>
+				<tr>
+					<td><input type="button" value="Guardar" onclick="actualiza_clase();" style="width: 100px; height: 35px"></td>
+					<td><input type="button" value="Cancelar" onclick="cancelarCaptura();" style="width: 100px; height: 35px"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+<script>
+	function NuevaClase()
+	{
+		$("#dialog:ui-dialog").dialog("destroy");
+		$("#NuevaClase").dialog({
+				title: "Nueva Clase",
+                height: 235,
+                width: 405,
+                modal: true,
+            });
+	}
+	
+	function modificarClase(AClave, ADescripcion, AManejaextra, ATipo, AActivo)
+	{ 
+		
+		$("#dialog:ui-dialog").dialog("destroy");
+		$("#ModificarClase").dialog({
+				title: "Modificar Clase",
+                height: 270,
+                width: 410,
+                modal: true,
+                open: function (event, ui) {
+					
+                document.getElementById("mopClave").value       = "" + AClave;					
+        		document.getElementById("mopDescripcion").focus();
+				document.getElementById("mopDescripcion").value = "" + ADescripcion;
+				document.getElementById("mopManejaextra").value = "" + AManejaextra;
+				document.getElementById("mopTipo").value        = "" + ATipo;
+				document.getElementById("mopActivo").value      = "" + AActivo;
+				}
+            });
+		
+	}
+	
+	function cancelarCaptura(){
+		$(".ui-dialog-titlebar-close").trigger('click');
+	}
+	
+	function insertarClaseEnTabla(AClase)
+	{
+		//File a insertar
+		var pFila = document.createElement("tr");
+		pFila.id  = "tr" + AClase.Clave;
+		//Clave
+		var pCeldaClave         = document.createElement("td");
+		pCeldaClave.textContent = AClase.Clave;
+		//Descripcion
+		var pCeldaDescripcion         = document.createElement("td");
+		pCeldaDescripcion.textContent = AClase.Descripcion;
+		//Manejaextra
+		var pCeldaManejaextra         = document.createElement("td");
+		pCeldaManejaextra.textContent = AClase.Manejaextra;
+		//Tipo
+		var pCeldaTipo         = document.createElement("td");
+		pCeldaTipo.textContent = AClase.Tipo;
+		//Activo
+		var pCeldaActivo         = document.createElement("td");
+		pCeldaActivo.textContent = AClase.Activo;
+		//Eliminar Clase
+		var pCeldaEliminar          = document.createElement("td");
+		var pAnchorEliminar         = document.createElement("a");
+		pAnchorEliminar.href        = "javascript:eliminarClase('" + AClase.Clave +"');";
+		pAnchorEliminar.textContent = "Eliminar";
+		pCeldaEliminar.appendChild(pAnchorEliminar);
+		//Modificar Clase
+		var pCeldaModificar          = document.createElement("td");
+		var pAnchorModificar         = document.createElement("a");
+		pAnchorModificar.href        = "javascript:modificarClase('"+AClase.Clave+"','"+AClase.Descripcion+"','"+AClase.Manejaextra+"','"+AClase.Tipo+"','"+AClase.Activo+"');";
+		pAnchorModificar.textContent = "Editar";
+		pCeldaModificar.appendChild(pAnchorModificar);
+	
+		//Insertando datos a la tabla
+		pFila.appendChild(pCeldaClave);
+		pFila.appendChild(pCeldaDescripcion);
+		pFila.appendChild(pCeldaManejaextra);
+		pFila.appendChild(pCeldaTipo);
+		pFila.appendChild(pCeldaActivo);
+		pFila.appendChild(pCeldaModificar);
+		pFila.appendChild(pCeldaEliminar);
+		
+		document.getElementById("bodyClases").insertBefore(pFila, document.getElementById("bodyClases").firstChild);
+	}
+	
+	
+	
+	//Conexiones a la base de datos(Consultas, Insercion, Modificacion y Eliminacion)
+	
+	function guarda_clase()
+	{
+
+        //Genera la Clave de la clase
+	    var pClave = document.getElementById("bodyClases").rows.length;
+	    pClave++;
+	    var table = document.getElementById('bodyClases'), rows = table.getElementsByTagName('tr'), i, j, cells, claseId;
+	    for (i = 0, j = rows.length; i < j; ++i) {
+	        cells = rows[i].getElementsByTagName('td');
+	        if (!cells.length) {
+	            continue;
+	        }
+	        claseId = cells[0].innerHTML;
+	        if (claseId >= pClave) {
+	            var vId = parseInt(claseId);
+	            pClave  = vId + 1;
+	        }
+	        
+                
+	    }
+	    
+		var pDescripcion = document.getElementById("inpDescripcion").value.toString();
+		if (pDescripcion.length == 0)
+		{
+			alert("La Descripcion no es válida");
+			$("#inpDescripcion").focus();
+			return false;
+		}
+
+		var pManejaextra = document.getElementById("inpManejaextra").value.toString();
+		if (pManejaextra.length == 0)
+		{
+			alert("El Manejaextra no es válido");
+			$("#inpManejaextra").focus();
+			return false;
+		}
+		var pTipo = document.getElementById("inpTipo").value.toString();
+		if (pTipo.length == 0)
+		{
+			alert("El Tipo no es válido");
+			$("#inpTipo").focus();
+			return false;
+		}
+		var pActivo = document.getElementById("inpActivo").value.toString();
+		if (pActivo.length == 0)
+		{
+			alert("El Activo no es válido");
+			$("#inpActivo").focus();
+			return false;
+		}
+		var pData = "Clave=" + pClave+ "&Descripcion=" + pDescripcion + "&Manejaextra=" + pManejaextra + "&Tipo=" + pTipo + "&Activo=" + pActivo;
+		var pUrl = "/Clase/insertar";
+		$.post(pUrl, pData, function(Result)
+			{
+				$(".ui-dialog-titlebar-close").trigger('click');
+				insertarClaseEnTabla(Result);
+			});
+	}
+	
+	function actualiza_clase()
+	{
+		var pClave       = document.getElementById("mopClave").value;
+		var pDescripcion = document.getElementById("mopDescripcion").value;
+		var pManejaextra = document.getElementById("mopManejaextra").value;
+		if (pManejaextra.trim().length == 0)
+		{
+			window.alert("Maneja extra no puede estar en blanco");
+			document.getElementById("mopManejaextra").focus();
+			return;
+		}
+		var pTipo = document.getElementById("mopTipo").value;
+		if (pTipo.trim().length == 0)
+		{
+			window.alert("El Tipo no puede estar en blanco");
+			document.getElementById("mopTipo").focus();
+			return;
+		}
+		var pActivo = document.getElementById("mopActivo").value;
+		if (pActivo.trim().length == 0)
+		{
+			window.alert("El Activo no puede estar en blanco");
+			document.getElementById("mopActivo").focus();
+			return;
+		}
+		
+		
+		var pData = "Clave=" + pClave + "&Descripcion=" + pDescripcion + "&Manejaextra=" + pManejaextra + "&Tipo=" + pTipo + "&Activo=" + pActivo;
+		var pUrl  = "/Clase/modificar";
+		
+		$.post(pUrl, pData, function(Result)
+			{
+				$(".ui-dialog-titlebar-close").trigger('click');
+				insertarClaseEnTabla(Result);
+			});
+			document.getElementById("tr" + pClave.toString()).remove();
+	}
+	
+	function eliminarClase(AClave)
+	{    
+		if (!window.confirm("¿Eliminar Clave?"))
+		{
+			return;
+		}
+		
+		var pUrl = "/Clase/eliminar";
+		var pData = "Clave=" + AClave.toString();
+		
+		$.post(pUrl, pData, function(Result)
+			{
+				if (Result.Result == true)
+				{
+					window.alert("Clase eliminada con éxito");
+					document.getElementById("tr" + AClave.toString()).remove();
+				}	
+				else{
+					window.alert(Result.Mensaje);
+				}
+			});
+	}
+	
+</script>

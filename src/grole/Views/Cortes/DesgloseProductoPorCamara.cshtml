@@ -1,0 +1,25 @@
+﻿@model List<grole.src.Entidades.DesgloseProductoCamara>
+<h2>Desglose de producto por cámara</h2>
+
+<p>Producto: @Model[0].Producto @Model[0].Descripcion</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Cámara</th>
+            <th>Nombre</th>
+            <th>Cajas</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>@item.Camara</td>
+                <td>@item.Nombre_Camara</td>
+                <td>@item.Cajas</td>
+            </tr>
+
+        }
+    </tbody>
+</table>

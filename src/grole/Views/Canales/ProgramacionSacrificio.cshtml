@@ -1,0 +1,218 @@
+﻿@model List<grole.src.Entidades.CanalProgramado>
+<h2>Lotes de sacrificio</h2>
+<form id="formaLotesDeSacrificio">
+    <label for="inpFecha">Fecha: </label>
+    <input type="text" id="inpFecha" value="" class="datepicker" name="Fecha"/>
+    <input type="button" value="Consultar" onclick="consultar(event)"/>
+    <input type="button" value="Nuevo" onclick="nuevo(event)"/>
+</form>
+
+
+<div id="cargando"></div>
+<div id="divTabla">
+    <a href="#">Imprimir</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Clave Granja</th>
+                <th>Granja</th>
+                <th>Lote</th>
+                <th>Canales</th>
+                <th>Acumulados</th>
+                <th>Editar</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla">
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td>Nada encontrado</td>
+                </tr>
+            }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Clave_Granja</td>
+                    <td>@item.Granja</td>
+                    <td>@item.Lote</td>
+                    <td>@item.Canales</td>
+                    <td>@item.Acumulados</td>
+                    <td><a href="#">"Editar"</a></td>
+                    <td><a href="#">Eliminar</a></td>
+                </tr>
+
+            }
+        </tbody>
+    </table>
+    <div class="dataTables_info" id="TablaCambiosTaras_info"></div>
+</div>
+
+<form id="formaNuevoLoteSacrificio" style="display:none">
+    <label for="inpFechaN">Fecha: </label>
+    <input type="hidden" value="" id="inpFechaNN" name="Fecha"/>
+    <input type="text" value="" id="inpFechaN" disabled="disabled"/>
+    <label for="inpGranja">Granja: </label>
+    <select id="selectGranja" name="Granja"></select>
+    <label for="inpLote">Lote: </label>
+    <input type="text" value="0" id="inpLote" name="Lote" />
+    <label for="inpCanales">Canales: </label>
+    <input type="text" value="0" id="inpCanales" name="Canales" />
+    <input type="button" value="Aceptar" onclick="insertarNuevoLote(event)"/>
+    <input type="button" value="Cancelar" onclick="cancelar(event)" />
+</form>
+
+<script>
+    $(document).ready(function () {
+        $(".datepicker").datepicker('setDate', new Date());
+    });
+
+    function insertarNuevoLote(e) {
+        e.preventDefault();
+
+        var pUrl = "/canales/InsertarLoteSacrificio";
+        var pData = $("#formaNuevoLoteSacrificio").serialize();
+
+        $.post(pUrl, pData, function (Result) {
+            var pFila = document.createElement("tr");
+            var pCeldaClave      = document.createElement("td");
+            var pCeldaGranja     = document.createElement("td");
+            var pCeldaLote       = document.createElement("td");
+            var pCeldaCanales    = document.createElement("td");
+            var pCeldaAcumulados = document.createElement("td");
+            var pCeldaEditar     = document.createElement("td");
+            var pCeldaEliminar   = document.createElement("td");
+            var pEnlaceEditar    = document.createElement("a");
+            var pEnlaceEliminar  = document.createElement("a");
+
+            pCeldaClave.textContent      = Result.Clave_Granja;
+            pCeldaGranja.textContent     = Result.Granja;
+            pCeldaLote.textContent       = Result.Lote;
+            pCeldaCanales.textContent    = Result.Canales;
+            pCeldaAcumulados.textContent = Result.Acumulados;
+
+            pEnlaceEditar.textContent = "Editar";
+            pEnlaceEliminar.textContent = "Eliminar";
+
+            pCeldaEditar.appendChild(pEnlaceEditar);
+            pCeldaEliminar.appendChild(pEnlaceEliminar);
+            pFila.appendChild(pCeldaClave);
+            pFila.appendChild(pCeldaGranja);
+            pFila.appendChild(pCeldaLote);
+            pFila.appendChild(pCeldaCanales);
+            pFila.appendChild(pCeldaAcumulados);
+            pFila.appendChild(pCeldaEditar);
+            pFila.appendChild(pCeldaEliminar);
+
+            document.getElementById("cuerpoTabla").insertBefore(pFila, document.getElementById("cuerpoTabla").firstChild);
+            cancelar();
+        });
+
+    }
+
+    function nuevo(e) {
+        e.preventDefault();
+
+        $("#formaNuevoLoteSacrificio").dialog({
+            title: "Nuevo Lote de Sacrificio",
+            height: 600,
+            width: 500,
+            modal: true,
+            open: function (event, ui) {
+                document.getElementById("inpFechaN").value = document.getElementById("inpFecha").value;
+                document.getElementById("inpFechaNN").value = document.getElementById("inpFecha").value;
+
+                var selectGranja = document.getElementById("selectGranja");
+                if (!selectGranja.hasChildNodes()) {
+                    $.get("/granjas/obtenergranjas", function (Result) {
+                        for (var i = 0; i < Result.length; i++) {
+
+                            var optionProd = document.createElement("option");
+                            optionProd.value = Result[i].Clave;
+                            optionProd.textContent = Result[i].Nombre;
+                            if (i == 0)
+                                document.getElementById("selectGranja").value = Result[i];
+                            selectGranja.appendChild(optionProd);
+                        }
+                    });
+                }
+                $("#inpLote,#inpCanales").numeric(
+                    {
+                        negative: false,
+                        decimal: false
+                    });
+            }
+        });
+    }
+
+    function consultar(e) {
+        e.preventDefault();
+
+        var pFecha = document.getElementById("inpFecha");
+
+        if (pFecha.value.length == 0) {
+            window.alert("Debe introducir la fecha");
+            pFecha.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFecha.value)) {
+            window.alert("Fecha no válida");
+            pFecha.focus();
+        }
+
+        limpiarTabla("cuerpoTabla", null);
+
+        var pUrl = "/canales/ObtenerTablaCanalesProgramados";
+        var pData = $("#formaLotesDeSacrificio").serialize();
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        $.get(pUrl, pData, function (Result) {
+            for(var i = 0; i < Result.length; i++){
+                var item = Result[i];
+
+                var pFila            = document.createElement("tr");
+                var pCeldaClave      = document.createElement("td");
+                var pCeldaGranja     = document.createElement("td");
+                var pCeldaLote       = document.createElement("td");
+                var pCeldaCanales    = document.createElement("td");
+                var pCeldaAcumulados = document.createElement("td");
+                var pCeldaEditar     = document.createElement("td");
+                var pCeldaEliminar   = document.createElement("td");
+                var pEnlaceEditar    = document.createElement("a");
+                var pEnlaceEliminar  = document.createElement("a");
+
+                pCeldaClave.textContent      = item.Clave_Granja;
+                pCeldaGranja.textContent     = item.Granja;
+                pCeldaLote.textContent       = item.Lote;
+                pCeldaCanales.textContent    = item.Canales;
+                pCeldaAcumulados.textContent = item.Acumulados;
+
+                pEnlaceEditar.textContent   = "Editar";
+                pEnlaceEliminar.textContent = "Eliminar";
+
+                pCeldaEditar.appendChild(pEnlaceEditar);
+                pCeldaEliminar.appendChild(pEnlaceEliminar);
+                pFila.appendChild(pCeldaClave);
+                pFila.appendChild(pCeldaGranja);
+                pFila.appendChild(pCeldaLote);
+                pFila.appendChild(pCeldaCanales);
+                pFila.appendChild(pCeldaAcumulados);
+                pFila.appendChild(pCeldaEditar);
+                pFila.appendChild(pCeldaEliminar);
+
+                document.getElementById("cuerpoTabla").appendChild(pFila);
+            }
+            document.getElementById("TablaCambiosTaras_info").textContent = "Son " + Result.length + " registros";
+            $cargando.html("");
+        });
+    }
+    function cancelar(e) {//Cierra la ventana modal.
+        e.preventDefault();
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+
+    function cancelar() {//Cierra la ventana modal.
+        $(".ui-dialog-titlebar-close").trigger('click');
+    }
+</script>

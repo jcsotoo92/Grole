@@ -1,0 +1,84 @@
+﻿@model List<grole.src.Entidades.Granja>
+<h2>Descortar Canales</h2>
+<div>
+    <form action="/CortarCanales/CortarCanal" method="get">
+
+        <table>
+            <tr>
+
+                <td>Granja</td>
+                <td>
+                    <select name="Granja" id="Granja">
+                        @foreach (var item in Model)
+                        {
+                            <option value="@item.Clave">@item.Nombre</option>
+                        
+                        }
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>Fecha</td>
+                <td><input type="text" name="Fecha" id="Fecha" /></td>
+            </tr>
+            <tr>
+
+                <td>Lote</td>
+                <td><input type="text" name="Lote" id="Lote" /></td>
+            </tr>
+            <tr>
+                <td>Canal</td>
+                <td><input type="text" name="Canal" id="Canal" /></td>
+            </tr>
+            <tr>
+
+                <td></td>
+                <td><input type="button" name="edtSubmit" value="Descortar" onclick="CortarCanal();" /></td>
+            </tr>
+        </table>
+
+    </form>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            //llena_lista_canales(document.getElementById("Granja"));
+
+            $.datepicker.setDefaults($.datepicker.regional['es']);
+            $("#Fecha").datepicker({ changeMonth: true, changeYear: true });
+			$("#Lote").bind('keyup blur', function() {
+				if (this.value.match(/[^0-9]/g)) {
+					this.value = this.value.replace(/[^0-9]/g, '');
+				}
+			});
+        });
+
+        function CortarCanal() {
+
+            if (confirm("¿Descortar el canal?")) {
+                var pLote   = document.getElementById("Lote").value;
+                var pCanal  = document.getElementById("Canal").value;
+                var pGranja = document.getElementById("Granja").value;
+                var pFecha  = document.getElementById("Fecha").value;
+
+                var pDatos = "AGranja=" + pGranja.toString() + "&AFecha=" + pFecha.toString() + "&ALote=" + pLote.toString() + "&ACanal=" + pCanal.toString();
+
+                $.getJSON("/Canales/DescortarCanal", pDatos, function (Result) {
+                    
+                    if (Result) {
+                        alert("Canal cortado con exito");
+                        document.getElementById("Canal").value = "";
+                        document.getElementById("Canal").focus();
+                    }
+                    else {
+                        alert("Canal no encontrado");
+                        document.getElementById("Granja").focus();
+                    }
+                });
+            }
+        }
+
+    </script>
+
+</div>

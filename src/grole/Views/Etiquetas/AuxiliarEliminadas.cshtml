@@ -1,0 +1,145 @@
+﻿@model List<grole.src.Entidades.Producto>
+<h2>Auxiliar de cajas eliminadas</h2>
+
+<form action="/etiquetas/obtenertablaauxiliareliminadas" method="get" id="formaAuxiliarEliminadas">
+    <label for="inpClaveProd">Producto: </label>
+    <input type="text" id="inpClaveProd" name="Producto" onkeyup="buscarProducto();">
+    <select name="" id="listaProductos" onchange="cambiarOpcionCombo();">
+        <option value="-1">Todos</option>
+        @foreach(var item in Model)
+        {
+            <option value="@item.Clave">@item.Descripcion</option>
+
+        }
+    </select>
+    <label for="inpFechaIni">Fecha Inicial: </label>
+    <input type="text" value="" id="inpFechaIni" class="datepicker" name="FechaIni" />
+    <label for="inpFechaFin">Fecha Final: </label>
+    <input type="text" value="" id="inpFechaFin" class="datepicker" name="FechaFin" />
+    <input type="submit" value="Consultar" onclick="obtenerTablaAuxiliarEliminadas(event)" />
+</form>
+
+<div id="cargando"></div>
+<div id="tablaAuxiliarEliminadas" style="display:none">
+    <a href="#">Excel</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Tara anterior</th>
+                <th>Tara nueva</th>
+                <th>Usuario</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaAuxiliarEliminadas"></tbody>
+    </table>
+    <div class="dataTables_info" id="TablaAuxiliarEliminadas_info"></div>
+</div>
+
+<script>
+    $(document).ready(
+        function () {
+            $(".datepicker").datepicker('setDate', new Date());
+            $("#inpClaveProd").numeric(
+				{
+				    negative: false,
+				    decimal: false
+				});
+            document.getElementById("inpClaveProd").focus();
+        }
+        );
+
+    function obtenerTablaAuxiliarEliminadas(e) {
+        e.preventDefault();
+
+        var pProducto = document.getElementById("inpClaveProd");//Validaciones de vacíos
+        var pFechaIni = document.getElementById("inpFechaIni");
+        var pFechaFin = document.getElementById("inpFechaFin");
+
+        if (pProducto.value.length == 0) {
+            window.alert("Debe introducir un producto");
+            pProducto.focus();
+            return;
+        }
+        if (pFechaIni.value.length == 0) {
+            window.alert("Debe introducir la fecha inicial");
+            pFechaIni.focus();
+            return;
+        }
+        if (pFechaFin.value.length == 0) {
+            window.alert("Debe introducir la fecha final");
+            pFechaFin.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaIni.value)) {
+            window.alert("Fecha inicial no válida");
+            pFechaIni.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaFin.value)) {
+            window.alert("Fecha final no válida");
+            pFechaFin.focus();
+            return;
+        }
+
+        limpiarTabla("cuerpoTablaAuxiliarEliminadas",null);
+
+        var pUrl  = "/etiquetas/obtenertablaauxiliareliminadas";
+        var pData = $("#formaAuxiliarEliminadas").serialize();
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        $.get(pUrl, pData, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+                var pAuxiliarEliminadas = Result[i];
+
+                var pFila             = document.createElement("tr");
+                var pCeldaFecha       = document.createElement("td");
+                var pCeldaClave       = document.createElement("td");
+                var pCeldaDescripcion = document.createElement("td");
+                var pCeldaCajasRe     = document.createElement("td");
+                var pCeldaKiloRe      = document.createElement("td");
+                var pCeldaCajasEl     = document.createElement("td");
+                var pCeldaKilosEl     = document.createElement("td");
+
+                pCeldaFecha.textContent        = $.datepicker.formatDate('dd/mm/yy', new Date(pAuxiliarEliminadas.Fecha));
+                pCeldaClave.textContent        = pAuxiliarEliminadas.Producto;
+                pCeldaDescripcion.textContent  = pAuxiliarEliminadas.Descripcion;
+                pCeldaCajasRe.textContent      = pAuxiliarEliminadas.Reetiquetadas_Cajas;
+                pCeldaKilosRe.textContent      = pAuxiliarEliminadas.Reetiquetadas_Kilos;
+                pCeldaCajasEl.textContent      = pAuxiliarEliminadas.Eliminadas_Cajas;
+                pCeldaKilosEl.textContent      = pAuxiliarEliminadas.Eliminadas_Kilos;
+
+                pFila.appendChild(pCeldaFecha);
+                pFila.appendChild(pCeldaClave);
+                pFila.appendChild(pCeldaDescripcion);
+                pFila.appendChild(pCeldaCajasRe);
+                pFila.appendChild(pCeldaKilosRe);
+                pFila.appendChild(pCeldaCajasEl);
+                pFila.appendChild(pCeldaKilosEl);
+
+                document.getElementById("cuerpoTablaAuxiliarEliminadas").appendChild(pFila);
+
+            }
+
+            document.getElementById("TablaAuxiliarEliminadas_info").textContent = "Son " + Result.length + " registros";
+            $cargando.html("");
+
+            document.getElementById("tablaAuxiliarEliminadas").style.display = "block";
+         });
+
+    }
+
+    function buscarProducto() {//Actualiza el valor de la lista desplegable de productos en base al id introducido en el input
+        document.getElementById("listaProductos").value = document.getElementById("inpClaveProd").value;
+    }
+
+    function cambiarOpcionCombo() {//Actualiza el valor del input de productos al seleccionar otra opcion en la lista desplegable
+        document.getElementById("inpClaveProd").value = document.getElementById("listaProductos").value;
+    }
+
+
+
+
+</script>
+

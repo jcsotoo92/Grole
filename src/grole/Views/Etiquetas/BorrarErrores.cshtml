@@ -1,0 +1,109 @@
+﻿<h2>Borrar Errores</h2>
+    <form action="/CortarCanales/CortarCanal" method="get">
+
+        <table>
+            <tr>
+                <td>Folio</td>
+                <td><input type="text" name="Folio" id="Folio" /></td>
+            </tr>
+            <tr>
+                <td>Fecha</td>
+                <td><input type="text" name="Fecha" id="Fecha" /></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><input type="button" name="btnInfo" value="Información" onclick="get_info_etiqueta();" /></td>
+            </tr>
+        </table>
+
+        <br />
+
+        <div id="info" name="info">
+            <table>
+                <tr>
+                    <td>Producto: </td>
+                    <td><label value="Producto" name="producto" id="producto" /></td>
+                </tr>
+                <tr>
+                    <td>Código: </td>
+                    <td><label value="Código" name="codigo" id="codigo" /></td>
+                </tr>
+                <tr>
+                    <td>Motivo</td>
+                    <td><input type="text" name="motivo" id="motivo" /></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="button" size="100" name="edtSubmit" value="Eliminar" onclick="borrar_error();" /></td>
+                </tr>
+            </table>
+        </div>
+
+    </form>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $.datepicker.setDefaults($.datepicker.regional['es']);
+            $("#Fecha").datepicker({ changeMonth: true, changeYear: true });
+			$("#info").hide();
+			$("#Folio").focus();
+        });
+
+        function get_info_etiqueta() {
+
+                var pFolio     = document.getElementById("Folio").value;
+                var pFecha     = document.getElementById("Fecha").value;
+
+                pUrl = "/Etiquetas/InfoCaja";
+                pData = "AFolio=" + pFolio.toString() + "&AFecha=" + pFecha.toString();
+
+                $.get(pUrl, pData, function (data) {
+
+                    if (data.producto != "-1") {
+                        document.getElementById("producto").innerText = data.Producto;
+                        document.getElementById("codigo").innerText = data.CodigoBarras;
+                        $("#info").show();
+                        $("#motivo").focus();
+                    }
+                    else {
+                        $("#Folio").focus();
+                        alert("No existe etiqueta");
+                    }
+                });
+                   
+            }
+
+			function borrar_error() {
+
+				var pMotivo = document.getElementById("motivo").value.toString();
+				var pFolio  = document.getElementById("Folio").value;
+                var pFecha  = document.getElementById("Fecha").value;
+
+				if (pMotivo.length == 0)
+				{
+					alert("Capture motivo");
+					$("#motivo").focus();
+					exit;
+				}
+
+				if (confirm("¿Borrar etiqueta?")) {
+
+					var pCodigo = document.getElementById("codigo").innerText;
+
+					pUrl = "/Etiquetas/BorrarError";
+                    pData = "AFolio=" + pFolio + "&AFecha=" + pFecha +"&AMotivo=" + pMotivo;
+                    $.get(pUrl, pData, function (data) {
+							alert(data.Mensaje1+":"+data.Mensaje2);
+							
+								$("#info").hide();
+								$("#Folio").focus();
+								document.getElementById("motivo").value    = "";
+							
+							
+					});
+				}
+
+            }
+
+    </script>

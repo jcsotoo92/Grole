@@ -1,0 +1,110 @@
+﻿<h2>Información De Tarimas Ordenes de Producción</h2>
+
+<form method="get" id="formaInformacionTarimaOrdenP">
+    <label for="inpFolio">Folio de Tarima: </label>
+    <input type="number" value="" id="inpFolio" name="IdTarima" />
+    <input type="submit" value="Consultar" onclick="consultar(event)" />
+</form>
+
+<div id="cargando"></div>
+<div id="tablaInformacionTarimaOrdenP" style="display:none">
+    <a href="#">Excel</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Orden</th>
+                <th>Salida</th>
+                <th>Producto</th>
+                <th>Código Barras</th>
+                <th>Peso</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTablaInformacionTarimaOrdenP"></tbody>
+        <tfoot id="footerTablaInformacionTarimaOrdenP"></tfoot>
+    </table>
+    <div class="dataTables_info" id="InformacionTarimaOrdenP_info"></div>
+</div>
+
+<script>
+    $(document).ready(
+        function () {
+            $("#inpFolio").numeric(
+				{
+				    negative: false,
+				    decimal: false
+				});
+            document.getElementById("inpFolio").focus();
+        }
+    );
+
+    function consultar(e) {
+        e.preventDefault();
+
+        var pInpFolio = document.getElementById("inpFolio");
+
+        if (pInpFolio.value.length == 0)
+        {
+            window.alert("Debe introducir un folio");
+            pInpFolio.focus();
+            return;
+        }
+
+        limpiarTabla("cuerpoTablaInformacionTarimaOrdenP","footerTablaInformacionTarimaOrdenP");//Limpia la tabla para evitar que se inserte una tabla debajo cada que se consulte
+
+        var pUrl  = "/ordenesproduccion/obtenertablainformaciontarimaordenp";
+        var pData = $("#formaInformacionTarimaOrdenP").serialize();
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        $.get(pUrl, pData, function (Result) {
+            var pTotalPeso = 0;
+
+            for (var i = 0; i < Result.length; i++) {
+                var pInformacionTarimaOrdenP = Result[i];
+
+                var pFila              = document.createElement("tr");
+                var pCeldaOrden        = document.createElement("td");
+                var pCeldaSalida       = document.createElement("td");
+                var pCeldaProducto     = document.createElement("td");
+                var pCeldaCodigoBarras = document.createElement("td");
+                var pCeldaPeso         = document.createElement("td");
+
+                pCeldaOrden.textContent        = pInformacionTarimaOrdenP.Id_Orden;
+                pCeldaSalida.textContent       = pInformacionTarimaOrdenP.Id_Salida_Embarques;
+                pCeldaProducto.textContent     = pInformacionTarimaOrdenP.Producto;
+                pCeldaCodigoBarras.textContent = pInformacionTarimaOrdenP.CodigoBarras;
+                pCeldaPeso.textContent         = Number(pInformacionTarimaOrdenP.Peso).toFixed(2);
+
+                pTotalPeso += pInformacionTarimaOrdenP.Peso;
+
+                pFila.appendChild(pCeldaOrden);
+                pFila.appendChild(pCeldaSalida);
+                pFila.appendChild(pCeldaProducto);
+                pFila.appendChild(pCeldaCodigoBarras);
+                pFila.appendChild(pCeldaPeso);
+
+                document.getElementById("cuerpoTablaInformacionTarimaOrdenP").appendChild(pFila);
+
+            }
+
+            var pFilaTotal      = document.createElement("tr");
+            var pCeldaTotalPeso = document.createElement("td");
+
+            pFilaTotal.appendChild(document.createElement("td"));
+            pFilaTotal.appendChild(document.createElement("td"));
+            pFilaTotal.appendChild(document.createElement("td"));
+            pFilaTotal.appendChild(document.createElement("td"));
+            pFilaTotal.appendChild(pCeldaTotalPeso);
+
+            pCeldaTotalPeso.textContent = Number(pTotalPeso).toFixed(2);
+
+            document.getElementById("cuerpoTablaInformacionTarimaOrdenP").appendChild(pFilaTotal)
+
+            document.getElementById("InformacionTarimaOrdenP_info").textContent = "Son " + Result.length + " registros";
+            $cargando.html("");
+
+            document.getElementById("tablaInformacionTarimaOrdenP").style.display = "block";
+        });
+
+    }
+</script>

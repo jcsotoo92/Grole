@@ -1,0 +1,63 @@
+﻿@model List<grole.src.Entidades.Granja>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <link href="~/public/styles/jquery.mobile-1.4.2.css" rel="stylesheet" type="text/css" />
+    <script src="~/public/scripts/jquery-1.8.2.min.js"></script>
+    <script src="~/public/scripts/jquery.mobile-1.4.2.js"></script>
+    <title>Control de Rastro Grole Mobile</title>
+</head>
+<body>
+    <section id="firstPage" data-role="page">
+        <header data-role="header">
+            <a href="/menu" rel="external" data-role="button">Menu</a>
+            <h1>Canales Fríos</h1>
+        </header>
+        <div data-role="content">
+            <form action="/canales_frios" method="POST">
+                <fieldset>
+                    <leyend>Parámetros</leyend>
+                    <div data-role="fieldcontain">
+                        <label for="fechaInicial">Fecha Inicial:</label>
+                        <input type="date" id="fechaInicial" name="fechaInicial" value="">
+                    </div>
+                    <div data-role="fieldcontain">
+                        <label for="fechaFinal">Fecha Final:</label>
+                        <input type="date" id="fechaFinal" name="fechaFinal" value="">
+                    </div>
+                    <div data-role="fieldcontain">
+                        <label for="inpGranja">Granja:</label>
+                        <select id="inpGranja" name="granja" value="0">
+                            <option value="0">Todas</option>
+                            @foreach (var item in Model)
+                            {
+                                <option value="@item.Clave>">@item.Nombre</option>
+                            }
+                        </select>
+                    </div>
+                    <div data-role="fieldcontain">
+                        <label for="inpLote">Lote:</label>
+                        <input type="number" id="inpLote" name="lote" value="0">
+                    </div>
+                    <div>
+                        <input type="submit" value="Consultar" />
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </section>
+</body>
+</html>
+<script>
+    //Fecha
+    var d = new Date();
+    var dia = d.getDate();
+    var mes = d.getMonth();
+    var año = d.getFullYear();
+
+    var fecha = año + "/" + (mes + 1) + "/" + mes;
+    document.getElementById("fechaInicial").value = fecha;
+    document.getElementById("fechaFinal").value = fecha;
+</script>

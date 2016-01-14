@@ -1,0 +1,45 @@
+@model grole.src.Entidades.Empresa
+<h2>Configuraciones</h2>
+
+<form action="/configuraciones/cambiarconfiguraciones" method="post">
+    <div>
+        Cambiar orden cajas a cajas embarcadas
+    </div>
+    <div>
+        @if(Model.CambiarOrdenCajasEmbarcadas.Equals("Si"))
+        {
+        <select name="CambiarOrdenCajasEmbarcadas">
+            <option value="Si" selected="selected">Si</option>
+            <option value="No">No</option>
+        </select>
+        }else
+        {
+        <select name="CambiarOrdenCajasEmbarcadas">
+            <option value="Si">Si</option>
+            <option value="No" selected="selected">No</option>
+        </select>
+        }
+
+    </div>
+    <div>
+        Restringir facturación
+    </div>
+    <div>
+        @if(Model.RestringirFacturacion.Equals("Si"))
+        {
+        <select name="RestringirFacturacion">
+            <option value="Si" selected="selected">Si</option>
+            <option value="No">No</option>
+        </select>
+        }else
+        {
+        <select name="RestringirFacturacion">
+            <option value="Si">Si</option>
+            <option value="No" selected="selected">No</option>
+        </select>
+        }
+
+    </div>
+    <input type="submit" value="Aceptar" />
+</form>
+

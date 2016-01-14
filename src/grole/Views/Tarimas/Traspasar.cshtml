@@ -1,0 +1,46 @@
+﻿@model  List<grole.src.Entidades.Camara>
+<h2>Traspasar Tarima</h2>
+
+<form>
+    <label for="Folio">Folio: </label>
+    <label id="Folio">@Context.Request.Query["Folio"]</label>
+    <label for="Camara">Cámara: </label>
+    <label id="Camara"></label>
+    <label for="Ubicacion">Ubicación: </label>
+    <label id="Ubicacion">@Context.Request.Query["Ubicacion"]</label>
+    <label for="selectCamaras">Cámara Destino: </label>
+    <select id="selectCamaras">
+        @foreach(var item in Model)
+        {
+            <option value="@item.Clave">@item.Descripcion</option>
+
+        }
+    </select>
+    <label for="inpUbicacionDestino">Ubicación Destino: </label>
+    <input type="text" value="@Context.Request.Query["Ubicacion"]" id="inpUbicacionDestino"/>
+    <input type="submit" value="Traspasar" onclick="traspasar(event)"/>
+</form>
+
+<script>
+    $(document).ready(
+        function () {
+            var pUrl = "/camaras/obtenercamara";
+            var pData = "Camara=" + @Context.Request.Query["Camara"];
+
+            $.get(pUrl, pData, function(Result){
+                document.getElementById("Camara").textContent = Result.Descripcion;
+            });
+        }
+    );
+
+    function traspasar(e){
+        e.preventDefault();
+
+        var pUrl = "/tarimas/traspasartarima";
+        var pData = "Camara="+document.getElementById("selectCamaras").value+"&Folio="+document.getElementById("Folio").textContent+"&Ubicacion="+document.getElementById("inpUbicacionDestino").value;
+        
+        $.post(pUrl, pData, function(){
+            window.location.replace("/tarimas/listadotarimas");
+        });
+    }
+</script>

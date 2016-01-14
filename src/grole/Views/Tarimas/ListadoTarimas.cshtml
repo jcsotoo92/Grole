@@ -1,0 +1,110 @@
+﻿<h2>Movimientos Tarima</h2>
+<form id="formaMovimientosTarimas">
+    <label for="inpFecha">Fecha: </label>
+    <input type="text" value="" id="inpFecha" class="datepicker" name="Fecha"/>
+    <label for="inpLote">Lote: </label>
+    <input type="text" value="" id="inpLote" name="Lote"/>
+    <input type="submit" value="Consultar" onclick="consultar(event)"/>
+</form>
+
+<div id="divTabla" style="display:none">
+    <a href="#">Excel</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Folio</th>
+                <th>Fecha</th>
+                <th>Cajas</th>
+                <th>Kilos</th>
+                <th>Lote</th>
+                <th>Cámara</th>
+                <th>Ubicación</th>
+                <th>Traspasar</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla"></tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(
+        function () {
+            $(".datepicker").datepicker('setDate', new Date());
+            $("#inpLote").val("1");
+            $("#inpLote").numeric(
+				{
+				    negative: false
+		    });
+        }
+    );
+
+    function consultar(e) {
+        e.preventDefault();
+        
+        var pFecha = document.getElementById("inpFecha");
+
+        if (pFecha.value.length == 0) {
+            window.alert("Debe introducir una fecha");
+            $("#inpFecha").focus();
+            return;
+        }
+
+        if (!validarFormatoFecha(pFecha.value)) {
+            window.alert("Fecha no válida");
+            $("#inpFecha").focus();
+            return;
+        }
+
+        var pUrl = "/tarimas/obtenerlistadotablatarimas";
+        var pData = $("#formaMovimientosTarimas").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+                var pTarima = Result[i];
+
+                var pFila            = document.createElement("tr");
+                var pCeldaFolio      = document.createElement("td");
+                var pCeldaFecha      = document.createElement("td");
+                var pCeldaCajas      = document.createElement("td");
+                var pCeldaKilos      = document.createElement("td");
+                var pCeldaLote       = document.createElement("td");
+                var pCeldaCamara     = document.createElement("td");
+                var pCeldaUbicacion  = document.createElement("td");
+                var pCeldaTraspasar  = document.createElement("td");
+                var pEnlaceCajas     = document.createElement("a");
+                var pEnlaceTraspasar = document.createElement("a");
+
+                pCeldaFolio.textContent = zeroPad(pTarima.Folio, 6);
+
+                var fecha = new Date(pTarima.Fecha);
+                fecha.setDate(fecha.getDate() + 1);
+
+                pCeldaFecha.textContent      = $.datepicker.formatDate('dd/mm/yy', fecha);
+                pEnlaceCajas.textContent     = pTarima.Cajas;
+                pCeldaKilos.textContent      = Number(pTarima.Kilos).toFixed(2);
+                pCeldaLote.textContent       = zeroPad(pTarima.Lote, 3);
+                pCeldaCamara.textContent     = pTarima.Contenedor;
+                pCeldaUbicacion.textContent  = pTarima.Ubicacion;
+                pEnlaceTraspasar.textContent = "Traspasar";
+
+                pEnlaceCajas.href     = "/tarimas/cajastarima?foliotarima=" + zeroPad(pTarima.Folio, 6) + "&Camara=" + pTarima.Contenedor;
+                pEnlaceTraspasar.href = "/tarimas/traspasar?Folio=" + zeroPad(pTarima.Folio, 6) + "&Camara=" + pTarima.Contenedor + "&Ubicacion=" + pTarima.Ubicacion;
+
+                pCeldaCajas.appendChild(pEnlaceCajas);
+                pCeldaTraspasar.appendChild(pEnlaceTraspasar);
+                pFila.appendChild(pCeldaFolio);
+                pFila.appendChild(pCeldaFecha);
+                pFila.appendChild(pCeldaCajas);
+                pFila.appendChild(pCeldaKilos);
+                pFila.appendChild(pCeldaLote);
+                pFila.appendChild(pCeldaCamara);
+                pFila.appendChild(pCeldaUbicacion);
+                pFila.appendChild(pCeldaTraspasar);
+
+                document.getElementById("cuerpoTabla").appendChild(pFila);
+            }
+            $("#divTabla").show();
+        });
+
+    }
+</script>

@@ -1,0 +1,89 @@
+﻿<h2>Consulta de uso de empaque</h2>
+
+<form id="formaUsoEmpaque">
+    <label for="inpFechaIni">Fecha Inicial</label>
+    <input type="text" value="" id="inpFechaIni" class="datepicker" name="FechaIni" />
+    <label for="inpFechaFin">Fecha Final</label>
+    <input type="text" value="" id="inpFechaFin" class="datepicker" name="FechaFin"/>
+    <input type="submit" value="Consultar"  onclick="consultar(event)"/>
+</form>
+
+<div id="cargando"></div>
+<div id="tablaUsoEmpaque" style="display:none">
+    <a href="#">Excel</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Empaque</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody id="cuerpoTabla"></tbody>
+    </table>
+</div>
+<script>
+    $(document).ready(function () {
+        $(".datepicker").datepicker('setDate', new Date());
+    });
+
+    function consultar(e) {
+        e.preventDefault();
+
+        //Validaciones de vacíos
+        var pFechaIni = document.getElementById("inpFechaIni");
+        var pFechaFin = document.getElementById("inpFechaFin");
+
+        if (pFechaIni.value.length == 0) {
+            window.alert("Debe introducir la fecha inicial");
+            pFechaIni.focus();
+            return;
+        }
+        if (pFechaFin.value.length == 0) {
+            window.alert("Debe introducir la fecha final");
+            pFechaFin.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaIni.value)) {
+            window.alert("Fecha inicial no válida");
+            pFechaIni.focus();
+            return;
+        }
+        if (!validarFormatoFecha(pFechaFin.value)) {
+            window.alert("Fecha final no válida");
+            pFechaFin.focus();
+            return;
+        }
+
+        limpiarTabla("cuerpoTabla", null);
+
+        var $cargando = $('div#cargando').html('<p><img src="/public/images/Cargando.gif" /></p>');
+
+        var pUrl  = "/producto/obtenertablausoempaque";
+        var pData = $("#formaUsoEmpaque").serialize();
+
+        $.get(pUrl, pData, function (Result) {
+            for (var i = 0; i < Result.length; i++) {
+                var item = Result[i];
+
+                var pFila           = document.createElement("tr");
+                var pCeldaEmpaque   = document.createElement("td");
+                var pCeldaCantidad  = document.createElement("td");
+                var pEnlaceCantidad = document.createElement("a");
+
+                pCeldaEmpaque.textContent   = item.Nombre;
+                pEnlaceCantidad.textContent = Number(item.Cantidad_Producto).toFixed(2);
+
+                pEnlaceCantidad.href = "/producto/detalleusoempaque?Empaque=" + item.Rempaque + "&Fechaini=" + pFechaIni.value + "&Fechafin=" + pFechaFin.value;
+                
+                pCeldaCantidad.appendChild(pEnlaceCantidad);
+                pFila.appendChild(pCeldaEmpaque);
+                pFila.appendChild(pCeldaCantidad);
+
+                document.getElementById("cuerpoTabla").appendChild(pFila);
+            }
+
+            $cargando.html("");
+            document.getElementById("tablaUsoEmpaque").style.display = "block";
+        });
+    }
+</script>

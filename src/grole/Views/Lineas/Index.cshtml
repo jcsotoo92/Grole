@@ -1,0 +1,216 @@
+@model List<grole.src.Entidades.Linea>
+
+<h2>Lineas</h2>
+<div>
+	<a href="javascript:capturarLinea();">Nueva Linea</a>
+</div>
+<table id="tableLineas">
+	<thead>
+		<tr>
+			<th>Clave</th>
+			<th>Descripción</th>
+			<th></th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody id="bodyLineas">
+		@foreach (var item in Model)
+		{
+			<tr id="tr@(item.Clave)">
+				<td id="tdClave@(item.Clave)">@item.Clave</td>
+				<td id="tdDes@(item.Clave)">@item.Descripcion</td>
+				<td><a href="javascript:capturarLineaModificar(@(item.Clave));">Modificar</a></td>
+				<td><a href="javascript:eliminarLinea(@(item.Clave));">Eliminar</a></td>
+			</tr>	
+		}
+			
+	</tbody>
+</table>	
+	
+<form id="FormaLinea" style="display:none;">
+	<div>
+		Clave:
+	</div>
+	<div>
+		<input name="Clave" type="text" id="inpClave">
+	</div>
+		<input type="hidden" id="inpC">
+	<div>
+		Descripción: 
+	</div>
+	<div>
+		<input name="Descripcion" id="inpDescripcion" value="" maxlength="45">
+	</div>
+	<div>
+		<button id="btnModificar" onclick="modificarLinea(event);" style="display:none">Modificar</button>
+		<button id="btnGuardar" onclick="insertarLinea(event);">Insertar</button>&nbsp;&nbsp;<button id="btnCancelar" onclick="cancelarCaptura(event);">Cancelar</button>
+	</div>
+</form>
+	
+
+<script>
+	
+	function capturarLinea(){//Abre ventana modal para insertar linea 
+		
+		document.getElementById("btnModificar").style.display = "none";
+		document.getElementById("btnGuardar").style.display   = "inline-block";
+		$("#dialog:ui-dialog").dialog("destroy");
+		$("#FormaLinea").dialog({
+				title: "Nueva Linea",
+                height: 600,
+                width: 500,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpClave").focus();
+					document.getElementById("inpDescripcion").value = "";
+					document.getElementById("inpClave").value       = "";
+                }
+            });
+	}
+	
+	function capturarLineaModificar(clave){//Abre ventana modal para modificar linea
+		document.getElementById("btnModificar").style.display = "inline-block";
+		document.getElementById("btnGuardar").style.display   = "none";
+		$("#dialog:ui-dialog").dialog("destroy");
+		$("#FormaLinea").dialog({
+				title: "Modificar Linea",
+                height: 600,
+                width: 500,
+                modal: true,
+                open: function (event, ui) {
+                    document.getElementById("inpClave").focus();
+					document.getElementById("inpDescripcion").value = document.getElementById("tdDes"+clave).textContent;
+					document.getElementById("inpClave").value       = clave;
+					document.getElementById("inpC").value           = clave;
+                }
+            });
+	}
+	
+	function cancelarCaptura(){//Cierra ventana modal
+		$(".ui-dialog-titlebar-close").trigger('click');
+	} 
+	
+	function modificarLinea(e) {//Hace el post para modificar una linea en la base de datos
+	    e.preventDefault();
+
+		var pClave       = document.getElementById("inpClave").value;
+		var pClaveMod    = document.getElementById("inpC").value;
+		var pDescripcion = document.getElementById("inpDescripcion").value;
+		
+		if (pDescripcion.trim().length == 0){
+			window.alert("La descripción no puede estar en blanco");
+			document.getElementById("inpDescripcion").focus();
+			return;
+		}
+		
+		var pData = "Clave=" + pClave + "&Descripcion=" + pDescripcion + "-" +pClaveMod;
+		var pUrl = "/lineas/modificar";
+		
+		$.post(pUrl, pData, function(Result)
+		{
+		    if (Result == null) {
+		        window.alert("Ya existe una linea con la misma descripción");
+		        document.getElementById("inpDescripcion").focus();
+		    } else if (Result.Clave == -1) {
+		        window.alert("Ya existe una linea con la misma clave");
+		        document.getElementById("inpClave").focus();
+		    } else {
+		        $(".ui-dialog-titlebar-close").trigger('click');
+		        insertarLineaEnTabla(Result, true);
+		    }
+		});
+	}
+	
+	function insertarLinea(e) {//Hace el post para insertar una línea en la base de datos
+	    e.preventDefault();
+
+		var pClave  = document.getElementById("inpClave").value;
+		var pDescripcion = document.getElementById("inpDescripcion").value;
+		
+		if (pClave.trim().length == 0){
+			window.alert("La clave no puede estar en blanco");
+			document.getElementById("inpClave").focus();
+			return;
+		}
+		
+		if (pDescripcion.trim().length == 0){
+			window.alert("La descripción no puede estar en blanco");
+			document.getElementById("inpDescripcion").focus();
+			return;
+		}
+		
+		var pData = "Clave=" + pClave + "&Descripcion=" + pDescripcion;
+		var pUrl = "/lineas/insertar";
+		
+		$.post(pUrl, pData, function (Result) {
+		    if (Result == null) {
+		        window.alert("Ya existe una linea con la misma descripción");
+		        document.getElementById("inpDescripcion").focus();
+		    } else if (Result.Clave == -1) {
+		        window.alert("Ya existe una linea con la misma clave");
+		        document.getElementById("inpClave").focus();
+		    } else {
+		        $(".ui-dialog-titlebar-close").trigger('click');
+		        insertarLineaEnTabla(Result, false);
+		    }
+		});
+	}
+	
+	function insertarLineaEnTabla(ALinea,modificar){//Inserta una linea en la tabla o actualiza los campos dependiendo si es modificación o inserción
+	    if(!modificar){
+	        var pFila             = document.createElement("tr");
+	        var pCeldaClave       = document.createElement("td");
+	        var pCeldaDescripcion = document.createElement("td");
+	        var pCeldaEliminar    = document.createElement("td");
+	        var pAnchorEliminar   = document.createElement("a");
+	        var pCeldaModificar   = document.createElement("td");
+	        var pAnchorModificar  = document.createElement("a");
+
+	        pFila.id             = "tr" + ALinea.Clave.toString();
+	        pCeldaClave.id       = "tdClave" + ALinea.Clave;
+	        pCeldaDescripcion.id = "tdDes" + ALinea.Clave;
+
+	        pCeldaClave.textContent       = ALinea.Clave;
+	        pCeldaDescripcion.textContent = ALinea.Descripcion;
+	        pAnchorEliminar.textContent   = "Eliminar";
+	        pAnchorModificar.textContent  = "Modificar";
+	        
+	        pAnchorEliminar.href  = "javascript:eliminarLinea(" + ALinea.Clave.toString() +");";
+	        pAnchorModificar.href = "javascript:capturarLineaModificar(" + ALinea.Clave.toString() + ");";
+
+	        pCeldaEliminar.appendChild(pAnchorEliminar);
+	        pCeldaModificar.appendChild(pAnchorModificar);
+	        pFila.appendChild(pCeldaClave);
+	        pFila.appendChild(pCeldaDescripcion);
+	        pFila.appendChild(pCeldaModificar);
+	        pFila.appendChild(pCeldaEliminar);
+		
+	        document.getElementById("bodyLineas").insertBefore(pFila, document.getElementById("bodyLineas").firstChild);
+	    }else{
+			document.getElementById("tdClave"+ALinea.Clave).textContent=ALinea.Clave;
+			document.getElementById("tdDes"+ALinea.Clave).textContent=ALinea.Descripcion;
+		}
+	}
+	
+	function eliminarLinea(AClave){//Hace el post para eliminar una linea de la base de datos
+		if (!window.confirm("¿Eliminar Línea?")){
+			return;
+		}
+		
+		var pUrl = "/lineas/eliminar";
+		var pData = "Clave=" + AClave.toString();
+		
+		$.post(pUrl, pData, function(Result)
+			{
+				if (Result.Result == true)
+				{
+					window.alert("Linea eliminada con éxito");
+					document.getElementById("tr" + AClave.toString()).remove();
+				}	
+				else{
+					window.alert(Result.Mensaje);
+				}
+			});
+	}
+	
+</script>
