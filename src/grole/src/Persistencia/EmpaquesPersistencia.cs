@@ -279,7 +279,7 @@ namespace grole.src.Persistencia
             return pResult;
         }
 
-        private TipoEmpaque ObtenerTipoEmpaque(int AClave)
+        public TipoEmpaque ObtenerTipoEmpaque(int AClave)
         {
             TipoEmpaque pTipoEmpaque = null;
 

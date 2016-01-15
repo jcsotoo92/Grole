@@ -7,6 +7,7 @@ using grole.src.Logica;
 using grole.src.Entidades;
 using System.IO;
 using Microsoft.Dnx.Runtime;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace grole.Controllers
 {
@@ -15,7 +16,7 @@ namespace grole.Controllers
     {
         private EmpaquesLogica _EmpaquesLogica;
         private ProductosLogica _ProductosLogica;
-        private readonly IApplicationEnvironment _appEnvironment;
+        //private readonly IApplicationEnvironment _appEnvironment;
         public EmpaquesController(EmpaquesLogica _EmpaquesLogica, ProductosLogica _ProductosLogica)
         {
             this._EmpaquesLogica  = _EmpaquesLogica;
@@ -25,11 +26,13 @@ namespace grole.Controllers
         public ActionResult Index()
         {
             string pHora = DateTime.Now.ToString("hhmmss");
-            Console.WriteLine(HttpContext.Request.PathBase+"aaaa");
-            string pRutaArchivo = Path.Combine("", "public\\CatalogoEmpaques_" + User.Identity.Name + "_" + pHora + ".XLSX");
+            Console.WriteLine(PlatformServices.Default.Application.ApplicationBasePath);
+            
+            string pRutaArchivo = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "wwwroot\\public\\CatalogoEmpaques_" + User.Identity.Name + "_" + pHora + ".XLSX");
             ViewBag.RutaExcel = "/Public/CatalogoEmpaques_" + User.Identity.Name + "_" + pHora + ".XLSX";
-            _EmpaquesLogica.ExportarCatalogoEmpaques(_EmpaquesLogica.ObtenerEmpaques("CODIGOSAP"), ViewBag, pRutaArchivo, "EXCEL");
-            return View(_EmpaquesLogica.ObtenerEmpaques("CODIGOSAP"));
+            List<Empaque> listaEmpaques = _EmpaquesLogica.ObtenerEmpaques("CODIGOSAP");
+            _EmpaquesLogica.ExportarCatalogoEmpaques(listaEmpaques, pRutaArchivo);
+            return View(listaEmpaques);
         }
 
 

@@ -155,7 +155,7 @@ namespace grole.src.Logica
             return pResult;
         }
 
-        public bool ExportarCatalogoEmpaques(List<Empaque> ALista, dynamic ACabecera, string ARutaArchivo, string AFormato)
+        public bool ExportarCatalogoEmpaques(List<Empaque> ALista, string ARutaArchivo)
         {
             Workbook workbook = new Workbook();
 
@@ -171,25 +171,10 @@ namespace grole.src.Logica
             styleSubtitulo.Font.Name = "Arial";
             styleSubtitulo.Font.Size = 12;
             styleSubtitulo.Font.IsBold = true;
-
-            cells[0, 0].PutValue(ACabecera.Titulo);
-            cells[1, 0].PutValue(ACabecera.Subtitulo1);
-            cells[2, 0].PutValue(ACabecera.Subtitulo2);
-            cells[3, 0].PutValue(ACabecera.Subtitulo3);
-
-            cells[0, 0].SetStyle(styleCabecera);
-            cells[1, 0].SetStyle(styleSubtitulo);
-            cells[2, 0].SetStyle(styleSubtitulo);
-            cells[3, 0].SetStyle(styleSubtitulo);
-
-            cells.SetRowHeight(0, 20);
-            cells.SetRowHeight(1, 18);
-            cells.SetRowHeight(2, 18);
-            cells.SetRowHeight(3, 18);
-
-            cells["A5"].PutValue("CODIGO SAP");
-            cells["B5"].PutValue("NOMBRE");
-            cells["C5"].PutValue("COSTO");
+            
+            cells["A1"].PutValue("NOMBRE");
+            cells["B1"].PutValue("TIPO");
+            cells["C1"].PutValue("CODIGO SAP");
 
             cells.SetColumnWidth(0, 25);
             cells.SetColumnWidth(1, 25);
@@ -210,24 +195,17 @@ namespace grole.src.Logica
             StyleFlag styleFlag = new StyleFlag();
             styleFlag.All = true;
 
-            for (int col = 0; col <= 9; col++)
+            for (int col = 0; col <= 2; col++)
             {
-                if (col == 6 || col == 7)
-                {
-                    cells[4, col].SetStyle(style);
-                }
-                else
-                {
-                    cells[4, col].SetStyle(styleLeft);
-                }
+                cells[0, col].SetStyle(styleLeft);
             }
 
-            int i = 5;
+            int i = 1;
             foreach (var item in ALista)
             {
-                cells[i, 0].PutValue(item.CodigoSAP);
-                cells[i, 1].PutValue(item.Nombre);
-                cells[i, 2].PutValue(Math.Round(item.Costo, 2));
+                cells[i, 0].PutValue(item.Nombre);
+                cells[i, 1].PutValue(_EmpaquesPersistencia.ObtenerTipoEmpaque(item.IdTipoEmpaque).Nombre);
+                cells[i, 2].PutValue(item.CodigoSAP);
 
                 i++;
             }
